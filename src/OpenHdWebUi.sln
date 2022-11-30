@@ -9,12 +9,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHdWebUi.Client", "OpenH
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHdWebUi.Shared", "OpenHdWebUi\Shared\OpenHdWebUi.Shared.csproj", "{0EEEF711-7CE9-4139-810A-4ECC31E632D6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Release|Any CPU.ActiveCfg = Release|Any CPU
