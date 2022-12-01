@@ -82,6 +82,7 @@ class Build : NukeBuild
                 .SetNoRestore(true)
                 .SetProject(PublishProject)
                 .SetConfiguration(Configuration)
+                .SetSelfContained(true)
                 .CombineWith(Rims, (_, s) => _
                     .SetOutput(PublishPath / s)
                     .SetRuntime(s)));
