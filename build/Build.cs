@@ -20,7 +20,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
     "continuous",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.Ubuntu2204,
     On = new[] { GitHubActionsTrigger.Push },
     InvokedTargets = new[] { nameof(Publish) })]
 class Build : NukeBuild
