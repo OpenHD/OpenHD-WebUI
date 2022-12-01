@@ -20,7 +20,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
     "continuous",
-    GitHubActionsImage.WindowsLatest,
+    GitHubActionsImage.UbuntuLatest,
     On = new[] { GitHubActionsTrigger.Push },
     InvokedTargets = new[] { nameof(Publish) })]
 class Build : NukeBuild
@@ -51,7 +51,14 @@ class Build : NukeBuild
     readonly Solution Solution;
     Project PublishProject => Solution.GetProject("OpenHdWebUi.Server");
 
-    IReadOnlyCollection<string> Rims => PublishProject.GetRuntimeIdentifiers();
+    IReadOnlyCollection<string> Rims;
+
+    protected override void OnBuildInitialized()
+    {
+        Rims = PublishProject.GetRuntimeIdentifiers()
+            .Where(r => !r.StartsWith("win"))
+            .ToList();
+    }
 
     Target Clean => _ => _
         .Before(Restore)
