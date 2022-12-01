@@ -8,6 +8,7 @@ namespace OpenHdWebUi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Host.UseSystemd();
             // Add services to the container.
 
             builder.Services.AddControllersWithViews();

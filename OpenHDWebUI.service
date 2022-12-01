@@ -1,0 +1,13 @@
+[Unit]
+Description=Web UI for OpenHD
+After=NetworkManager.service
+
+[Service]
+User=root
+Type=notify
+ExecStart=/usr/local/share/openhd/web-ui/OpenHdWebUi.Server
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
