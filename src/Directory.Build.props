@@ -1,7 +1,6 @@
 <Project>
  <PropertyGroup>
      <Deterministic>true</Deterministic>
-     <RuntimeIdentifiers>win10-x64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
