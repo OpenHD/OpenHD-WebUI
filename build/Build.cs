@@ -121,9 +121,11 @@ class Build : NukeBuild
                 EnsureExistingDirectory(packSystemDDir);
                 CopyFile(RootDirectory / "OpenHDWebUI.service", packSystemDDir / "OpenHDWebUI.service");
 
-                var controlFileDirectory = debPackDirectory / "DEBIAN";
-                EnsureExistingDirectory(controlFileDirectory);
-                CreateControlFile(RootDirectory / "control.template", controlFileDirectory / "control", CurrentVersion, arc);
+                var debianDirectory = debPackDirectory / "DEBIAN";
+                EnsureExistingDirectory(debianDirectory);
+                CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, arc);
+
+                CopyFile(RootDirectory / "postinst", debianDirectory / "postinst");
             }
         });
 

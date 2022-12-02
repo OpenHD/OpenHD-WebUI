@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+systemctl enable OpenHDWebUI.service
+systemctl start OpenHDWebUI.service
