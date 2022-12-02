@@ -30,7 +30,27 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
+<script>
+    navigator.serviceWorker.register('service-worker.js');
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+        const arrayBuffer = await contentStreamReference.arrayBuffer();
+        const blob = new Blob([arrayBuffer]);
+        const url = URL.createObjectURL(blob);
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+        URL.revokeObjectURL(url);
+    }
+    window.triggerFileDownload = (fileName, url) => {
+        const anchorElement = document.createElement('a');
+        anchorElement.href = url;
+        anchorElement.download = fileName ?? '';
+        anchorElement.click();
+        anchorElement.remove();
+    }
+</script>
 </body>
 
 </html>

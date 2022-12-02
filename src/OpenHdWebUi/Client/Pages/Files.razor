@@ -1,0 +1,48 @@
+﻿@page "/files"
+@using OpenHdWebUi.Shared
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (files == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var fileInfo in files)
+            {
+                <tr>
+                    <td>@fileInfo.FileName</td>
+                    <td><button @onclick="@(e => DownloadFileFromURL(e,fileInfo))">Download</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private ServerFileInfo[]? files;
+
+    protected override async Task OnInitializedAsync()
+    {
+        files = await Http.GetFromJsonAsync<ServerFileInfo[]>("api/Files");
+    }
+
+    private async Task DownloadFileFromURL(MouseEventArgs e, ServerFileInfo fileInfo)
+    {
+        await JS.InvokeVoidAsync("triggerFileDownload", fileInfo.FileName, fileInfo.DownloadPath);
+    }
+}
