@@ -9,8 +9,6 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 # Cloudsmith
 ###########################################################################
 
-sudo apt-get update
-sudo apt-get install -y python python-pip
 pip install --user cloudsmith-cli
 
 ###########################################################################
