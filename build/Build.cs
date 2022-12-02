@@ -21,7 +21,8 @@ using Stubble.Core.Builders;
     On = new[] { GitHubActionsTrigger.Push },
     InvokedTargets = new[] { nameof(Clean), nameof(CloudsmithPublish) },
     AutoGenerate = true,
-    FetchDepth = 0)]
+    FetchDepth = 0,
+    ImportSecrets = new []{ "CLOUDSMITH_API_KEY" })]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
