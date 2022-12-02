@@ -108,7 +108,8 @@ class Build : NukeBuild
             foreach (var rid in Rids)
             {
                 var arc = rid.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[1];
-                var packageFolderName = $"{PackageName}_{CurrentVersion}_{arc}";
+                var linuxArc = ToLinuxArc(arc);
+                var packageFolderName = $"{PackageName}_{CurrentVersion}_{linuxArc}";
                 var debPackDirectory = DebBuildPath / packageFolderName;
                 EnsureExistingDirectory(debPackDirectory);
 
@@ -123,7 +124,7 @@ class Build : NukeBuild
 
                 var debianDirectory = debPackDirectory / "DEBIAN";
                 EnsureExistingDirectory(debianDirectory);
-                CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, arc);
+                CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, linuxArc);
 
                 CopyFile(RootDirectory / "postinst", debianDirectory / "postinst");
 #pragma warning disable CA1416 // Validate platform compatibility
@@ -140,7 +141,8 @@ class Build : NukeBuild
             foreach (var rid in Rids)
             {
                 var arc = rid.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[1];
-                var packageFolderName = $"{PackageName}_{CurrentVersion}_{arc}";
+                var linuxArc = ToLinuxArc(arc);
+                var packageFolderName = $"{PackageName}_{CurrentVersion}_{linuxArc}";
                 DpkgDeb($"-Zxz --root-owner-group --build {packageFolderName}", DebBuildPath);
             }
         });
@@ -174,5 +176,14 @@ class Build : NukeBuild
         };
         var rendered = stubble.Render(File.ReadAllText(controlFileTemplatePath), data);
         File.WriteAllText(outputPath, rendered);
+    }
+
+    static string ToLinuxArc(string original)
+    {
+        return original switch
+        {
+            "arm" => "armhf",
+            _ => original
+        };
     }
 }
