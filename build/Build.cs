@@ -141,7 +141,7 @@ class Build : NukeBuild
             {
                 var arc = rid.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[1];
                 var packageFolderName = $"{PackageName}_{CurrentVersion}_{arc}";
-                DpkgDeb($"--root-owner-group --build {packageFolderName}", DebBuildPath);
+                DpkgDeb($"-Zxz --root-owner-group --build {packageFolderName}", DebBuildPath);
             }
         });
 
