@@ -7,7 +7,6 @@ namespace OpenHdWebUi
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.WebHost.UseUrls("http://*:80");
             builder.Host.UseSystemd();
             // Add services to the container.
 
