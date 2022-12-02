@@ -73,6 +73,7 @@
             "type": "string",
             "enum": [
               "Clean",
+              "CloudsmithPublish",
               "DebPack",
               "PrepareForDebPack",
               "Publish",
@@ -91,6 +92,7 @@
             "type": "string",
             "enum": [
               "Clean",
+              "CloudsmithPublish",
               "DebPack",
               "PrepareForDebPack",
               "Publish",

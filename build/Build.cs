@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tools.GitVersion;
@@ -19,7 +19,7 @@ using Stubble.Core.Builders;
     "continuous",
     GitHubActionsImage.UbuntuLatest,
     On = new[] { GitHubActionsTrigger.Push },
-    InvokedTargets = new[] { nameof(Clean), nameof(DebPack) },
+    InvokedTargets = new[] { nameof(Clean), nameof(CloudsmithPublish) },
     AutoGenerate = true,
     FetchDepth = 0)]
 class Build : NukeBuild
@@ -41,6 +41,9 @@ class Build : NukeBuild
 
     [PathExecutable("dpkg-deb")]
     readonly Tool DpkgDeb;
+
+    [PathExecutable("cloudsmith")]
+    readonly Tool Cloudsmith;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -133,6 +136,16 @@ class Build : NukeBuild
                 var arc = rid.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[1];
                 var packageFolderName = $"{PackageName}_{CurrentVersion}_{arc}";
                 DpkgDeb($"--root-owner-group --build {packageFolderName}", DebBuildPath);
+            }
+        });
+
+    Target CloudsmithPublish => _ => _
+        .DependsOn(DebPack)
+        .Executes(() =>
+        {
+            foreach (var debFile in DebBuildPath.GlobFiles("*.deb"))
+            {
+                Cloudsmith($"push deb bldzone/ohd-web-ui-dev/any-distro/any-version {debFile.Name}", DebBuildPath);
             }
         });
 
