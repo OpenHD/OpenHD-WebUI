@@ -126,6 +126,9 @@ class Build : NukeBuild
                 CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, arc);
 
                 CopyFile(RootDirectory / "postinst", debianDirectory / "postinst");
+#pragma warning disable CA1416 // Validate platform compatibility
+                File.SetUnixFileMode(debianDirectory / "postinst", UnixFileMode.GroupExecute | UnixFileMode.UserExecute);
+#pragma warning restore CA1416 // Validate platform compatibility
             }
         });
 
