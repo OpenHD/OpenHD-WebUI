@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
+using OpenHdWebUi.Server.Services;
 
 namespace OpenHdWebUi
 {
@@ -15,6 +16,8 @@ namespace OpenHdWebUi
             builder.Services
                 .AddOptions<ServiceConfiguration>()
                 .Bind(builder.Configuration);
+            builder.Services
+                .AddScoped<SystemControlService>();
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
@@ -42,7 +45,7 @@ namespace OpenHdWebUi
             app.MapFallbackToFile("index.html");
 
             var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
-            app.UseStaticFiles(new StaticFileOptions()
+            app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(config.FilesFolder),
                 RequestPath = "/Media"

@@ -1,0 +1,55 @@
+﻿@page "/system-actions"
+@using OpenHdWebUi.Shared
+@inject HttpClient Http
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+<div>
+    <ul class="list-group">
+        <li class="list-group-item">
+            <button type="button" class="btn btn-primary" @onclick="RestartOpenHD">Restart OpenHD</button>
+        </li>
+        <li class="list-group-item">
+            <button type="button" class="btn btn-primary" @onclick="RestartQOpenHD">Restart QOpenHD</button>
+        </li>
+        <li class="list-group-item">
+            <button type="button" class="btn btn-danger" @onclick="RebootSystem">Reboot system</button>
+        </li>
+        <li class="list-group-item">
+            <button type="button" class="btn btn-danger" @onclick="ShutdownSystem">Shutdown system</button>
+        </li>
+    </ul>
+</div>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async Task RestartOpenHD()
+    {
+        await Http.PostAsync("api/System/restart-openhd", null);
+    }
+
+    private async Task RestartQOpenHD()
+    {
+        await Http.PostAsync("api/System/restart-qopenhd", null);
+    }
+
+    private async Task RebootSystem()
+    {
+        await Http.PostAsync("api/System/reboot-system", null);
+    }
+
+    private async Task ShutdownSystem()
+    {
+        await Http.PostAsync("api/System/shutdown-system", null);
+    }
+
+}
