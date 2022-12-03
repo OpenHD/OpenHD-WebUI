@@ -5,7 +5,7 @@ After=NetworkManager.service
 [Service]
 User=root
 Type=notify
-Environment="ASPNETCORE_URLS=http://+:80;http://*:80;http://0.0.0.0:80"
+Environment="ASPNETCORE_URLS=http://+:80"
 WorkingDirectory=/usr/local/share/openhd/web-ui/
 ExecStart=/usr/local/share/openhd/web-ui/OpenHdWebUi.Server
 Restart=always
