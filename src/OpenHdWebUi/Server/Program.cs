@@ -21,14 +21,19 @@ namespace OpenHdWebUi
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+            var devCorsPolicy = "devCorsPolicy";
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(devCorsPolicy, builder =>
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                );
+            });
 
             var app = builder.Build();
-            app.UseCors(cors => cors
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
-                .AllowCredentials()
-            );
+            app.UseCors(devCorsPolicy);
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
