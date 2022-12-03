@@ -23,7 +23,12 @@ namespace OpenHdWebUi
             builder.Services.AddRazorPages();
 
             var app = builder.Build();
-
+            app.UseCors(cors => cors
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                .AllowCredentials()
+            );
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -38,12 +43,6 @@ namespace OpenHdWebUi
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseCors(cors => cors
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
-                .AllowCredentials()
-            );
 
             app.MapRazorPages();
             app.MapControllers();
