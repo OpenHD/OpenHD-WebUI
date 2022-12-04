@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "OpenHdWebUi.Server"
+  "defaultProject": "OpenHdWebUi.Server",
+  "cli": {
+    "analytics": false
+  }
 }
