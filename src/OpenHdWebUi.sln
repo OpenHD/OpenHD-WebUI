@@ -3,22 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33103.201
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.Server", "OpenHdWebUi\Server\OpenHdWebUi.Server.csproj", "{AD6B2580-C83A-43FE-B954-76EBF2F29732}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.Client", "OpenHdWebUi\Client\OpenHdWebUi.Client.csproj", "{52F470E0-8BC7-43C1-B249-C50984416AF0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.Shared", "OpenHdWebUi\Shared\OpenHdWebUi.Shared.csproj", "{0EEEF711-7CE9-4139-810A-4ECC31E632D6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{57A5A103-FB40-4004-AAC6-5E07DB923425}"
-	ProjectSection(SolutionItems) = preProject
-		..\.gitattributes = ..\.gitattributes
-		..\control.template = ..\control.template
-		..\global.json = ..\global.json
-		..\OpenHDWebUI.service = ..\OpenHDWebUI.service
-		..\postinst = ..\postinst
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHdWebUi.Server", "OpenHdWebUi.Server\OpenHdWebUi.Server.csproj", "{647C1CD1-5AE0-4D2F-8761-A27A6A26856C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,25 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD6B2580-C83A-43FE-B954-76EBF2F29732}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52F470E0-8BC7-43C1-B249-C50984416AF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52F470E0-8BC7-43C1-B249-C50984416AF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52F470E0-8BC7-43C1-B249-C50984416AF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52F470E0-8BC7-43C1-B249-C50984416AF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0EEEF711-7CE9-4139-810A-4ECC31E632D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0EEEF711-7CE9-4139-810A-4ECC31E632D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0EEEF711-7CE9-4139-810A-4ECC31E632D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0EEEF711-7CE9-4139-810A-4ECC31E632D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E3D3EDD6-7914-4F7D-B8FD-7EF36EB4A71B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{647C1CD1-5AE0-4D2F-8761-A27A6A26856C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{647C1CD1-5AE0-4D2F-8761-A27A6A26856C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{647C1CD1-5AE0-4D2F-8761-A27A6A26856C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{647C1CD1-5AE0-4D2F-8761-A27A6A26856C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {552FFCEA-ACA7-43C5-95D3-DE20A23DB696}
+		SolutionGuid = {8686ED1D-73C3-48EB-9011-0046C70801E6}
 	EndGlobalSection
 EndGlobal
