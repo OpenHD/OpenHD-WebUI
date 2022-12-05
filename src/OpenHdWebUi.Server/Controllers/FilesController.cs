@@ -40,7 +40,7 @@ public class FilesController : ControllerBase
             var serverFile = new ServerFileInfo()
             {
                 FileName = fileInfo.Name,
-                DownloadPath = $"/Media/{relativeToFilesDir}"
+                DownloadPath = $"media/{relativeToFilesDir}"
             };
             serverFileInfos.Add(serverFile);
         }
