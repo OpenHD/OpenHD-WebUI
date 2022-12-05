@@ -19,7 +19,8 @@ namespace OpenHdWebUi.Server
                 .Bind(builder.Configuration);
             builder.Services
                 .AddScoped<SystemControlService>();
-
+            builder.Services
+                .AddDirectoryBrowser();
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
@@ -33,10 +34,12 @@ namespace OpenHdWebUi.Server
             var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
             var absoluteMediaPath = Path.GetFullPath(config.FilesFolder);
             EnsureFolderCreated(absoluteMediaPath);
+
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider(absoluteMediaPath),
-                RequestPath = "/media"
+                RequestPath = "/media",
+                ServeUnknownFileTypes = true
             });
 
             app.UseRouting();

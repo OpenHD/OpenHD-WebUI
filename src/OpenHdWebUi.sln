@@ -7,6 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.Server", "OpenH
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{76046B4D-733A-4C83-8C66-C661C23FCB31}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{943951A9-6A26-463C-B292-4EFECA024E0B}"
+	ProjectSection(SolutionItems) = preProject
+		..\control.template = ..\control.template
+		..\postinst = ..\postinst
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
