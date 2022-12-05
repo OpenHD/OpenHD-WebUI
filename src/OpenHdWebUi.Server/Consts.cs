@@ -3,7 +3,7 @@
 public static class Consts
 {
     /// <summary>
-    /// 0766 Permission
+    /// 0777 Permission
     /// </summary>
-    public static UnixFileMode RwAll => (UnixFileMode)502;
+    public static UnixFileMode Mode0777 => (UnixFileMode)511;
 }

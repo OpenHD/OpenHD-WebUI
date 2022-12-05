@@ -55,11 +55,12 @@ namespace OpenHdWebUi.Server
             if (Directory.Exists(fullPath))
             {
                 var dirInfo = new DirectoryInfo(fullPath);
-                dirInfo.UnixFileMode = Consts.RwAll;
+                dirInfo.UnixFileMode = Consts.Mode0777;
+
                 return;
             }
 
-            Directory.CreateDirectory(fullPath, Consts.RwAll);
+            Directory.CreateDirectory(fullPath, Consts.Mode0777 );
         }
     }
 }
