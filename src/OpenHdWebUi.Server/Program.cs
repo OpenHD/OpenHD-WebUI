@@ -57,13 +57,23 @@ namespace OpenHdWebUi.Server
         {
             if (Directory.Exists(fullPath))
             {
-                var dirInfo = new DirectoryInfo(fullPath);
-                dirInfo.UnixFileMode = Consts.Mode0777;
+                if(Environment.OSVersion.Platform == PlatformID.Unix)
+                {
+                    var dirInfo = new DirectoryInfo(fullPath);
+                    dirInfo.UnixFileMode = Consts.Mode0777;
+                }
 
                 return;
             }
 
-            Directory.CreateDirectory(fullPath, Consts.Mode0777 );
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                Directory.CreateDirectory(fullPath, Consts.Mode0777);
+            }
+            else
+            {
+                Directory.CreateDirectory(fullPath);
+            }
         }
     }
 }
