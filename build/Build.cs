@@ -153,7 +153,7 @@ class Build : NukeBuild
         {
             foreach (var debFile in DebBuildPath.GlobFiles("*.deb"))
             {
-                Cloudsmith($"push deb bldzone/ohd-web-ui-dev/any-distro/any-version {debFile.Name}", DebBuildPath);
+                Cloudsmith($"push deb openhd/openhd-2-2-evo/any-distro/any-version {debFile.Name}", DebBuildPath);
             }
         });
 
