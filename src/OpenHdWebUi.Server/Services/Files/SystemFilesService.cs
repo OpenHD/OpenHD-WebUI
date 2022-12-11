@@ -15,6 +15,12 @@ public class SystemFilesService
         _files = configuration.SystemFiles
             .Select(c => new FileSystemFile(c.Id, c.DisplayName, c.Path))
             .ToDictionary(c => c.Id, file => (IFile)file);
+
+        var dmesg = new CommandOutputFile("dmesg", "dmesg", "dmesg");
+        _files[dmesg.Id] = dmesg;
+
+        var journalctl = new CommandOutputFile("journalctl", "journalctl", "journalctl -b 0 -a --no-pager");
+        _files[journalctl.Id] = journalctl;
     }
 
     public IReadOnlyCollection<IFile> GetAllCommands()
