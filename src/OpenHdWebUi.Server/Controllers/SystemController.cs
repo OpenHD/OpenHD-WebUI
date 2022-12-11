@@ -1,7 +1,11 @@
+using System.Net.Mime;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
-using OpenHdWebUi.Server.Services;
+using OpenHdWebUi.Server.Models;
+using OpenHdWebUi.Server.Services.Commands;
+using OpenHdWebUi.Server.Services.Files;
 
 namespace OpenHdWebUi.Server.Controllers;
 
@@ -10,38 +14,51 @@ namespace OpenHdWebUi.Server.Controllers;
 public class SystemController : ControllerBase
 {
     private readonly ILogger<SystemController> _logger;
-    private readonly SystemControlService _systemControlService;
+    private readonly SystemCommandsService _systemCommandsService;
+    private readonly SystemFilesService _systemFilesService;
 
     public SystemController(
         ILogger<SystemController> logger,
-        SystemControlService systemControlService)
+        SystemCommandsService systemCommandsService,
+        SystemFilesService systemFilesService)
     {
         _logger = logger;
-        _systemControlService = systemControlService;
+        _systemCommandsService = systemCommandsService;
+        _systemFilesService = systemFilesService;
     }
 
-    [HttpPost("restart-openhd")]
-    public void RestartOpenHD()
+    [HttpGet("get-commands")]
+    public IReadOnlyCollection<SystemCommandDto> GetCommands()
     {
-        _systemControlService.RestartOpenHd();
+        return _systemCommandsService.GetAllCommands()
+            .Select(c => new SystemCommandDto(c.Id, c.DisplayName))
+            .ToArray();
     }
 
-    [HttpPost("restart-qopenhd")]
-    public void RestartQOpenHD()
+    [HttpPost("run-command")]
+    public async Task RunCommand([FromBody] RunCommandRequest request)
     {
-        _systemControlService.RestartQOpenHd();
+        await _systemCommandsService.TryRunCommandAsync(request.Id);
     }
 
-    [HttpPost("reboot-system")]
-    public void RebootSystem()
+    [HttpGet("get-files")]
+    public IReadOnlyCollection<SystemFileDto> GetFiles()
     {
-        _systemControlService.RebootSystem();
+        return _systemFilesService.GetAllCommands()
+            .Select(c => new SystemFileDto(c.Id, c.DisplayName))
+            .ToArray();
     }
 
-    [HttpPost("shutdown-system")]
-    public void ShutdownSystem()
+    [HttpGet("get-file/{id}")]
+    public async Task<IActionResult> RunCommand([FromRoute]string id)
     {
-        _systemControlService.ShutdownSystem();
+        var (found, content) = await _systemFilesService.TryGetFileContentAsync(id);
+        if (found)
+        {
+            return File(content!, MediaTypeNames.Text.Plain, $"{id}.txt");
+        }
+
+        return NoContent();
     }
 }
 

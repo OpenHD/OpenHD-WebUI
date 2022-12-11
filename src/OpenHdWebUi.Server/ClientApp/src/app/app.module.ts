@@ -7,12 +7,14 @@ import { RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FilesComponent } from './files/files.component';
+import { SystemComponent } from './system/system.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
-    FilesComponent
+    FilesComponent,
+    SystemComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -21,6 +23,7 @@ import { FilesComponent } from './files/files.component';
     RouterModule.forRoot([
       { path: '', component: FilesComponent, pathMatch: 'full' },
       { path: 'files', component: FilesComponent },
+      { path: 'system', component: SystemComponent },
     ])
   ],
   providers: [],
