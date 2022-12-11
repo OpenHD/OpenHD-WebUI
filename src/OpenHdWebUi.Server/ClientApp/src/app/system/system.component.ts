@@ -7,16 +7,21 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./system.component.css']
 })
 export class SystemComponent implements OnInit {
-  private _baseUrl: string;
-  private _http: HttpClient;
+  private baseUrl: string;
+  private httpClient: HttpClient;
 
   public commands: SystemCommandDto[] = [];
+  public files: SystemFileDto[] = [];
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
-    this._baseUrl = baseUrl;
-    this._http = http;
+    this.baseUrl = baseUrl;
+    this.httpClient = http;
     http.get<SystemCommandDto[]>(baseUrl + 'api/system/get-commands').subscribe(result => {
       this.commands = result;
+    }, error => console.error(error));
+
+    http.get<SystemFileDto[]>(baseUrl + 'api/system/get-files').subscribe(result => {
+      this.files = result;
     }, error => console.error(error));
   }
 
@@ -24,13 +29,22 @@ export class SystemComponent implements OnInit {
   }
 
   onCommandClick(command: SystemCommandDto): void {
-    this._http.post(this._baseUrl + 'api/system/run-command', {id : command.id}).subscribe(result => {}, error => console.error(error));
+    this.httpClient.post(this.baseUrl + 'api/system/run-command', {id : command.id}).subscribe(result => {}, error => console.error(error));
+  }
+
+  onFileClick(file: SystemFileDto): void {
+    //this.httpClient.get(this.baseUrl + 'api/system/run-command', { id: command.id }).subscribe(result => { }, error => console.error(error));
   }
 
 }
 
 
 interface SystemCommandDto {
+  id: string;
+  displayName: string;
+}
+
+interface SystemFileDto {
   id: string;
   displayName: string;
 }
