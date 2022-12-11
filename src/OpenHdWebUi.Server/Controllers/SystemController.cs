@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
-using OpenHdWebUi.Server.Services;
+using OpenHdWebUi.Server.Models;
+using OpenHdWebUi.Server.Services.Commands;
 
 namespace OpenHdWebUi.Server.Controllers;
 
@@ -10,38 +11,28 @@ namespace OpenHdWebUi.Server.Controllers;
 public class SystemController : ControllerBase
 {
     private readonly ILogger<SystemController> _logger;
-    private readonly SystemControlService _systemControlService;
+    private readonly SystemCommandsService _systemCommandsService;
 
     public SystemController(
         ILogger<SystemController> logger,
-        SystemControlService systemControlService)
+        SystemCommandsService systemCommandsService)
     {
         _logger = logger;
-        _systemControlService = systemControlService;
+        _systemCommandsService = systemCommandsService;
     }
 
-    [HttpPost("restart-openhd")]
-    public void RestartOpenHD()
+    [HttpGet("get-commands")]
+    public IReadOnlyCollection<SystemCommandDto> GetCommands()
     {
-        _systemControlService.RestartOpenHd();
+        return _systemCommandsService.GetAllCommands()
+            .Select(c => new SystemCommandDto(c.Id, c.DisplayName))
+            .ToArray();
     }
 
-    [HttpPost("restart-qopenhd")]
-    public void RestartQOpenHD()
+    [HttpPost("run-command")]
+    public async Task RunCommand([FromBody] RunCommandRequest request)
     {
-        _systemControlService.RestartQOpenHd();
-    }
-
-    [HttpPost("reboot-system")]
-    public void RebootSystem()
-    {
-        _systemControlService.RebootSystem();
-    }
-
-    [HttpPost("shutdown-system")]
-    public void ShutdownSystem()
-    {
-        _systemControlService.ShutdownSystem();
+        await _systemCommandsService.TryRunCommandAsync(request.Id);
     }
 }
 

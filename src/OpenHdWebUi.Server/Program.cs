@@ -2,7 +2,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 using OpenHdWebUi.Server.Configuration;
-using OpenHdWebUi.Server.Services;
+using OpenHdWebUi.Server.Services.Commands;
 
 namespace OpenHdWebUi.Server
 {
@@ -18,7 +18,7 @@ namespace OpenHdWebUi.Server
                 .AddOptions<ServiceConfiguration>()
                 .Bind(builder.Configuration);
             builder.Services
-                .AddScoped<SystemControlService>();
+                .AddScoped<SystemCommandsService>();
             builder.Services
                 .AddDirectoryBrowser();
             builder.Services.AddControllersWithViews();
