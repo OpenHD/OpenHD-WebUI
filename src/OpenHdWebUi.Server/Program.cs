@@ -1,6 +1,6 @@
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-
+using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.FFmpeg;
 using OpenHdWebUi.Server.Services.Commands;
@@ -43,7 +43,7 @@ public class Program
 
         var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
         var absoluteMediaPath = Path.GetFullPath(config.FilesFolder);
-        EnsureFolderCreated(absoluteMediaPath);
+        FileSystemHelpers.EnsureFolderCreated(absoluteMediaPath);
 
         app.UseStaticFiles(new StaticFileOptions
         {
@@ -52,7 +52,7 @@ public class Program
             ServeUnknownFileTypes = true
         });
 
-        EnsureFolderCreated(MediaConsts.PreviewsFsPath);
+        FileSystemHelpers.EnsureFolderCreated(MediaConsts.PreviewsFsPath);
 
         app.UseStaticFiles(new StaticFileOptions
         {
@@ -74,38 +74,7 @@ public class Program
 
     private static async Task PrestartAsync()
     {
-        var currentDir = GetExeDirectory();
-        Directory.SetCurrentDirectory(currentDir);
-
+        FileSystemHelpers.EnsureCurrentDirectoryIsBinaryDirectory();
         await FFmpegHelpers.EnsureFFmpegAvailableAsync();
-    }
-
-    private static void EnsureFolderCreated(string fullPath)
-    {
-        if (Directory.Exists(fullPath))
-        {
-            if(Environment.OSVersion.Platform == PlatformID.Unix)
-            {
-                var dirInfo = new DirectoryInfo(fullPath);
-                dirInfo.UnixFileMode = Consts.Mode0777;
-            }
-
-            return;
-        }
-
-        if (Environment.OSVersion.Platform == PlatformID.Unix)
-        {
-            Directory.CreateDirectory(fullPath, Consts.Mode0777);
-        }
-        else
-        {
-            Directory.CreateDirectory(fullPath);
-        }
-    }
-
-    private static string GetExeDirectory()
-    {
-        var exeFileName = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-        return Path.GetDirectoryName(exeFileName);
     }
 }

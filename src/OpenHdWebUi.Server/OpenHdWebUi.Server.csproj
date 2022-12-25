@@ -16,8 +16,6 @@
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="7.0.0" />
     <PackageReference Include="ProcessX" Version="1.5.5" />
-    <PackageReference Include="Xabe.FFmpeg" Version="5.2.3" />
-    <PackageReference Include="Xabe.FFmpeg.Downloader" Version="5.2.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="FFmpeg\" />
+    <ProjectReference Include="..\OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj" />
+    <ProjectReference Include="..\OpenHdWebUi.FileSystem\OpenHdWebUi.FileSystem.csproj" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
