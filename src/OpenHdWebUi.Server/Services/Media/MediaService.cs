@@ -1,10 +1,5 @@
-﻿using System.Resources;
-
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
-
-using Xabe.FFmpeg;
 
 namespace OpenHdWebUi.Server.Services.Media;
 
@@ -30,7 +25,7 @@ public class MediaService
         foreach (var file in files)
         {
             //IConversion conversion = await FFmpeg.Conversions.New().;
-            //IConversionResult result = await conversion.Start();
+            //IConversionResult result = await conversion.StartAsync();
         }
     }
 }

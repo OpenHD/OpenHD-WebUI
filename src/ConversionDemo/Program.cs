@@ -1,4 +1,5 @@
-﻿using OpenHdWebUi.FileSystem;
+﻿using OpenHdWebUi.FFmpeg;
+using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.FFmpeg;
 
 namespace ConversionDemo;
@@ -14,6 +15,11 @@ internal class Program
 
         var previewFolder = "C:\\testData\\previews";
         FileSystemHelpers.EnsureFolderCreated(previewFolder);
+
+        var file = Directory.GetFiles(mediaFolder, "*.mkv").First();
+        var previewCreator = new PreviewCreator(file, previewFolder);
+        await previewCreator.StartAsync();
+        Console.WriteLine("Ready");
     }
 
     private static async Task PrestartAsync()
