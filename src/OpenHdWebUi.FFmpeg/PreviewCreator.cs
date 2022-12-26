@@ -17,10 +17,13 @@ public class PreviewCreator
 
     public async Task StartAsync()
     {
-        var outputPath = Path.Combine(
-            _previewFolderPath,
-            Path.GetFileName(_originalFullPath)
-        ) + ".webp";
+        var outputPath = Path.Combine(_previewFolderPath, Path.GetFileNameWithoutExtension(_originalFullPath)) + ".webp";
+
+        if (File.Exists(outputPath))
+        {
+            return;
+        }
+
         //return await ToWebP(_originalFullPath, outputPath);
         var conversion = await TakeSnapshot(_originalFullPath, outputPath);
         if (conversion == null)

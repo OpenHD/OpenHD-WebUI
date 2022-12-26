@@ -6,5 +6,5 @@ public static class MediaConsts
 
     public static string PreviewsFsPath => Path.GetFullPath($"{PreviewsString}/");
 
-    public static string PreviewsWebPath => $"/{PreviewsString}";
+    public static string PreviewsWebPath => $"{PreviewsString}";
 }

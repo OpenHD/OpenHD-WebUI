@@ -23,4 +23,5 @@ export class FilesComponent implements OnInit {
 interface ServerFileInfo {
   fileName: string;
   downloadPath: string;
+  previewPath: string;
 }

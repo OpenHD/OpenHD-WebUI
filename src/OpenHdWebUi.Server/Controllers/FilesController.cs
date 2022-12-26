@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
+using OpenHdWebUi.Server.Models;
 using OpenHdWebUi.Server.Services.Media;
-using OpenHdWebUi.Shared;
 
 namespace OpenHdWebUi.Server.Controllers;
 
@@ -27,7 +27,20 @@ public class FilesController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<ServerFileInfo>> Get()
     {
-        await _mediaService.EnsurePreviewsCreatedAsync();
+        await _mediaService.StartPreviewsCreationAsync();
+
+        // Wait some time for attempt of sync previews creation
+        // Should works for small amount of videos
+        await Task.Delay(TimeSpan.FromSeconds(0.5));
+        for (int i = 0; i < 10; i++)
+        {
+            if (!_mediaService.IsInProgress)
+            {
+                break;
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
 
         var fullPath = _mediaService.MediaDirectoryFullPath;
 
@@ -38,12 +51,14 @@ public class FilesController : ControllerBase
         {
             var fileInfo = new FileInfo(fileName);
             var relativeToFilesDir = Path.GetRelativePath(fullPath, fileInfo.FullName);
-
-            var serverFile = new ServerFileInfo
-            {
-                FileName = fileInfo.Name,
-                DownloadPath = $"media/{relativeToFilesDir}"
-            };
+            var serverFile = new ServerFileInfo(
+                fileInfo.Name,
+                Flurl.Url.Combine("media", relativeToFilesDir),
+                Flurl.Url.Combine(
+                    MediaConsts.PreviewsWebPath,
+                    Path.GetDirectoryName(relativeToFilesDir),
+                    $"{Path.GetFileNameWithoutExtension(relativeToFilesDir)}.webp")
+            );
             serverFileInfos.Add(serverFile);
         }
 

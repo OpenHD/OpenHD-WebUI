@@ -6,9 +6,9 @@ const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_H
 const PROXY_CONFIG = [
   {
     context: [
-      "/weatherforecast",
       "/api",
-      "/Media"
+      "/media",
+      "/previews"
    ],
     target: target,
     secure: false,

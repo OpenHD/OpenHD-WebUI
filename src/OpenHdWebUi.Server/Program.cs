@@ -26,8 +26,9 @@ public class Program
             .Bind(builder.Configuration);
         builder.Services
             .AddScoped<SystemCommandsService>()
-            .AddScoped<SystemFilesService>()
-            .AddScoped<MediaService>();
+            .AddScoped<SystemFilesService>();
+        builder.Services
+            .AddSingleton<MediaService>();
         builder.Services
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
@@ -57,7 +58,7 @@ public class Program
         app.UseStaticFiles(new StaticFileOptions
         {
             FileProvider = new PhysicalFileProvider(MediaConsts.PreviewsFsPath),
-            RequestPath = MediaConsts.PreviewsWebPath,
+            RequestPath = $"/{MediaConsts.PreviewsWebPath}",
             ServeUnknownFileTypes = true
         });
 
