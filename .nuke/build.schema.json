@@ -75,9 +75,11 @@
               "Clean",
               "CloudsmithPublish",
               "DebPack",
+              "DownloadFfmpeg",
               "PrepareForDebPack",
               "Publish",
-              "Restore"
+              "Restore",
+              "UncompressFfmpeg"
             ]
           }
         },
@@ -94,9 +96,11 @@
               "Clean",
               "CloudsmithPublish",
               "DebPack",
+              "DownloadFfmpeg",
               "PrepareForDebPack",
               "Publish",
-              "Restore"
+              "Restore",
+              "UncompressFfmpeg"
             ]
           }
         },
