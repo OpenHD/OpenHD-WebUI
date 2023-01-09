@@ -20,7 +20,7 @@ public static class FFmpegHelpers
             isNeedToDownload = true;
         }
 
-        if (isNeedToDownload)
+        if (isNeedToDownload || Environment.OSVersion.Platform != PlatformID.Unix)
         {
             await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
         }
