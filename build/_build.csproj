@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.CodeGeneration" Version="6.2.1" />
-    <PackageReference Include="Nuke.Common" Version="6.2.1" />
+    <PackageReference Include="Nuke.CodeGeneration" Version="6.3.0" />
+    <PackageReference Include="Nuke.Common" Version="6.3.0" />
     <PackageReference Include="Stubble.Core" Version="1.10.8" />
   </ItemGroup>
 

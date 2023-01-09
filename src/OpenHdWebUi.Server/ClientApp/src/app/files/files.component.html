@@ -4,15 +4,17 @@
 
 <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="files.length">
   <thead>
-      <tr>
-          <th>Name</th>
-          <th>Actions</th>
-      </tr>
+  <tr>
+    <th></th>
+    <th>Name</th>
+    <th>Actions</th>
+  </tr>
   </thead>
   <tbody>
-      <tr *ngFor="let file of files">
-          <td>{{ file.fileName }}</td>
-          <td><a href="{{ file.downloadPath }}" download>Download</a></td>
-      </tr>
+  <tr *ngFor="let file of files">
+    <td><img src="{{ file.previewPath }}" class="object-fit-contain border rounded" height="120" /></td>
+    <td>{{ file.fileName }}</td>
+    <td><a href="{{ file.downloadPath }}" download>Download</a></td>
+  </tr>
   </tbody>
 </table>

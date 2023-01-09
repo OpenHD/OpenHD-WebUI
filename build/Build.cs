@@ -23,7 +23,7 @@ using Stubble.Core.Builders;
     AutoGenerate = true,
     FetchDepth = 0,
     ImportSecrets = new []{ "CLOUDSMITH_API_KEY" })]
-class Build : NukeBuild
+partial class Build : NukeBuild
 {
     /// Support plugins are available for:
     ///   - JetBrains ReSharper        https://nuke.build/resharper
@@ -36,6 +36,7 @@ class Build : NukeBuild
         OutputPath = RootDirectory / "out";
         PublishPath = OutputPath / "publish";
         DebBuildPath = OutputPath / "deb";
+        DownloadsPath = OutputPath / "downloads";
     }
 
     public static int Main () => Execute<Build>(x => x.Publish);
@@ -103,6 +104,7 @@ class Build : NukeBuild
 
     Target PrepareForDebPack => _ => _
         .DependsOn(Publish)
+        .DependsOn(UncompressFfmpeg)
         .Executes(() =>
         {
             foreach (var rid in Rids)
@@ -113,9 +115,10 @@ class Build : NukeBuild
                 var debPackDirectory = DebBuildPath / packageFolderName;
                 EnsureExistingDirectory(debPackDirectory);
 
+                var serviceTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / "web-ui";
                 CopyDirectoryRecursively(
                     GetPublishPathForRim(rid),
-                    debPackDirectory / "usr" / "local" / "share" / "openhd" / "web-ui",
+                    serviceTargetDirectory,
                     excludeFile: info => info.Name == "appsettings.Development.json");
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
@@ -127,9 +130,26 @@ class Build : NukeBuild
                 CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, linuxArc);
 
                 CopyFile(RootDirectory / "postinst", debianDirectory / "postinst");
+
+                if (IsUnix)
+                {
 #pragma warning disable CA1416 // Validate platform compatibility
-                File.SetUnixFileMode(debianDirectory / "postinst", (UnixFileMode)509);
+                    File.SetUnixFileMode(debianDirectory / "postinst", (UnixFileMode)509);
 #pragma warning restore CA1416 // Validate platform compatibility
+                }
+
+                // Copy ffmpeg
+                var ffmpegTargetFolder = serviceTargetDirectory / "ffmpeg";
+
+                var binDescription = FfmpegBinDescriptions.Single(description => description.Rid == rid);
+                CopyDirectoryRecursively(DownloadsPath / binDescription.UncompressedDirectoryName, ffmpegTargetFolder);
+                if (IsUnix)
+                {
+#pragma warning disable CA1416 // Validate platform compatibility
+                    File.SetUnixFileMode(ffmpegTargetFolder / "ffmpeg", (UnixFileMode)509);
+                    File.SetUnixFileMode(ffmpegTargetFolder / "ffprobe", (UnixFileMode)509);
+#pragma warning restore CA1416 // Validate platform compatibility
+                }
             }
         });
 

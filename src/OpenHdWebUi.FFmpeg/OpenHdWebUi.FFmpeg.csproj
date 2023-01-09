@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Xabe.FFmpeg" Version="5.2.3" />
+        <PackageReference Include="Xabe.FFmpeg.Downloader" Version="5.2.3" />
+    </ItemGroup>
+
+</Project>
