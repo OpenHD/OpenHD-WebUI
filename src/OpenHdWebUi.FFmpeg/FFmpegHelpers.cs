@@ -1,12 +1,14 @@
 ﻿using Xabe.FFmpeg.Downloader;
 using Xabe.FFmpeg.Exceptions;
 
-namespace OpenHdWebUi.Server.FFmpeg;
+namespace OpenHdWebUi.FFmpeg;
 
 public static class FFmpegHelpers
 {
     public static async Task EnsureFFmpegAvailableAsync()
     {
+        Xabe.FFmpeg.FFmpeg.SetExecutablesPath(Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg"));
+
         bool isNeedToDownload = false;
         try
         {
