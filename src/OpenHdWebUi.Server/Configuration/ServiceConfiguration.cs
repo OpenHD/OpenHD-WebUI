@@ -13,7 +13,4 @@ public class ServiceConfiguration
 }
 
 [UsedImplicitly]
-public record SystemCommandConfiguration(string Id, string DisplayName, string Command);
-
-[UsedImplicitly]
 public record SystemFileConfiguration(string Id, string DisplayName,string Path);

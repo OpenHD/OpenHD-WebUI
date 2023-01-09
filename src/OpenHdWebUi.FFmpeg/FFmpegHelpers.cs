@@ -15,6 +15,10 @@ public static class FFmpegHelpers
             var probe = new FFmpegBinProbe();
             Console.WriteLine(probe.Path);
         }
+        catch (DirectoryNotFoundException)
+        {
+            isNeedToDownload = true;
+        }
         catch (FFmpegNotFoundException)
         {
             isNeedToDownload = true;

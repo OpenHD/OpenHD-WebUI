@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
+using OpenHdWebUi.Server.Services.AirGround;
 
 namespace OpenHdWebUi.Server.Services.Commands;
 
@@ -7,11 +8,14 @@ public class SystemCommandsService
 {
     private readonly Dictionary<string, SystemCommand> _commands;
 
-    public SystemCommandsService(IOptions<ServiceConfiguration> options)
+    public SystemCommandsService(
+        IOptions<ServiceConfiguration> options,
+        AirGroundService airGroundService)
     {
         var configuration = options.Value;
 
         _commands = configuration.SystemCommands
+            .Where(airGroundService.IsItemVisible)
             .Select(c => new SystemCommand(c.Id, c.DisplayName, c.Command))
             .ToDictionary(c => c.Id);
     }
