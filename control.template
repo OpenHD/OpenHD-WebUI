@@ -5,4 +5,4 @@ Priority: optional
 Architecture: {{architecture}}
 Maintainer: Roman Buldygin <froooks@gmail.com>
 Description: Web UI for OpenHD
-Depends: ffmpeg, libgcc1, libicu | libicu72 | libicu71 | libicu70 | libicu69 | libicu68 | libicu67 | libicu66 | libicu65 | libicu63 | libicu60 | libicu57 | libicu55 | libicu52, libc6, libssl1.0.0 | libssl1.0.2 | libssl1.1 | libssl3, zlib1g, libstdc++6, libgssapi-krb5-2
+Depends: libgcc1, libicu | libicu72 | libicu71 | libicu70 | libicu69 | libicu68 | libicu67 | libicu66 | libicu65 | libicu63 | libicu60 | libicu57 | libicu55 | libicu52, libc6, libssl1.0.0 | libssl1.0.2 | libssl1.1 | libssl3, zlib1g, libstdc++6, libgssapi-krb5-2
