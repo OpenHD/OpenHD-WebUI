@@ -6,11 +6,16 @@ namespace OpenHdWebUi.Server.Services.Media;
 
 public class MediaService
 {
+    private readonly ILogger<MediaService> _logger;
     private readonly object _lock = new();
     private bool _isInProgress;
+    private Task? _conversionTask;
 
-    public MediaService(IOptions<ServiceConfiguration> configuration)
+    public MediaService(
+        IOptions<ServiceConfiguration> configuration,
+        ILogger<MediaService> logger)
     {
+        _logger = logger;
         MediaDirectoryFullPath = Path.GetFullPath(configuration.Value.FilesFolder);
     }
 
@@ -25,7 +30,7 @@ public class MediaService
         return Directory.GetFiles(MediaDirectoryFullPath, "*.mkv");
     }
 
-    public async Task StartPreviewsCreationAsync()
+    public void StartPreviewsCreation()
     {
         lock (_lock)
         {
@@ -37,17 +42,34 @@ public class MediaService
             _isInProgress = true;
         }
 
-        var files = GetMediaFilesPaths();
-
-        await Parallel.ForEachAsync(files, async (file, token) =>
-        {
-            var creator = new PreviewCreator(file, PreviewsDirectoryFullPath);
-            await creator.StartAsync();
-        });
+        _conversionTask = StartPreviewsCreationInternalAsync();
 
         lock (_lock)
         {
             _isInProgress = false;
+        }
+    }
+
+    private async Task StartPreviewsCreationInternalAsync()
+    {
+        _logger.LogInformation("Starting previews creation");
+        try
+        {
+            var files = GetMediaFilesPaths();
+
+            await Parallel.ForEachAsync(files, async (file, token) =>
+            {
+                var creator = new PreviewCreator(file, PreviewsDirectoryFullPath);
+                await creator.StartAsync();
+            });
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error while preview creation");
+            lock (_lock)
+            {
+                _isInProgress = false;
+            }
         }
     }
 }

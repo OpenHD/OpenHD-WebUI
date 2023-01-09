@@ -27,7 +27,7 @@ public class FilesController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<ServerFileInfo>> Get()
     {
-        await _mediaService.StartPreviewsCreationAsync();
+        _mediaService.StartPreviewsCreation();
 
         // Wait some time for attempt of sync previews creation
         // Should works for small amount of videos
