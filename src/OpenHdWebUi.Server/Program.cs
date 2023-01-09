@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
+using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
@@ -28,7 +29,8 @@ public class Program
             .AddScoped<SystemCommandsService>()
             .AddScoped<SystemFilesService>();
         builder.Services
-            .AddSingleton<MediaService>();
+            .AddSingleton<MediaService>()
+            .AddSingleton<AirGroundService>();
         builder.Services
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
