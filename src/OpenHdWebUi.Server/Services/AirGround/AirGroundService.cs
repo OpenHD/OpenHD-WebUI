@@ -4,7 +4,7 @@ namespace OpenHdWebUi.Server.Services.AirGround;
 
 public class AirGroundService
 {
-    private const string GroundMarkerPath = "/boot/openhd/ground.tx";
+    private const string GroundMarkerPath = "/boot/openhd/ground.txt";
 
     private const string AirMarkerPath = "/boot/openhd/air.txt";
 
