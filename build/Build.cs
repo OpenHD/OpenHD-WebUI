@@ -203,6 +203,7 @@ partial class Build : NukeBuild
         return original switch
         {
             "arm" => "armhf",
+            "x64" => "amd64",
             _ => original
         };
     }
