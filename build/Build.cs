@@ -123,7 +123,7 @@ partial class Build : NukeBuild
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
                 EnsureExistingDirectory(packSystemDDir);
-                CopyFile(RootDirectory / "OpenHDWebUI.service", packSystemDDir / "OpenHDWebUI.service");
+                CopyFile(RootDirectory / "openhd-web-ui.service", packSystemDDir / "openhd-web-ui.service");
 
                 var debianDirectory = debPackDirectory / "DEBIAN";
                 EnsureExistingDirectory(debianDirectory);
