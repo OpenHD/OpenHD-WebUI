@@ -59,15 +59,20 @@ public class PreviewCreator
         var info = await Xabe.FFmpeg.FFmpeg.GetMediaInfo(inputPath);
 
         var videoStream = info.VideoStreams.FirstOrDefault();
-        if (videoStream == null || videoStream.Duration == TimeSpan.Zero)
+        if (videoStream == null)
         {
             return null;
         }
 
         videoStream = videoStream
             .SetOutputFramesCount(1)
-            .SetSize(DefaultVideoSize)
-            .SetSeek(videoStream.Duration / 3);
+            .SetSize(DefaultVideoSize);
+
+        // OHD can stop writing without end and duration will be 00:00:00
+        if (videoStream.Duration != TimeSpan.Zero)
+        {
+            videoStream.SetSeek(videoStream.Duration / 3);
+        }
 
         return Xabe.FFmpeg.FFmpeg.Conversions.New()
             .AddStream(videoStream)

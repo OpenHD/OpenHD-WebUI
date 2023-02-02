@@ -64,5 +64,11 @@ public class FilesController : ControllerBase
 
         return serverFileInfos;
     }
+
+    [HttpDelete("{fileName}")]
+    public async Task Delete(string fileName)
+    {
+        _mediaService.DeleteFile(fileName);
+    }
 }
 

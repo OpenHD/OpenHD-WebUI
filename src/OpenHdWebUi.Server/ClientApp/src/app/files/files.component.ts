@@ -7,9 +7,14 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./files.component.css']
 })
 export class FilesComponent implements OnInit {
+  private http: HttpClient;
+  private baseUrl: string;
+
   public files: ServerFileInfo[] = [];
 
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
+    this.http = http;
+    this.baseUrl = baseUrl;
     http.get<ServerFileInfo[]>(baseUrl + 'api/files').subscribe(result => {
       this.files = result;
     }, error => console.error(error));
@@ -18,6 +23,15 @@ export class FilesComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  onDeleteClick(fileName: string): void {
+    if (confirm("Are you sure to delete " + fileName)) {
+      this.http.delete(this.baseUrl + 'api/files/' + fileName).subscribe(_ => {
+        this.http.get<ServerFileInfo[]>(this.baseUrl + 'api/files').subscribe(result => {
+          this.files = result;
+        }, error => console.error(error));
+      }, error => console.error(error));
+    }
+  }
 }
 
 interface ServerFileInfo {

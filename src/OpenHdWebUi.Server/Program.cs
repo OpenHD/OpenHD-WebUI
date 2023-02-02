@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.FFmpeg;
@@ -52,7 +53,8 @@ public class Program
         {
             FileProvider = new PhysicalFileProvider(absoluteMediaPath),
             RequestPath = "/media",
-            ServeUnknownFileTypes = true
+            ServeUnknownFileTypes = true,
+            ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string>{{".mkv", "video/x-matroska" } })
         });
 
         FileSystemHelpers.EnsureFolderCreated(MediaConsts.PreviewsFsPath);
