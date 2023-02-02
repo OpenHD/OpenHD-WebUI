@@ -24,11 +24,13 @@ export class FilesComponent implements OnInit {
   }
 
   onDeleteClick(fileName: string): void {
-    this.http.delete(this.baseUrl + 'api/files/' + fileName).subscribe(_ => {
-      this.http.get<ServerFileInfo[]>(this.baseUrl + 'api/files').subscribe(result => {
-        this.files = result;
+    if (confirm("Are you sure to delete " + fileName)) {
+      this.http.delete(this.baseUrl + 'api/files/' + fileName).subscribe(_ => {
+        this.http.get<ServerFileInfo[]>(this.baseUrl + 'api/files').subscribe(result => {
+          this.files = result;
+        }, error => console.error(error));
       }, error => console.error(error));
-    }, error => console.error(error));
+    }
   }
 }
 
