@@ -30,6 +30,15 @@ public class MediaService
         return Directory.GetFiles(MediaDirectoryFullPath, "*.mkv");
     }
 
+    public void DeleteFile(string fileName)
+    {
+        var fullFilePath = Path.Combine(MediaDirectoryFullPath, fileName);
+        if (Path.Exists(fullFilePath))
+        {
+            File.Delete(fullFilePath);
+        }
+    }
+
     public void StartPreviewsCreation()
     {
         lock (_lock)

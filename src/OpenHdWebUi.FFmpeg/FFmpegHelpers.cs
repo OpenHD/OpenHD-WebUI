@@ -7,7 +7,8 @@ public static class FFmpegHelpers
 {
     public static async Task EnsureFFmpegAvailableAsync()
     {
-        Xabe.FFmpeg.FFmpeg.SetExecutablesPath(Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg"));
+        var testDirectory = Path.Combine(Directory.GetCurrentDirectory(), "ffmpeg");
+        Xabe.FFmpeg.FFmpeg.SetExecutablesPath(testDirectory);
 
         bool isNeedToDownload = false;
         try
@@ -18,15 +19,16 @@ public static class FFmpegHelpers
         catch (DirectoryNotFoundException)
         {
             isNeedToDownload = true;
+            Directory.CreateDirectory(testDirectory);
         }
         catch (FFmpegNotFoundException)
         {
             isNeedToDownload = true;
         }
 
-        if (isNeedToDownload || Environment.OSVersion.Platform != PlatformID.Unix)
+        if (isNeedToDownload && Environment.OSVersion.Platform != PlatformID.Unix)
         {
-            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official);
+            await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, testDirectory);
         }
     }
 
