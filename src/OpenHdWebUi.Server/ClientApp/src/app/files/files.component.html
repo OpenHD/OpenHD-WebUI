@@ -2,24 +2,34 @@
 
 <p *ngIf="!files?.length"><em>Loading...</em></p>
 
-<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="files.length">
-  <thead>
-  <tr>
-    <th></th>
-    <th>Name</th>
-    <th>Actions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let file of files">
-    <td><img src="{{ file.previewPath }}" class="object-fit-contain border rounded" height="120" /></td>
-    <td>{{ file.fileName }}</td>
-    <td>
-        <div class="btn-group">
-            <a href="{{ file.downloadPath }}" class="btn btn-primary" download>Download</a>
-            <a class="btn btn-danger" (click)="onDeleteClick(file.fileName)">Delete</a>
+<div class="album py-5 bg-light" *ngIf="files.length">
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="col" *ngFor="let file of files">
+              <div class="card shadow-sm">
+                <video
+                  class="bd-placeholder-img card-img-top"
+                  width="100%"
+                  height="225"
+                  role="img"
+                  aria-label="Placeholder: Thumbnail"
+                  preserveAspectRatio="xMidYMid slice"
+                  focusable="false"
+                  controls>
+                  <source src="{{ file.downloadPath }}" type="video/mp4">
+                </video>
+
+                <div class="card-body">
+                    <p class="card-text">{{ file.fileName }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                      <a href="{{ file.downloadPath }}" class="btn btn-primary" download>Download</a>
+                      <a class="btn btn-danger" (click)="onDeleteClick(file.fileName)">Delete</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
-    <td>
-  </tr>
-  </tbody>
-</table>
+    </div>
+</div>
