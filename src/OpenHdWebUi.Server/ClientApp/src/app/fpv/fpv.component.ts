@@ -8,11 +8,14 @@ import {SignalrService} from "../signalr.service"
   styleUrls: ['./fpv.component.css']
 })
 export class FpvComponent implements OnInit {
+  private signalRService: SignalrService;
 
   public demoText: string;
 
+
   constructor(signalrService: SignalrService) {
     this.demoText = "aaaa";
+    this.signalRService = signalrService;
   }
 
   ngOnInit(): void {
