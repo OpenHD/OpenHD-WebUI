@@ -50,10 +50,10 @@ partial class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Parameter("Path for cloudsmith release repo", Name = "REPO")]
+    [Parameter("Path for cloudsmith release repo")]
     readonly string Repo;
 
-    [Parameter("Path for cloudsmith dev repo", Name = "DEV_REPO")]
+    [Parameter("Path for cloudsmith dev repo")]
     readonly string DevRepo;
 
     [GitVersion(NoFetch = true)]
