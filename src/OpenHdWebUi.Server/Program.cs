@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -5,6 +6,7 @@ using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Hubs;
+using OpenHdWebUi.Server.Services;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
@@ -32,7 +34,8 @@ public class Program
             .AddScoped<SystemFilesService>();
         builder.Services
             .AddSingleton<MediaService>()
-            .AddSingleton<AirGroundService>();
+            .AddSingleton<AirGroundService>()
+            .AddSingleton<UdpProxy>(CreateUdpProxy);
         builder.Services
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
@@ -79,6 +82,14 @@ public class Program
         app.MapFallbackToFile("index.html");
 
         app.Run();
+    }
+
+    private static UdpProxy CreateUdpProxy(IServiceProvider serviceProvider)
+    {
+        return new UdpProxy(
+            8600,
+            serviceProvider.GetRequiredService<AirGroundService>(),
+            serviceProvider.GetRequiredService<ILogger<UdpProxy>>());
     }
 
     private static async Task PrestartAsync()
