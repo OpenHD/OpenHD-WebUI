@@ -8,7 +8,8 @@ const PROXY_CONFIG = [
     context: [
       "/api",
       "/media",
-      "/previews"
+      "/previews",
+      "/videoHub"
    ],
     target: target,
     secure: false,

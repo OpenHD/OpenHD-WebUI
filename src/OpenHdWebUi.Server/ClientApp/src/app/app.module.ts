@@ -9,6 +9,7 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FilesComponent } from './files/files.component';
 import { SystemComponent } from './system/system.component';
 import { FpvComponent } from './fpv/fpv.component';
+import { SignalrService } from "./signalr.service"
 
 @NgModule({
   declarations: [
@@ -29,7 +30,7 @@ import { FpvComponent } from './fpv/fpv.component';
       { path: 'fpv', component: FpvComponent }
     ])
   ],
-  providers: [],
+  providers: [SignalrService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

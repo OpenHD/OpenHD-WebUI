@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
+import {SignalrService} from "../signalr.service"
+
 @Component({
   selector: 'app-fpv',
   templateUrl: './fpv.component.html',
@@ -9,7 +11,7 @@ export class FpvComponent implements OnInit {
 
   public demoText: string;
 
-  constructor() {
+  constructor(signalrService: SignalrService) {
     this.demoText = "aaaa";
   }
 
