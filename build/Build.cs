@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tools.GitVersion;
@@ -51,10 +50,10 @@ partial class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter("Path for cloudsmith release repo")]
-    readonly string Repo;
+    readonly string Repo = "openhd-2-3-evo";
 
     [Parameter("Path for cloudsmith dev repo")]
-    readonly string DevRepo;
+    readonly string DevRepo = "openhd-2-3-evo-dev";
 
     [GitVersion(NoFetch = true)]
     readonly GitVersion GitVersion;
