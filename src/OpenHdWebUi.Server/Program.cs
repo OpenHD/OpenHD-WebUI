@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
+using OpenHdWebUi.Server.Hubs;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
@@ -35,6 +36,7 @@ public class Program
         builder.Services
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
+        builder.Services.AddSignalR();
 
         var app = builder.Build();
 
@@ -71,6 +73,8 @@ public class Program
         app.MapControllerRoute(
             name: "default",
             pattern: "api/{controller}/{action=Index}/{id?}");
+
+        app.MapHub<VideoHub>("/videoHub");
 
         app.MapFallbackToFile("index.html");
 
