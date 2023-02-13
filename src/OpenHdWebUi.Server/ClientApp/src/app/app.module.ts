@@ -26,6 +26,7 @@ import { FpvComponent } from './fpv/fpv.component';
       { path: '', component: FilesComponent, pathMatch: 'full' },
       { path: 'files', component: FilesComponent },
       { path: 'system', component: SystemComponent },
+      { path: 'fpv', component: FpvComponent }
     ])
   ],
   providers: [],

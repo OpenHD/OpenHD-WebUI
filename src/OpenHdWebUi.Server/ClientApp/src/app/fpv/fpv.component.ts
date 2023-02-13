@@ -7,7 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FpvComponent implements OnInit {
 
-  constructor() { }
+  public demoText: string;
+
+  constructor() {
+    this.demoText = "aaaa";
+  }
 
   ngOnInit(): void {
   }
