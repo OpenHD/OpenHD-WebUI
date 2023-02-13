@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tools.GitVersion;
@@ -49,6 +48,12 @@ partial class Build : NukeBuild
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+
+    [Parameter("Path for cloudsmith release repo")]
+    readonly string Repo = "openhd-2-3-evo";
+
+    [Parameter("Path for cloudsmith dev repo")]
+    readonly string DevRepo = "openhd-2-3-evo-dev";
 
     [GitVersion(NoFetch = true)]
     readonly GitVersion GitVersion;
@@ -171,9 +176,20 @@ partial class Build : NukeBuild
         .DependsOn(DebPack)
         .Executes(() =>
         {
+            string repoName;
+            if (string.Equals(GitVersion.BranchName, "master", StringComparison.InvariantCultureIgnoreCase) ||
+                string.Equals(GitVersion.BranchName, "main", StringComparison.InvariantCultureIgnoreCase))
+            {
+                repoName = Repo;
+            }
+            else
+            {
+                repoName = DevRepo;
+            }
+
             foreach (var debFile in DebBuildPath.GlobFiles("*.deb"))
             {
-                Cloudsmith($"push deb openhd/openhd-2-3-evo/any-distro/any-version {debFile.Name}", DebBuildPath);
+                Cloudsmith($"push deb openhd/{repoName}/any-distro/any-version {debFile.Name}", DebBuildPath);
             }
         });
 
