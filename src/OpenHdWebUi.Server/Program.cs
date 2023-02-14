@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
@@ -10,6 +11,7 @@ using OpenHdWebUi.Server.Services;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
+using OpenHdWebUi.Server.Services.Fpv;
 using OpenHdWebUi.Server.Services.Media;
 using Xabe.FFmpeg;
 using Xabe.FFmpeg.Downloader;
@@ -20,6 +22,9 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        var handler = new WebRtcHandler(NullLoggerFactory.Instance.CreateLogger<WebRtcHandler>());
+        handler.Start();
+
         await PrestartAsync();
 
         var builder = WebApplication.CreateBuilder(args);
