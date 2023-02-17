@@ -21,6 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FileSystem", "O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FFmpeg", "OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj", "{E8B63594-4E6E-479A-80ED-A2A401EF0452}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHdWebUi.RtpToWebRestreamer", "OpenHdWebUi.RtpToWebRestreamer\OpenHdWebUi.RtpToWebRestreamer.csproj", "{ED8334A9-F501-4547-B5EF-03C6D46C25D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RtpToWebRestreamerDemo", "RtpToWebRestreamerDemo\RtpToWebRestreamerDemo.csproj", "{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{E8B63594-4E6E-479A-80ED-A2A401EF0452}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8B63594-4E6E-479A-80ED-A2A401EF0452}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8B63594-4E6E-479A-80ED-A2A401EF0452}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED8334A9-F501-4547-B5EF-03C6D46C25D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED8334A9-F501-4547-B5EF-03C6D46C25D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED8334A9-F501-4547-B5EF-03C6D46C25D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED8334A9-F501-4547-B5EF-03C6D46C25D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
