@@ -12,10 +12,10 @@ export class SignalrService {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl( baseUrl + 'videoHub')
       .build();
-    this.hubConnection
-      .start()
-      .then(() => console.log('Connection started'))
-      .catch(err => console.log('Error while starting connection: ' + err));
+    // this.hubConnection
+    //   .start()
+    //   .then(() => console.log('Connection started'))
+    //   .catch(err => console.log('Error while starting connection: ' + err));
   }
 
   //public addTransferChartDataListener = () => {

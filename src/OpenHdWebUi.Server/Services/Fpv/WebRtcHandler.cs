@@ -1,7 +1,8 @@
 ﻿using System.Net;
-
+using Bld.RtpReceiver;
 using SIPSorcery.Media;
 using SIPSorcery.Net;
+using SIPSorceryMedia.Abstractions;
 using WebSocketSharp.Server;
 
 namespace OpenHdWebUi.Server.Services.Fpv;
@@ -15,16 +16,20 @@ public class WebRtcHandler
     private const int VIDEO_INITIAL_WIDTH = 640;
     private const int VIDEO_INITIAL_HEIGHT = 480;
 
-    public WebRtcHandler(ILogger<WebRtcHandler> logger)
+    private readonly Receiver _receiver;
+
+    public WebRtcHandler(ILogger<WebRtcHandler> logger, ILoggerFactory factory)
     {
         _logger = logger;
         _webSocketServer = new WebSocketServer(IPAddress.Any, WEBSOCKET_PORT);
         _webSocketServer.AddWebSocketService<WebRTCWebSocketPeer>("/", (peer) => peer.CreatePeerConnection = CreatePeerConnection);
+        _receiver = new Receiver(new IPEndPoint(IPAddress.Any, 5600), factory.CreateLogger<Receiver>());
     }
 
     public void Start()
     {
         _webSocketServer.Start();
+        _receiver.Start();
     }
 
     private async Task<RTCPeerConnection> CreatePeerConnection()
@@ -39,10 +44,10 @@ public class WebRtcHandler
         //{
         //    throw new ApplicationException("Could not initialise video capture device.");
         //}
-        //MediaStreamTrack videoTrack = new MediaStreamTrack(winVideoEP.GetVideoSourceFormats(), MediaStreamStatusEnum.SendRecv);
-        //pc.addTrack(videoTrack);
+        MediaStreamTrack videoTrack = new MediaStreamTrack(new VideoFormat(VideoCodecsEnum.H264, 96), MediaStreamStatusEnum.SendRecv);
+        pc.addTrack(videoTrack);
 
-        //winVideoEP.OnVideoSourceEncodedSample += pc.SendVideo;
+        _receiver.OnVideoFrameReceivedByIndex += (i, point, arg3, arg4) => pc.SendVideo(1, arg4) ;
         //pc.OnVideoFormatsNegotiated += (videoFormats) =>
         //     winVideoEP.SetVideoSourceFormat(videoFormats.First());
 

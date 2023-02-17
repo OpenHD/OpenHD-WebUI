@@ -22,9 +22,6 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        var handler = new WebRtcHandler(NullLoggerFactory.Instance.CreateLogger<WebRtcHandler>());
-        handler.Start();
-
         await PrestartAsync();
 
         var builder = WebApplication.CreateBuilder(args);
@@ -47,6 +44,10 @@ public class Program
         builder.Services.AddSignalR();
 
         var app = builder.Build();
+
+        var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+        var handler = new WebRtcHandler(loggerFactory.CreateLogger<WebRtcHandler>(), loggerFactory);
+        handler.Start();
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())

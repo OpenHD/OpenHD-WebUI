@@ -30,7 +30,7 @@ import { SignalrService } from "./signalr.service"
       { path: 'fpv', component: FpvComponent }
     ])
   ],
-  providers: [SignalrService],
+  //providers: [SignalrService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
