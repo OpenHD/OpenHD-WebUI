@@ -21,6 +21,9 @@ internal class StreamMultiplexer
         _receiver.OnVideoFrameReceivedByIndex += ReceiverOnOnVideoFrameReceivedByIndex;
     }
 
+    public int ActiveStreamsCount => _peers.Count(pair =>
+        pair.Key.connectionState is not (RTCPeerConnectionState.closed or RTCPeerConnectionState.disconnected or RTCPeerConnectionState.closed));
+
     public void RegisterPeer(RTCPeerConnection peer)
     {
         var result = _peers.TryAdd(peer, new MultiplexedPeer(peer));
@@ -65,6 +68,18 @@ internal class StreamMultiplexer
         foreach (var streamMultiplexer in _peers.Values)
         {
             streamMultiplexer.SendVideo(frame);
+        }
+    }
+
+    public void Cleanup()
+    {
+        var toRemove = _peers.Where(pair =>
+                pair.Key.connectionState is (RTCPeerConnectionState.closed or RTCPeerConnectionState.disconnected
+                    or RTCPeerConnectionState.closed))
+            .ToList();
+        foreach (var multiplexedPeer in toRemove)
+        {
+            _peers.TryRemove(multiplexedPeer);
         }
     }
 }

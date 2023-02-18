@@ -19,6 +19,8 @@ public class RtpRestreamer
     private readonly WebSocketServer _webSocketServer;
     private readonly Receiver _receiver;
     private readonly StreamMultiplexer _streamMultiplexer;
+    private readonly Task _periodicalManagementTask;
+    private int _connectedClientsCount;
 
     public RtpRestreamer(
         IPEndPoint webSocketEndpoint,
@@ -33,7 +35,24 @@ public class RtpRestreamer
 
         _receiver = new Receiver(rtpListenEndpoint, loggerFactory.CreateLogger<Receiver>());
         _streamMultiplexer = new StreamMultiplexer(_receiver, _loggerFactory.CreateLogger<StreamMultiplexer>());
+
+        _periodicalManagementTask = BackgroundTask();
     }
+
+    public int ConnectedClientsCount
+    {
+        get => _connectedClientsCount;
+        private set
+        {
+            if (_connectedClientsCount != value)
+            {
+                _connectedClientsCount = value;
+                ConnectedClientsChanged?.Invoke(this, new ConnectedClientsChangedEventArgs(value));
+            }
+        }
+    }
+
+    public event EventHandler<ConnectedClientsChangedEventArgs> ConnectedClientsChanged;
 
     public void Start()
     {
@@ -90,5 +109,25 @@ public class RtpRestreamer
         };
 
         return pc;
+    }
+
+    private async Task BackgroundTask()
+    {
+        var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+
+        while (true)
+        {
+            try
+            {
+                await timer.WaitForNextTickAsync();
+                _streamMultiplexer.Cleanup();
+                ConnectedClientsCount = _streamMultiplexer.ActiveStreamsCount;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Background worker error");
+            }
+        }
+        // ReSharper disable once FunctionNeverReturns
     }
 }

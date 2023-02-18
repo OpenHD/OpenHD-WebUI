@@ -21,9 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FileSystem", "O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FFmpeg", "OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj", "{E8B63594-4E6E-479A-80ED-A2A401EF0452}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHdWebUi.RtpToWebRestreamer", "OpenHdWebUi.RtpToWebRestreamer\OpenHdWebUi.RtpToWebRestreamer.csproj", "{ED8334A9-F501-4547-B5EF-03C6D46C25D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.RtpToWebRestreamer", "OpenHdWebUi.RtpToWebRestreamer\OpenHdWebUi.RtpToWebRestreamer.csproj", "{ED8334A9-F501-4547-B5EF-03C6D46C25D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RtpToWebRestreamerDemo", "RtpToWebRestreamerDemo\RtpToWebRestreamerDemo.csproj", "{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RtpToWebRestreamerDemo", "RtpToWebRestreamerDemo\RtpToWebRestreamerDemo.csproj", "{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemoProjects", "DemoProjects", "{6672B834-BDB9-4A69-96B9-147F114C8FB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +62,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{516B1232-6903-420E-9DD2-10187AFA5850} = {6672B834-BDB9-4A69-96B9-147F114C8FB5}
+		{990A8F88-F2A1-416C-94F2-9DEE6DBC50DA} = {6672B834-BDB9-4A69-96B9-147F114C8FB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8686ED1D-73C3-48EB-9011-0046C70801E6}

@@ -19,6 +19,7 @@ public class WebRtcHostedService : IHostedService
                 new IPEndPoint(IPAddress.Any, 8600),
                 loggerFactory
             );
+            _rtpRestreamer.ConnectedClientsChanged += RtpRestreamerOnConnectedClientsChanged;
         }
     }
 
@@ -31,5 +32,17 @@ public class WebRtcHostedService : IHostedService
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    private void RtpRestreamerOnConnectedClientsChanged(object? sender, ConnectedClientsChangedEventArgs e)
+    {
+        if (e.NewCount == 0)
+        {
+            // Ensure port mirror stopped
+        }
+        else
+        {
+            // Ensure port mirror started
+        }
     }
 }
