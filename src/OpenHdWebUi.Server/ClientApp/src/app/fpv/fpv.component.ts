@@ -8,47 +8,63 @@ import {SignalrService} from "../signalr.service"
 })
 export class FpvComponent implements OnInit, AfterViewInit {
   @ViewChild("fpvVideo") video?: ElementRef<HTMLVideoElement>;
-  private signalRService: SignalrService;
-  private peerConnection: RTCPeerConnection;
-  private webSocket: WebSocket;
 
-  public demoText: string;
+  private pc?: RTCPeerConnection;
+  private ws?: WebSocket;
 
-
-  constructor(signalrService: SignalrService) {
-    this.demoText = "aaaa";
-    this.signalRService = signalrService;
-
-    this.webSocket = new WebSocket("ws://127.0.0.1:8081/");
-
-    this.peerConnection = new RTCPeerConnection();
+  public demoText = "tests";
 
 
-    //.then(offer => {
-    //  this.peerConnection.setLocalDescription(offer);
-    //  this.demoText = JSON.stringify(offer);
-    //});
+  constructor() {
 
   }
 
   ngOnInit(): void {
-    //let offer = await this.peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: false });
-    //await this.peerConnection.setLocalDescription(offer);
-    //await this.peerConnection.getReceivers()
-    //this.demoText = JSON.stringify(await this.peerConnection.createOffer());
-
   }
 
   ngAfterViewInit() {
-    // ElementRef { nativeElement: <input> }
-    this.peerConnection.ontrack = evt => this.video!.nativeElement.srcObject = evt.streams[0];
-    this.peerConnection.onicecandidate = evt => evt.candidate && this.webSocket.send(JSON.stringify(evt.candidate));
+    this.start();
+  }
+
+
+
+  async start() {
+    if (this.ws != null) await this.ws.close();
+    if (this.pc != null) await this.pc.close();
+
+    //this.pc = new RTCPeerConnection({ iceServers: [{ urls: STUN_URL }] });
+    this.pc = new RTCPeerConnection();
+
+    this.pc.ontrack = evt => this.video!.nativeElement.srcObject = evt.streams[0];
+    this.pc.onicecandidate = evt => evt.candidate && this.ws!.send(JSON.stringify(evt.candidate));
 
     // Diagnostics.
-    this.peerConnection.onicegatheringstatechange = () => console.log("onicegatheringstatechange: " + this.peerConnection.iceGatheringState);
-    this.peerConnection.oniceconnectionstatechange = () => console.log("oniceconnectionstatechange: " + this.peerConnection.iceConnectionState);
-    this.peerConnection.onsignalingstatechange = () => console.log("onsignalingstatechange: " + this.peerConnection.signalingState);
-    this.peerConnection.onconnectionstatechange = () => console.log("onconnectionstatechange: " + this.peerConnection.connectionState);
-  }
+    this.pc.onicegatheringstatechange = () => console.log("onicegatheringstatechange: " + this.pc!.iceGatheringState);
+    this.pc.oniceconnectionstatechange = () => console.log("oniceconnectionstatechange: " + this.pc!.iceConnectionState);
+    this.pc.onsignalingstatechange = () => console.log("onsignalingstatechange: " + this.pc!.signalingState);
+    this.pc.onconnectionstatechange = () => console.log("onconnectionstatechange: " + this.pc!.connectionState);
+
+    this.ws = new WebSocket("ws://127.0.0.1:8081/", []);
+
+    let _this = this;
+    this.ws.onmessage = async function (evt) {
+      if (/^[\{"'\s]*candidate/.test(evt.data)) {
+        _this.pc!.addIceCandidate(JSON.parse(evt.data));
+      }
+      else {
+        await _this.pc!.setRemoteDescription(new RTCSessionDescription(JSON.parse(evt.data)));
+        console.log("remote sdp:\n" + _this.pc!.remoteDescription!.sdp);
+        _this.pc!.createAnswer()
+          .then((answer) => _this.pc!.setLocalDescription(answer))
+          .then(() => _this.ws!.send(JSON.stringify(_this.pc!.localDescription)));
+      }
+    };
+  };
+
+  async closePeer() {
+    await this.pc!.close();
+    await this.ws!.close();
+  };
+
 
 }

@@ -36,18 +36,17 @@ public class Program
             .AddScoped<SystemFilesService>();
         builder.Services
             .AddSingleton<MediaService>()
-            .AddSingleton<AirGroundService>()
-            .AddSingleton<UdpProxy>(CreateUdpProxy);
+            .AddSingleton<AirGroundService>();
         builder.Services
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
         builder.Services.AddSignalR();
+        builder.Services.AddHostedService<WebRtcHostedService>();
 
         var app = builder.Build();
 
         var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-        var handler = new WebRtcHandler(loggerFactory.CreateLogger<WebRtcHandler>(), loggerFactory);
-        handler.Start();
+
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -88,14 +87,6 @@ public class Program
         app.MapFallbackToFile("index.html");
 
         app.Run();
-    }
-
-    private static UdpProxy CreateUdpProxy(IServiceProvider serviceProvider)
-    {
-        return new UdpProxy(
-            8600,
-            serviceProvider.GetRequiredService<AirGroundService>(),
-            serviceProvider.GetRequiredService<ILogger<UdpProxy>>());
     }
 
     private static async Task PrestartAsync()

@@ -31,10 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj" />
     <ProjectReference Include="..\OpenHdWebUi.FileSystem\OpenHdWebUi.FileSystem.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Fpv\" />
+    <ProjectReference Include="..\OpenHdWebUi.RtpToWebRestreamer\OpenHdWebUi.RtpToWebRestreamer.csproj" />
   </ItemGroup>
 
     <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
