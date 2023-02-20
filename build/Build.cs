@@ -134,14 +134,8 @@ partial class Build : NukeBuild
                 EnsureExistingDirectory(debianDirectory);
                 CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, linuxArc);
 
-                CopyFile(RootDirectory / "postinst", debianDirectory / "postinst");
-
-                if (IsUnix)
-                {
-#pragma warning disable CA1416 // Validate platform compatibility
-                    File.SetUnixFileMode(debianDirectory / "postinst", (UnixFileMode)509);
-#pragma warning restore CA1416 // Validate platform compatibility
-                }
+                CopyDebFile(debianDirectory, "postinst");
+                CopyDebFile(debianDirectory, "preinst");
 
                 // Copy ffmpeg
                 var ffmpegTargetFolder = serviceTargetDirectory / "ffmpeg";
@@ -222,5 +216,17 @@ partial class Build : NukeBuild
             "x64" => "amd64",
             _ => original
         };
+    }
+
+    static void CopyDebFile(AbsolutePath debianDirectory, string filename)
+    {
+        CopyFile(RootDirectory / filename, debianDirectory / filename);
+
+        if (IsUnix)
+        {
+#pragma warning disable CA1416 // Validate platform compatibility
+            File.SetUnixFileMode(debianDirectory / filename, (UnixFileMode)509);
+#pragma warning restore CA1416 // Validate platform compatibility
+        }
     }
 }
