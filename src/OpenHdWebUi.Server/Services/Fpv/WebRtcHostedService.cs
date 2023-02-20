@@ -16,7 +16,7 @@ public class WebRtcHostedService : IHostedService
         {
             _rtpRestreamer = new RtpRestreamer(
                 new IPEndPoint(IPAddress.Any, 8081),
-                new IPEndPoint(IPAddress.Any, 8600),
+                new IPEndPoint(IPAddress.Any, 5800),
                 loggerFactory
             );
             _rtpRestreamer.ConnectedClientsChanged += RtpRestreamerOnConnectedClientsChanged;

@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\control.template = ..\control.template
 		..\openhd-web-ui.service = ..\openhd-web-ui.service
 		..\postinst = ..\postinst
+		..\preinst = ..\preinst
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConversionDemo", "ConversionDemo\ConversionDemo.csproj", "{516B1232-6903-420E-9DD2-10187AFA5850}"

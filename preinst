@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+if systemctl is-active --quiet openhd-web-ui.service; then
+  systemctl stop openhd-web-ui.service
+fi
