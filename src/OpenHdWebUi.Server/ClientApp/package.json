@@ -21,7 +21,6 @@
     "@angular/platform-server": "^15.1.5",
     "@angular/router": "^15.1.5",
     "@microsoft/signalr": "^7.0.2",
-    "@types/webrtc": "^0.0.33",
     "bootstrap": "^5.2.0",
     "jquery": "^3.6.0",
     "oidc-client": "^1.11.5",
