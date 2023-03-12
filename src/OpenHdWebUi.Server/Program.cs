@@ -1,20 +1,16 @@
-using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Net;
+using Bld.RtpToWebRtcRestreamer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Hubs;
-using OpenHdWebUi.Server.Services;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
-using OpenHdWebUi.Server.Services.Fpv;
 using OpenHdWebUi.Server.Services.Media;
-using Xabe.FFmpeg;
-using Xabe.FFmpeg.Downloader;
 
 namespace OpenHdWebUi.Server;
 
@@ -41,7 +37,7 @@ public class Program
             .AddDirectoryBrowser();
         builder.Services.AddControllersWithViews();
         builder.Services.AddSignalR();
-        builder.Services.AddHostedService<WebRtcHostedService>();
+        builder.Services.AddRtpRestreamer(new IPEndPoint(IPAddress.Any, 5800));
 
         var app = builder.Build();
 
