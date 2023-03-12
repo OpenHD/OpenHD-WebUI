@@ -45,7 +45,7 @@ export class FpvComponent implements OnInit, AfterViewInit {
     this.pc.onconnectionstatechange = () => console.log("onconnectionstatechange: " + this.pc!.connectionState);
 
     let url = new URL(this.baseUrl);
-    this.ws = new WebSocket(`ws://${ url.host }:8081/`, []);
+    this.ws = new WebSocket(`ws://${ url.hostname }:8081/`, []);
 
     let _this = this;
     this.ws.onmessage = async function (evt) {
