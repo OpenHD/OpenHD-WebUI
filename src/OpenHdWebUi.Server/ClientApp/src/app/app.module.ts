@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FilesComponent } from './files/files.component';
 import { SystemComponent } from './system/system.component';
+import { FpvComponent } from './fpv/fpv.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavMenuComponent,
     FilesComponent,
-    SystemComponent
+    SystemComponent,
+    FpvComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -24,9 +26,10 @@ import { SystemComponent } from './system/system.component';
       { path: '', component: FilesComponent, pathMatch: 'full' },
       { path: 'files', component: FilesComponent },
       { path: 'system', component: SystemComponent },
+      { path: 'fpv', component: FpvComponent }
     ])
   ],
-  providers: [],
+  //providers: [SignalrService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

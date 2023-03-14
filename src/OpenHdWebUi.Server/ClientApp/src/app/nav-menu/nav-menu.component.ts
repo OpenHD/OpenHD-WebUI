@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
 
 @Component({
   selector: 'app-nav-menu',
@@ -7,6 +8,33 @@ import { Component } from '@angular/core';
 })
 export class NavMenuComponent {
   isExpanded = false;
+  isAir = false;
+  isGround = false;
+  version = "";
+
+  constructor(
+    @Inject("BASE_URL") baseUrl: string,
+    http: HttpClient) {
+    http.get<IAirGroundStatus>(baseUrl + 'api/info/ag-state')
+      .subscribe({
+        next: obj => {
+          this.isAir = obj.isAir;
+          this.isGround = obj.isGround;
+        },
+        error: err => console.error(err)
+      });
+
+
+    const responseType = 'text';
+
+    http.get(baseUrl + 'api/info/web-ui-version', { responseType })
+      .subscribe({
+        next: obj => {
+          this.version = obj;
+        },
+        error: err => console.error(err)
+      });
+  }
 
   collapse() {
     this.isExpanded = false;
@@ -15,4 +43,10 @@ export class NavMenuComponent {
   toggle() {
     this.isExpanded = !this.isExpanded;
   }
+}
+
+
+interface IAirGroundStatus {
+  isAir: boolean;
+  isGround: boolean;
 }

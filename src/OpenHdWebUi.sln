@@ -9,10 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.c
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{943951A9-6A26-463C-B292-4EFECA024E0B}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\.gitignore = ..\.gitignore
 		..\control.template = ..\control.template
 		..\openhd-web-ui.service = ..\openhd-web-ui.service
 		..\postinst = ..\postinst
+		..\preinst = ..\preinst
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConversionDemo", "ConversionDemo\ConversionDemo.csproj", "{516B1232-6903-420E-9DD2-10187AFA5850}"
@@ -20,6 +22,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FileSystem", "OpenHdWebUi.FileSystem\OpenHdWebUi.FileSystem.csproj", "{2F0BB713-E306-4A24-BA63-322A2A90EF84}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHdWebUi.FFmpeg", "OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj", "{E8B63594-4E6E-479A-80ED-A2A401EF0452}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemoProjects", "DemoProjects", "{6672B834-BDB9-4A69-96B9-147F114C8FB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +52,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{516B1232-6903-420E-9DD2-10187AFA5850} = {6672B834-BDB9-4A69-96B9-147F114C8FB5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8686ED1D-73C3-48EB-9011-0046C70801E6}
