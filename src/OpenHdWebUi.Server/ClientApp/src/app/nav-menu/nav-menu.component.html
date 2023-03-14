@@ -1,10 +1,22 @@
 <header>
   <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="container">
-      <a class="navbar-brand" [routerLink]="['/']">
-        <img src="assets/logo.jpg" height="40" class="d-inline-block align-top" alt="">
-        OpenHD WebUI
-      </a>
+        <div class="row navbar-brand" >
+            <div class="col">
+              <div class="row">
+                <a [routerLink]="['/']">
+                  <img src="assets/logo.jpg" height="40" class="d-inline-block align-top" alt="">
+                </a>
+              </div>
+              <div class="row">
+                  <div class="col fs-6 fw-light font-monospace">
+                      ui-ver: {{version}}
+                  </div>
+              </div>
+            </div>
+            <div class="col">OpenHD WebUI</div>
+        </div>
+
       <button
         class="navbar-toggler"
         type="button"

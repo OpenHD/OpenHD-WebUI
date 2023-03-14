@@ -10,6 +10,7 @@ export class NavMenuComponent {
   isExpanded = false;
   isAir = false;
   isGround = false;
+  version = "";
 
   constructor(
     @Inject("BASE_URL") baseUrl: string,
@@ -19,6 +20,17 @@ export class NavMenuComponent {
         next: obj => {
           this.isAir = obj.isAir;
           this.isGround = obj.isGround;
+        },
+        error: err => console.error(err)
+      });
+
+
+    const responseType = 'text';
+
+    http.get(baseUrl + 'api/info/web-ui-version', { responseType })
+      .subscribe({
+        next: obj => {
+          this.version = obj;
         },
         error: err => console.error(err)
       });
