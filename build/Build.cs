@@ -70,7 +70,7 @@ partial class Build : NukeBuild
 
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
-    Project PublishProject => Solution.GetProject("OpenHdWebUi.Server");
+    Project PublishProject => Solution.OpenHdWebUi_Server;
 
     IReadOnlyCollection<string> Rids;
 
