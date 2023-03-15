@@ -13,6 +13,7 @@ using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Stubble.Core.Builders;
+using Nuke.Common.Tools.MinVer;
 
 [GitHubActions(
     "continuous",
@@ -57,7 +58,11 @@ partial class Build : NukeBuild
 
     [GitVersion(NoFetch = true)]
     readonly GitVersion GitVersion;
-    string CurrentVersion => GitVersion.FullSemVer;
+
+    [MinVer]
+    readonly MinVer MinVer;
+
+    string CurrentVersion => MinVer.Version;
 
     readonly AbsolutePath OutputPath;
     readonly AbsolutePath PublishPath;
@@ -65,7 +70,7 @@ partial class Build : NukeBuild
 
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
-    Project PublishProject => Solution.GetProject("OpenHdWebUi.Server");
+    Project PublishProject => Solution.OpenHdWebUi_Server;
 
     IReadOnlyCollection<string> Rids;
 
