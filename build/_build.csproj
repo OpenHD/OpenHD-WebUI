@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -17,7 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageDownload Include="GitVersion.Tool" Version="[5.11.1]" />
+      <PackageDownload Include="GitVersion.Tool" Version="[5.11.1]" />
+      <PackageDownload Include="minver-cli" Version="[4.3.0]" />
   </ItemGroup>
 
 </Project>
