@@ -175,17 +175,7 @@ partial class Build : NukeBuild
         .DependsOn(DebPack)
         .Executes(() =>
         {
-            string repoName;
-            if (string.Equals(GitVersion.BranchName, "master", StringComparison.InvariantCultureIgnoreCase) ||
-                string.Equals(GitVersion.BranchName, "main", StringComparison.InvariantCultureIgnoreCase))
-            {
-                repoName = Repo;
-            }
-            else
-            {
-                repoName = DevRepo;
-            }
-
+            var repoName = string.IsNullOrWhiteSpace(MinVer.MinVerPreRelease) ? Repo : DevRepo;
             foreach (var debFile in DebBuildPath.GlobFiles("*.deb"))
             {
                 Cloudsmith($"push deb openhd/{repoName}/any-distro/any-version {debFile.Name}", DebBuildPath);
