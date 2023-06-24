@@ -27,7 +27,10 @@ public class MediaService
 
     public string[] GetMediaFilesPaths()
     {
-        return Directory.GetFiles(MediaDirectoryFullPath, "*.mkv");
+        return Directory.GetFiles(MediaDirectoryFullPath, "*.mkv")
+            .Concat(Directory.GetFiles(MediaDirectoryFullPath, "*.mp4"))
+            .Concat(Directory.GetFiles(MediaDirectoryFullPath, "*.avi"))
+            .ToArray();
     }
 
     public void DeleteFile(string fileName)
