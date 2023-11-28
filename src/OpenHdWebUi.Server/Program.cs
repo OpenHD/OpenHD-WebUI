@@ -3,7 +3,6 @@ using Bld.RtpToWebRtcRestreamer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using OpenHdWebUi.FFmpeg;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Hubs;
@@ -88,6 +87,5 @@ public class Program
     private static async Task PrestartAsync()
     {
         FileSystemHelpers.EnsureCurrentDirectoryIsBinaryDirectory();
-        await FFmpegHelpers.EnsureFFmpegAvailableAsync();
     }
 }

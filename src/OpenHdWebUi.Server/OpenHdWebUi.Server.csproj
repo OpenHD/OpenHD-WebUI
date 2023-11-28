@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenHdWebUi.FFmpeg\OpenHdWebUi.FFmpeg.csproj" />
     <ProjectReference Include="..\OpenHdWebUi.FileSystem\OpenHdWebUi.FileSystem.csproj" />
   </ItemGroup>
 

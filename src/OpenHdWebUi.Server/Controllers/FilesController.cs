@@ -27,21 +27,6 @@ public class FilesController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<ServerFileInfo>> Get()
     {
-        _mediaService.StartPreviewsCreation();
-
-        // Wait some time for attempt of sync previews creation
-        // Should works for small amount of videos
-        await Task.Delay(TimeSpan.FromSeconds(0.5));
-        for (int i = 0; i < 10; i++)
-        {
-            if (!_mediaService.IsInProgress)
-            {
-                break;
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
-        }
-
         var fullPath = _mediaService.MediaDirectoryFullPath;
 
         var files = _mediaService.GetMediaFilesPaths();
@@ -53,11 +38,7 @@ public class FilesController : ControllerBase
             var relativeToFilesDir = Path.GetRelativePath(fullPath, fileInfo.FullName);
             var serverFile = new ServerFileInfo(
                 fileInfo.Name,
-                Flurl.Url.Combine("media", relativeToFilesDir),
-                Flurl.Url.Combine(
-                    MediaConsts.PreviewsWebPath,
-                    Path.GetDirectoryName(relativeToFilesDir),
-                    $"{Path.GetFileNameWithoutExtension(relativeToFilesDir)}.webp")
+                Flurl.Url.Combine("media", relativeToFilesDir)
             );
             serverFileInfos.Add(serverFile);
         }
