@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "Build Schema",
   "$ref": "#/definitions/build",
+  "title": "Build Schema",
   "definitions": {
     "build": {
       "type": "object",
@@ -83,11 +83,9 @@
               "Clean",
               "CloudsmithPublish",
               "DebPack",
-              "DownloadFfmpeg",
               "PrepareForDebPack",
               "Publish",
-              "Restore",
-              "UncompressFfmpeg"
+              "Restore"
             ]
           }
         },
@@ -104,11 +102,9 @@
               "Clean",
               "CloudsmithPublish",
               "DebPack",
-              "DownloadFfmpeg",
               "PrepareForDebPack",
               "Publish",
-              "Restore",
-              "UncompressFfmpeg"
+              "Restore"
             ]
           }
         },
