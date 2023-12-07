@@ -9,7 +9,9 @@ public static class FileSystemHelpers
             if (Environment.OSVersion.Platform == PlatformID.Unix)
             {
                 var dirInfo = new DirectoryInfo(fullPath);
+#pragma warning disable CA1416
                 dirInfo.UnixFileMode = Consts.Mode0777;
+#pragma warning restore CA1416
             }
 
             return;
@@ -17,7 +19,9 @@ public static class FileSystemHelpers
 
         if (Environment.OSVersion.Platform == PlatformID.Unix)
         {
+#pragma warning disable CA1416
             Directory.CreateDirectory(fullPath, Consts.Mode0777);
+#pragma warning restore CA1416
         }
         else
         {
@@ -33,7 +37,7 @@ public static class FileSystemHelpers
 
     private static string GetExeDirectory()
     {
-        var exeFileName = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-        return Path.GetDirectoryName(exeFileName);
+        var exeFileName = System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName;
+        return Path.GetDirectoryName(exeFileName)!;
     }
 }

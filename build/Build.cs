@@ -36,15 +36,14 @@ partial class Build : NukeBuild
         OutputPath = RootDirectory / "out";
         PublishPath = OutputPath / "publish";
         DebBuildPath = OutputPath / "deb";
-        DownloadsPath = OutputPath / "downloads";
     }
 
     public static int Main () => Execute<Build>(x => x.Publish);
 
-    [PathExecutable("dpkg-deb")]
+    [PathVariable("dpkg-deb")]
     readonly Tool DpkgDeb;
 
-    [PathExecutable("cloudsmith")]
+    [PathVariable("cloudsmith")]
     readonly Tool Cloudsmith;
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
@@ -87,7 +86,7 @@ partial class Build : NukeBuild
         .Before(Restore)
         .Executes(() =>
         {
-            EnsureCleanDirectory(OutputPath);
+            OutputPath.CreateOrCleanDirectory();
         });
 
     Target Restore => _ => _
@@ -114,7 +113,6 @@ partial class Build : NukeBuild
 
     Target PrepareForDebPack => _ => _
         .DependsOn(Publish)
-        .DependsOn(UncompressFfmpeg)
         .Executes(() =>
         {
             foreach (var rid in Rids)
@@ -123,7 +121,7 @@ partial class Build : NukeBuild
                 var linuxArc = ToLinuxArc(arc);
                 var packageFolderName = $"{PackageName}_{CurrentVersion}_{linuxArc}";
                 var debPackDirectory = DebBuildPath / packageFolderName;
-                EnsureExistingDirectory(debPackDirectory);
+                debPackDirectory.CreateOrCleanDirectory();
 
                 var serviceTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / "web-ui";
                 CopyDirectoryRecursively(
@@ -132,28 +130,15 @@ partial class Build : NukeBuild
                     excludeFile: info => info.Name == "appsettings.Development.json");
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
-                EnsureExistingDirectory(packSystemDDir);
+                packSystemDDir.CreateOrCleanDirectory();
                 CopyFile(RootDirectory / "openhd-web-ui.service", packSystemDDir / "openhd-web-ui.service");
 
                 var debianDirectory = debPackDirectory / "DEBIAN";
-                EnsureExistingDirectory(debianDirectory);
+                debianDirectory.CreateOrCleanDirectory();
                 CreateControlFile(RootDirectory / "control.template", debianDirectory / "control", CurrentVersion, linuxArc);
 
                 CopyDebFile(debianDirectory, "postinst");
                 CopyDebFile(debianDirectory, "preinst");
-
-                // Copy ffmpeg
-                var ffmpegTargetFolder = serviceTargetDirectory / "ffmpeg";
-
-                var binDescription = FfmpegBinDescriptions.Single(description => description.Rid == rid);
-                CopyDirectoryRecursively(DownloadsPath / binDescription.UncompressedDirectoryName, ffmpegTargetFolder);
-                if (IsUnix)
-                {
-#pragma warning disable CA1416 // Validate platform compatibility
-                    File.SetUnixFileMode(ffmpegTargetFolder / "ffmpeg", (UnixFileMode)509);
-                    File.SetUnixFileMode(ffmpegTargetFolder / "ffprobe", (UnixFileMode)509);
-#pragma warning restore CA1416 // Validate platform compatibility
-                }
             }
         });
 

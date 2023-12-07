@@ -72,11 +72,11 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "OpenHdWebUi.Server:build:production"
+              "buildTarget": "OpenHdWebUi.Server:build:production"
             },
             "development": {
-              "browserTarget": "OpenHdWebUi.Server:build:development",
-              "proxyConfig": "proxy.conf.js"
+              "proxyConfig": "proxy.conf.js",
+              "buildTarget": "OpenHdWebUi.Server:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -84,7 +84,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "OpenHdWebUi.Server:build"
+            "buildTarget": "OpenHdWebUi.Server:build"
           }
         },
         "test": {
