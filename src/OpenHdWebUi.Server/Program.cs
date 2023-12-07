@@ -17,7 +17,7 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        await PrestartAsync();
+        Prestart();
 
         var builder = WebApplication.CreateBuilder(args);
 
@@ -84,7 +84,7 @@ public class Program
         app.Run();
     }
 
-    private static async Task PrestartAsync()
+    private static void Prestart()
     {
         FileSystemHelpers.EnsureCurrentDirectoryIsBinaryDirectory();
     }

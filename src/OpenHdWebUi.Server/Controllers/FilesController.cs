@@ -25,7 +25,7 @@ public class FilesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IEnumerable<ServerFileInfo>> Get()
+    public IEnumerable<ServerFileInfo> Get()
     {
         var fullPath = _mediaService.MediaDirectoryFullPath;
 
@@ -47,7 +47,7 @@ public class FilesController : ControllerBase
     }
 
     [HttpDelete("{fileName}")]
-    public async Task Delete(string fileName)
+    public void Delete(string fileName)
     {
         _mediaService.DeleteFile(fileName);
     }

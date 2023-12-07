@@ -1,7 +1,9 @@
 ﻿using JetBrains.Annotations;
+#nullable disable warnings
+// ReSharper disable NotNullOrRequiredMemberIsNotInitialized
+// ReSharper disable CollectionNeverUpdated.Global
 
 namespace OpenHdWebUi.Server.Configuration;
-
 [UsedImplicitly]
 public class ServiceConfiguration
 {
