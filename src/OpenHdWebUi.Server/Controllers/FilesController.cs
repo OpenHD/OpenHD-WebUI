@@ -43,7 +43,7 @@ public class FilesController : ControllerBase
             serverFileInfos.Add(serverFile);
         }
 
-        return serverFileInfos;
+        return serverFileInfos.OrderByDescending(info => info.FileName, StringComparer.OrdinalIgnoreCase);
     }
 
     [HttpDelete("{fileName}")]
