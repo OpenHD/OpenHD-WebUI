@@ -52,6 +52,7 @@ public class Program
 
         var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
         var absoluteMediaPath = Path.GetFullPath(config.FilesFolder);
+        var absoluteMediaPath2 = Path.GetFullPath(config.FilesFolder2);
         FileSystemHelpers.EnsureFolderCreated(absoluteMediaPath);
 
         app.UseStaticFiles(new StaticFileOptions

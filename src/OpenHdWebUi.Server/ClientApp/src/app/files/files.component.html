@@ -1,6 +1,6 @@
 <h1 id="tableLabel">Files</h1>
 
-<!-- Loading Indicator -->
+<!-- Loading Indicator with Inline Animation -->
 <div *ngIf="!files?.length" style="
   display: flex;
   justify-content: center;
@@ -17,16 +17,16 @@
       height: 8px;
       background-color: #444;
       border-radius: 50%;
-      animation: loading 1s infinite alternate;
-      margin-left: 5px;"></span>
+      margin-left: 5px;
+      animation: loadingDot 1s infinite alternate;"></span>
     <span style="
       display: inline-block;
       width: 8px;
       height: 8px;
       background-color: #444;
       border-radius: 50%;
-      animation: loading 1s infinite alternate;
       margin-left: 5px;
+      animation: loadingDot 1s infinite alternate;
       animation-delay: 0.2s;"></span>
     <span style="
       display: inline-block;
@@ -34,8 +34,8 @@
       height: 8px;
       background-color: #444;
       border-radius: 50%;
-      animation: loading 1s infinite alternate;
       margin-left: 5px;
+      animation: loadingDot 1s infinite alternate;
       animation-delay: 0.4s;"></span>
   </div>
 </div>
@@ -74,7 +74,8 @@
 </div>
 
 <style>
-  @keyframes loading {
+  /* Animation Keyframes */
+  @keyframes loadingDot {
     0% {
       transform: translateY(0);
     }
