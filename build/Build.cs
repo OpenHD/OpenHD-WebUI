@@ -128,7 +128,7 @@ partial class Build : NukeBuild
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
                 packSystemDDir.CreateOrCleanDirectory();
-                CopyFile(RootDirectory / "openhd-web-ui.service", packSystemDDir / "openhd-web-ui.service");
+                (RootDirectory / "openhd-web-ui.service").Copy(packSystemDDir / "openhd-web-ui.service");
 
                 var debianDirectory = debPackDirectory / "DEBIAN";
                 debianDirectory.CreateOrCleanDirectory();
