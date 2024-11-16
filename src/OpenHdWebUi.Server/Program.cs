@@ -1,5 +1,4 @@
 using System.Net;
-using Bld.RtpToWebRtcRestreamer;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -32,10 +31,8 @@ public class Program
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>();
         builder.Services
-            .AddDirectoryBrowser();
-        builder.Services.AddControllersWithViews();
-        builder.Services.AddSignalR();
-        builder.Services.AddRtpRestreamer(new IPEndPoint(IPAddress.Any, 5800));
+            .AddDirectoryBrowser()
+            .AddControllers();
 
         var app = builder.Build();
 
