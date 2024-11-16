@@ -5,7 +5,6 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
-using OpenHdWebUi.Server.Hubs;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
@@ -40,15 +39,13 @@ public class Program
 
         var app = builder.Build();
 
-        var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-
-
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
         }
 
-        app.UseStaticFiles();
+        app.UseDefaultFiles();
+        app.MapStaticAssets();
 
         var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
         var absoluteMediaPath = Path.GetFullPath(config.FilesFolder);
@@ -62,24 +59,9 @@ public class Program
             ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string>{{".mkv", "video/x-matroska" } })
         });
 
-        FileSystemHelpers.EnsureFolderCreated(MediaConsts.PreviewsFsPath);
-
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new PhysicalFileProvider(MediaConsts.PreviewsFsPath),
-            RequestPath = $"/{MediaConsts.PreviewsWebPath}",
-            ServeUnknownFileTypes = true
-        });
-
-        app.UseRouting();
-
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "api/{controller}/{action=Index}/{id?}");
-
-        app.MapHub<VideoHub>("/videoHub");
-
-        app.MapFallbackToFile("index.html");
+        //app.UseRouting();
+        app.MapControllers();
+        app.MapFallbackToFile("/index.html");
 
         app.Run();
     }

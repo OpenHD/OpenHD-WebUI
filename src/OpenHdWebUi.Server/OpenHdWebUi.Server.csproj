@@ -5,11 +5,18 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <SpaRoot>..\openhdwebui.client</SpaRoot>
-    <SpaProxyServerUrl>http://localhost:44498</SpaProxyServerUrl>
+      <SpaProxyServerUrl>https://localhost:9640</SpaProxyServerUrl>
     <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     <ImplicitUsings>enable</ImplicitUsings>
     <RuntimeIdentifiers>win-x64;linux-x64;linux-arm;linux-arm64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Hubs\**" />
+    <Content Remove="Hubs\**" />
+    <EmbeddedResource Remove="Hubs\**" />
+    <None Remove="Hubs\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Bld.RtpToWebRtcRestreamer" Version="0.1.0" />
