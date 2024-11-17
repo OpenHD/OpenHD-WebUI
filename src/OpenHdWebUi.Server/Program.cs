@@ -44,17 +44,18 @@ public class Program
         app.UseDefaultFiles();
         app.MapStaticAssets();
 
-        var config = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
-        var absoluteMediaPath = Path.GetFullPath(config.FilesFolder);
-        FileSystemHelpers.EnsureFolderCreated(absoluteMediaPath);
-
-        app.UseStaticFiles(new StaticFileOptions
+        var mediaService = app.Services.GetRequiredService<MediaService>();
+        var absoluteMediaPath = mediaService.MediaDirectoryFullPath;
+        if (absoluteMediaPath != null)
         {
-            FileProvider = new PhysicalFileProvider(absoluteMediaPath),
-            RequestPath = "/media",
-            ServeUnknownFileTypes = true,
-            ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string>{{".mkv", "video/x-matroska" } })
-        });
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(absoluteMediaPath),
+                RequestPath = "/media",
+                ServeUnknownFileTypes = true,
+                ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string> { { ".mkv", "video/x-matroska" } })
+            });
+        }
 
         //app.UseRouting();
         app.MapControllers();
