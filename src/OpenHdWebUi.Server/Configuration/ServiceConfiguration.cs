@@ -7,7 +7,7 @@ namespace OpenHdWebUi.Server.Configuration;
 [UsedImplicitly]
 public class ServiceConfiguration
 {
-    public string FilesFolder { get; set; }
+    public List<string> FilesFolders { get; set; }
 
     public List<SystemCommandConfiguration> SystemCommands { get; set; }
 

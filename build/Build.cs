@@ -50,10 +50,10 @@ partial class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter("Path for cloudsmith release repo")]
-    readonly string Repo = "openhd-2-3-evo";
+    readonly string Repo = "release";
 
     [Parameter("Path for cloudsmith dev repo")]
-    readonly string DevRepo = "openhd-2-3-evo-dev";
+    readonly string DevRepo = "dev-release";
 
     [GitVersion(NoFetch = true)]
     readonly GitVersion GitVersion;
@@ -124,14 +124,11 @@ partial class Build : NukeBuild
                 debPackDirectory.CreateOrCleanDirectory();
 
                 var serviceTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / "web-ui";
-                CopyDirectoryRecursively(
-                    GetPublishPathForRim(rid),
-                    serviceTargetDirectory,
-                    excludeFile: info => info.Name == "appsettings.Development.json");
+                GetPublishPathForRim(rid).Copy(serviceTargetDirectory, excludeFile: info => info.Name == "appsettings.Development.json");
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
                 packSystemDDir.CreateOrCleanDirectory();
-                CopyFile(RootDirectory / "openhd-web-ui.service", packSystemDDir / "openhd-web-ui.service");
+                (RootDirectory / "openhd-web-ui.service").Copy(packSystemDDir / "openhd-web-ui.service");
 
                 var debianDirectory = debPackDirectory / "DEBIAN";
                 debianDirectory.CreateOrCleanDirectory();
