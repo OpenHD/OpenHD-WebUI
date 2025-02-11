@@ -12,7 +12,12 @@ public class ServiceConfiguration
     public List<SystemCommandConfiguration> SystemCommands { get; set; }
 
     public List<SystemFileConfiguration> SystemFiles { get; set; }
+
+    public UpdateFileConfiguration UpdateConfig { get; set; }
 }
 
 [UsedImplicitly]
 public record SystemFileConfiguration(string Id, string DisplayName,string Path);
+
+[UsedImplicitly]
+public record UpdateFileConfiguration(string UpdateFile);
