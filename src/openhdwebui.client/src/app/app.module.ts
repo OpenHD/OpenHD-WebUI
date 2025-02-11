@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FilesComponent } from './files/files.component';
 import { SystemComponent } from './system/system.component';
+import { UpdateComponent } from './update/update.component';
 
 @NgModule(
     { 
@@ -15,7 +16,8 @@ import { SystemComponent } from './system/system.component';
             AppComponent,
             NavMenuComponent,
             FilesComponent,
-            SystemComponent
+            SystemComponent,
+            UpdateComponent
         ],
         bootstrap: [AppComponent], 
         imports: 

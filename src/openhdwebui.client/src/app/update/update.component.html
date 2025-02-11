@@ -1,0 +1,50 @@
+<div class="container">
+    <div class="row m-3">
+        <div class="col align-self-start">
+            <input 
+                class="form-control" 
+                type="file" 
+                id="formFile"
+                accept=".zip"
+                [disabled]="isUploadInprogress"
+                (change)="onFileSelected($event)">
+        </div>
+    </div>
+    <div class="row m-3 row-cols-2 align-items-center">
+        <div class="col-auto align-self-start">
+            <button 
+                class="btn btn-primary" 
+                [disabled]="!isFileSelected || isUploadInprogress"
+                (click)="onUploadClick()">
+                Upload
+            </button>
+        </div>
+        
+        <div class="col">
+            <div 
+                class="progress" 
+                role="progressbar" 
+                aria-label="Upload progress" 
+                [attr.aria-valuenow]="uploadProgress" 
+                aria-valuemin="0" 
+                aria-valuemax="100"
+                *ngIf="isUploadInprogress || isUploaded">
+                    <div 
+                        class="progress-bar" 
+                        [style.width]="uploadProgress+'%'">
+                        {{uploadProgress}}%
+                    </div>
+            </div>
+        </div>        
+    </div>
+    <div class="row m-3">
+        <div class="col-auto align-self-start">
+            <button 
+                class="btn btn-danger" 
+                [disabled]="!isUploaded"
+                (click)="onRebootClick()">
+                Reboot&Update
+            </button>
+        </div>
+    </div>
+</div>

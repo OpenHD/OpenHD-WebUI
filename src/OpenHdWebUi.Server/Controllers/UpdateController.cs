@@ -7,6 +7,7 @@ namespace OpenHdWebUi.Server.Controllers;
 public class UpdateController: ControllerBase
 {
     [HttpPost("upload")]
+    [RequestSizeLimit(1024*1024*1024)]
     public async Task<ActionResult> UploadFile()
     {
         var requestStream = Request.Body;
