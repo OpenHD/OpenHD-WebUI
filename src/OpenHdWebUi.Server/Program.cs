@@ -42,7 +42,7 @@ public class Program
         }
 
         app.UseDefaultFiles();
-        app.MapStaticAssets();
+        app.UseStaticFiles();
 
         var mediaService = app.Services.GetRequiredService<MediaService>();
         var absoluteMediaPath = mediaService.MediaDirectoryFullPath;

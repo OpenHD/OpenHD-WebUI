@@ -21,7 +21,7 @@ public class MediaService
     {
         if (MediaDirectoryFullPath == null)
         {
-            return [];
+            return Array.Empty<string>();
         }
 
         return Directory.GetFiles(MediaDirectoryFullPath, "*.mkv")
