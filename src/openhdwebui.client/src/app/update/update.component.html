@@ -35,7 +35,12 @@
                         {{uploadProgress}}%
                     </div>
             </div>
-        </div>        
+        </div>
+    </div>
+    <div class="row m-3" *ngIf="isUploaded">
+        <div class="col-auto align-self-start">
+            Wait for buttons activation
+        </div>
     </div>
     <div class="row m-3">
         <div class="col-auto align-self-start">
