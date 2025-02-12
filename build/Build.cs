@@ -10,19 +10,18 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Stubble.Core.Builders;
 using Nuke.Common.Tools.MinVer;
 
 [GitHubActions(
     "continuous",
-    GitHubActionsImage.UbuntuLatest,
-    On = new[] { GitHubActionsTrigger.Push },
-    InvokedTargets = new[] { nameof(Clean), nameof(CloudsmithPublish) },
+    GitHubActionsImage.Ubuntu2204,
+    On = [GitHubActionsTrigger.Push],
+    InvokedTargets = [nameof(Clean), nameof(CloudsmithPublish)],
     AutoGenerate = true,
     FetchDepth = 0,
-    ImportSecrets = new []{ "CLOUDSMITH_API_KEY" })]
+    ImportSecrets = ["CLOUDSMITH_API_KEY"])]
 partial class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -197,7 +196,7 @@ partial class Build : NukeBuild
 
     static void CopyDebFile(AbsolutePath debianDirectory, string filename)
     {
-        CopyFile(RootDirectory / filename, debianDirectory / filename);
+        (RootDirectory / filename).Copy(debianDirectory / filename);
 
         if (IsUnix)
         {
