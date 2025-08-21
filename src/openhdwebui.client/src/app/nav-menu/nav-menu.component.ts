@@ -11,6 +11,7 @@ export class NavMenuComponent {
   isAir = false;
   isGround = false;
   version = "";
+  isDarkTheme = false;
 
   constructor(
     http: HttpClient) {
@@ -41,6 +42,15 @@ export class NavMenuComponent {
 
   toggle() {
     this.isExpanded = !this.isExpanded;
+  }
+
+  toggleTheme() {
+    this.isDarkTheme = !this.isDarkTheme;
+    if (this.isDarkTheme) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
   }
 }
 

@@ -9,6 +9,7 @@ import { FilesComponent } from './files/files.component';
 import { SystemComponent } from './system/system.component';
 import { UpdateComponent } from './update/update.component';
 import { FrontpageComponent } from './frontpage/frontpage.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule(
     { 
@@ -19,7 +20,8 @@ import { FrontpageComponent } from './frontpage/frontpage.component';
             FilesComponent,
             SystemComponent,
             UpdateComponent,
-            FrontpageComponent
+            FrontpageComponent,
+            SettingsComponent
         ],
         bootstrap: [AppComponent], 
         imports: 

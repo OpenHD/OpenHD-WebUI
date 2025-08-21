@@ -1,16 +1,17 @@
 <header>
-  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+  <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3"
+       [ngClass]="isDarkTheme ? 'navbar-dark bg-dark' : 'navbar-light bg-white'">
     <div class="container">
         <div class="row navbar-brand" >
             <div class="col">
-              <div class="row">
-                <a [routerLink]="['/']">
-                  <img src="assets/logo.jpg" height="40" class="d-inline-block align-top" alt="">
-                </a>
-              </div>
+                <div class="row">
+                  <a [routerLink]="['/']">
+                    <img src="assets/logo.svg" height="40" class="d-inline-block align-top" alt="OpenHD logo">
+                  </a>
+                </div>
             </div>
-            <div class="col">OpenHD WebUI</div>
-        </div>
+              <div class="col" [ngClass]="isDarkTheme ? 'text-light' : 'text-dark'">OpenHD WebUI</div>
+          </div>
 
       <button
         class="navbar-toggler"
@@ -24,32 +25,35 @@
       </button>
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
            [ngClass]="{ show: isExpanded }">
+          <ul class="navbar-nav flex-grow">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link" [routerLink]="['/']">Home</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav flex-grow" *ngIf="isAir">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link" [routerLink]="['/files']">Videos</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav flex-grow">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link" [routerLink]="['/settings']">Settings</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav flex-grow">
+            <li class="nav-item" [routerLinkActive]="['link-active']">
+              <a class="nav-link" [routerLink]="['/system']">Debug</a>
+            </li>
+          </ul>
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
+            <a class="nav-link" [routerLink]="['/update']">Update</a>
           </li>
         </ul>
-        <ul class="navbar-nav flex-grow" *ngIf="isAir">
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/files']">Videos</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav flex-grow">
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/settings']">Settings</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav flex-grow">
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/system']">Debug</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav flex-grow">
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/update']">Update</a>
-          </li>
-        </ul>
+        <button class="btn btn-sm btn-outline-secondary ms-3" (click)="toggleTheme()">
+          {{ isDarkTheme ? 'Light' : 'Dark' }} Mode
+        </button>
+        </div>
       </div>
-    </div>
-  </nav>
-</header>
+    </nav>
+  </header>
