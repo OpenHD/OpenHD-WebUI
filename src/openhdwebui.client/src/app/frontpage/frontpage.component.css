@@ -1,0 +1,19 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1b2735 0%, #090a0f 100%);
+  color: #fff;
+}
+
+.logo {
+  width: 150px;
+  height: auto;
+}
+
+.tagline {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}

@@ -29,6 +29,11 @@
       </button>
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
            [ngClass]="{ show: isExpanded }">
+        <ul class="navbar-nav flex-grow">
+          <li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/']">Frontpage</a>
+          </li>
+        </ul>
         <ul class="navbar-nav flex-grow" *ngIf="isAir">
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link text-dark" [routerLink]="['/files']">Files</a>
