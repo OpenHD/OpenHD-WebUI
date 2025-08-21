@@ -1,18 +1,62 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global theme variables and styles */
+
+:root {
+  --primary-color: #d62828;
+  --background-color: #ffffff;
+  --text-color: #212529;
+  --link-color: var(--primary-color);
+  --hero-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
 a {
-    color: #0366d6;
-  }
-  
-  .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-  }
-  
-  code {
-    color: #e01a76;
-  }
-  
-  .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-  }
+  color: var(--link-color);
+}
+
+nav a.nav-link {
+  color: var(--text-color);
+}
+
+nav.navbar {
+  background-color: var(--background-color);
+}
+
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--primary-color);
+}
+
+code {
+  color: #e01a76;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.dark-theme {
+  --background-color: #121212;
+  --text-color: #f8f9fa;
+  --hero-bg: linear-gradient(135deg, #d62828 0%, #000000 100%);
+}
+
+.logo-dark {
+  display: none;
+}
+
+.dark-theme .logo-light {
+  display: none;
+}
+
+.dark-theme .logo-dark {
+  display: inline;
+}
+
