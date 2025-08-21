@@ -8,11 +8,6 @@
                   <img src="assets/logo.jpg" height="40" class="d-inline-block align-top" alt="">
                 </a>
               </div>
-              <div class="row">
-                  <div class="col fs-6 fw-light font-monospace">
-                      ui-ver: {{version}}
-                  </div>
-              </div>
             </div>
             <div class="col">OpenHD WebUI</div>
         </div>
@@ -31,17 +26,22 @@
            [ngClass]="{ show: isExpanded }">
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/']">Frontpage</a>
+            <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
         </ul>
         <ul class="navbar-nav flex-grow" *ngIf="isAir">
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/files']">Files</a>
+            <a class="nav-link text-dark" [routerLink]="['/files']">Videos</a>
           </li>
         </ul>
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/system']">System</a>
+            <a class="nav-link text-dark" [routerLink]="['/settings']">Settings</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav flex-grow">
+          <li class="nav-item" [routerLinkActive]="['link-active']">
+            <a class="nav-link text-dark" [routerLink]="['/system']">Debug</a>
           </li>
         </ul>
         <ul class="navbar-nav flex-grow">
