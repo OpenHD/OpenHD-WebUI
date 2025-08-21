@@ -9,27 +9,25 @@ import { FilesComponent } from './files/files.component';
 import { SystemComponent } from './system/system.component';
 import { UpdateComponent } from './update/update.component';
 import { FrontpageComponent } from './frontpage/frontpage.component';
+import { SettingsComponent } from './settings/settings.component';
 
-@NgModule(
-    { 
-        declarations: 
-        [
-            AppComponent,
-            NavMenuComponent,
-            FilesComponent,
-            SystemComponent,
-            UpdateComponent,
-            FrontpageComponent
-        ],
-        bootstrap: [AppComponent], 
-        imports: 
-        [
-            BrowserModule,
-            AppRoutingModule
-        ], 
-        providers: 
-            [
-                provideHttpClient(withInterceptorsFromDi())
-            ] 
-    })
+@NgModule({
+    declarations: [
+        AppComponent,
+        NavMenuComponent,
+        FilesComponent,
+        SystemComponent,
+        UpdateComponent,
+        FrontpageComponent,
+        SettingsComponent
+    ],
+    bootstrap: [AppComponent],
+    imports: [
+        BrowserModule,
+        AppRoutingModule
+    ],
+    providers: [
+        provideHttpClient(withInterceptorsFromDi())
+    ]
+})
 export class AppModule { }
