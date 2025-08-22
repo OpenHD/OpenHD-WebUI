@@ -1,0 +1,31 @@
+@import 'xterm/css/xterm.css';
+
+.system-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.lists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.list-card {
+  flex: 1 1 300px;
+}
+
+.terminal-card {
+  flex: 1 1 auto;
+  margin-top: 16px;
+  height: 60vh;
+}
+
+.terminal {
+  height: 100%;
+}
+

@@ -6,6 +6,7 @@ using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Models;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
+using System.Diagnostics;
 
 namespace OpenHdWebUi.Server.Controllers;
 
@@ -59,6 +60,24 @@ public class SystemController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpPost("run-terminal")]
+    public async Task<string> RunTerminal([FromBody] RunTerminalCommandRequest request)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = "/bin/bash",
+            ArgumentList = { "-c", request.Command },
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using var process = Process.Start(psi);
+        var output = await process!.StandardOutput.ReadToEndAsync();
+        var error = await process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        return output + error;
     }
 }
 
