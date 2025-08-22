@@ -3,7 +3,7 @@
 :root {
   --primary-color: #00a6f2;
   --background-color: #ffffff;
-  --text-color: #212d37;
+  --text-color: #000;
   --link-color: var(--primary-color);
   --hero-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   --nav-background-color: var(--background-color);
@@ -46,14 +46,14 @@ code {
 }
 
 .btn-primary {
-  color: #fff;
+  color: var(--text-color);
   background-color: var(--primary-color);
   border-color: var(--primary-color);
 }
 
 .dark-theme {
   --background-color: #212d37;
-  --text-color: #f8f9fa;
+  --text-color: #fff;
   --primary-color: #ffffff;
   --hero-bg: #1c262f;
   --nav-background-color: #1c262f;
