@@ -61,7 +61,7 @@ code {
   display: inline;
 }
 
-main.container {
+main {
   display: flex;
   flex-direction: column;
   align-items: center;
