@@ -2,7 +2,7 @@
   --bg: #0a0f1a;
   --surface: rgba(255,255,255,.05);
   --surface-strong: rgba(255,255,255,.08);
-  --text: #e6e9ef;
+  --text: #fff;
   --muted: #9aa3b2;
   --accent: #3cc7ff; /* single accent */
   --shadow: 0 10px 30px rgba(0,0,0,.35);
@@ -13,7 +13,7 @@
     --bg: #f7f9fc;
     --surface: rgba(0,0,0,.04);
     --surface-strong: rgba(0,0,0,.06);
-    --text: #0b1220;
+    --text: #000;
     --muted: #596273;
   }
 }
@@ -30,11 +30,11 @@ html, body { background: var(--bg); color: var(--text); }
 .mb-4 { margin-bottom: 1.5rem; }
 .mb-5 {
    margin-bottom: 3rem;
-   color: #fff; 
+   color: var(--text);
   }
 .w-100 { width: 100%; }
 .h3 {
-  color: #fff;
+  color: var(--text);
 }
 
 .topbar {
@@ -55,7 +55,7 @@ html, body { background: var(--bg); color: var(--text); }
   border: 1px solid transparent; border-radius: .75rem; padding: .6rem .95rem;
   font-weight: 600; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease, background .2s ease, border-color .2s ease;
 }
-.btn--accent { background: linear-gradient(135deg, var(--accent), #7af0ff); color: #061018; box-shadow: 0 6px 20px rgba(60,199,255,.35); }
+.btn--accent { background: linear-gradient(135deg, var(--accent), #7af0ff); color: var(--text); box-shadow: 0 6px 20px rgba(60,199,255,.35); }
 .btn--accent:hover { transform: translateY(-1px); }
 .btn--ghost { background: transparent; border-color: var(--surface-strong); color: var(--text); }
 .btn--ghost:hover { background: var(--surface); }
@@ -69,7 +69,6 @@ html, body { background: var(--bg); color: var(--text); }
 
 .section-label {
   display: inline-block; color: var(--accent); letter-spacing: .12rem; font-size: .85rem;
-  color: #00a6f2;
   border-left: 3px solid var(--accent); padding-left: .6rem;
 }
 
