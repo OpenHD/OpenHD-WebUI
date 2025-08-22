@@ -23,7 +23,7 @@ public class SystemFilesService
         _files[journalctl.Id] = journalctl;
     }
 
-    public IReadOnlyCollection<IFile> GetAllCommands()
+    public IReadOnlyCollection<IFile> GetAllFiles()
     {
         return _files.Values;
     }

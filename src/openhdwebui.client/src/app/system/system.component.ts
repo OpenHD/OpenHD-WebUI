@@ -78,11 +78,6 @@ export class SystemComponent implements OnInit, AfterViewInit {
   onCommandClick(command: SystemCommandDto): void {
     this.httpClient.post('/api/system/run-command', {id : command.id}).subscribe(result => {}, error => console.error(error));
   }
-
-  onFileClick(file: SystemFileDto): void {
-    //this.httpClient.get(this.baseUrl + 'api/system/run-command', { id: command.id }).subscribe(result => { }, error => console.error(error));
-  }
-
 }
 
 

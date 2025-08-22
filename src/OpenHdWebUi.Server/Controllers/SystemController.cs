@@ -45,13 +45,13 @@ public class SystemController : ControllerBase
     [HttpGet("get-files")]
     public IReadOnlyCollection<SystemFileDto> GetFiles()
     {
-        return _systemFilesService.GetAllCommands()
+        return _systemFilesService.GetAllFiles()
             .Select(c => new SystemFileDto(c.Id, c.DisplayName))
             .ToArray();
     }
 
     [HttpGet("get-file/{id}")]
-    public async Task<IActionResult> RunCommand([FromRoute]string id)
+    public async Task<IActionResult> GetFile([FromRoute] string id)
     {
         var (found, content) = await _systemFilesService.TryGetFileContentAsync(id);
         if (found)

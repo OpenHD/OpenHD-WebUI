@@ -7,7 +7,7 @@ import { MatListModule } from '@angular/material/list';
 
 import { SystemComponent } from './system.component';
 
-describe('CommandsComponent', () => {
+describe('SystemComponent', () => {
   let component: SystemComponent;
   let fixture: ComponentFixture<SystemComponent>;
 
