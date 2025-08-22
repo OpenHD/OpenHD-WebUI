@@ -2,8 +2,8 @@
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
 * text=auto
-*.sh text=auto eol=lf # linux line-endings
-postinst text=auto eol=lf   # linux line-endings
+*.sh text=auto eol=lf
+postinst text=auto eol=lf
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

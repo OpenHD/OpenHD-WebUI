@@ -21,11 +21,15 @@
     "@angular/platform-browser": "^18.2.12",
     "@angular/platform-browser-dynamic": "^18.2.12",
     "@angular/router": "^18.2.12",
+    "@angular/cdk": "^18.2.12",
+    "@angular/material": "^18.2.12",
     "bootstrap": "^5.3.3",
     "jest-editor-support": "*",
     "run-script-os": "*",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0",
     "zone.js": "~0.14.2"
   },
   "devDependencies": {

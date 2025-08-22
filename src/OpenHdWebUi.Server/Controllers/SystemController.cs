@@ -6,6 +6,7 @@ using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Models;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
+using System.Diagnostics;
 
 namespace OpenHdWebUi.Server.Controllers;
 
@@ -44,13 +45,13 @@ public class SystemController : ControllerBase
     [HttpGet("get-files")]
     public IReadOnlyCollection<SystemFileDto> GetFiles()
     {
-        return _systemFilesService.GetAllCommands()
+        return _systemFilesService.GetAllFiles()
             .Select(c => new SystemFileDto(c.Id, c.DisplayName))
             .ToArray();
     }
 
     [HttpGet("get-file/{id}")]
-    public async Task<IActionResult> RunCommand([FromRoute]string id)
+    public async Task<IActionResult> GetFile([FromRoute] string id)
     {
         var (found, content) = await _systemFilesService.TryGetFileContentAsync(id);
         if (found)
@@ -59,6 +60,24 @@ public class SystemController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpPost("run-terminal")]
+    public async Task<string> RunTerminal([FromBody] RunTerminalCommandRequest request)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = "/bin/bash",
+            ArgumentList = { "-c", request.Command },
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using var process = Process.Start(psi);
+        var output = await process!.StandardOutput.ReadToEndAsync();
+        var error = await process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        return output + error;
     }
 }
 
