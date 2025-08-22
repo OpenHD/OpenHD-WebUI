@@ -3,9 +3,11 @@
 :root {
   --primary-color: #00a6f2;
   --background-color: #ffffff;
-  --text-color: #ffffff;
+  --text-color: #212d37;
   --link-color: var(--primary-color);
   --hero-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  --nav-background-color: var(--background-color);
+  --nav-text-color: var(--text-color);
 }
 
 body {
@@ -15,20 +17,17 @@ body {
   font-family: Arial, sans-serif;
 }
 
-body.dark-theme {
-  background-color: pink;
-}
-
 a {
   color: var(--link-color);
 }
 
-nav a.nav-link {
-  color: var(--text-color);
+nav.navbar {
+  background-color: var(--nav-background-color);
+  color: var(--nav-text-color);
 }
 
-nav.navbar {
-  background-color: var(--background-color);
+nav a.nav-link {
+  color: var(--nav-text-color);
 }
 
 
@@ -51,6 +50,8 @@ code {
   --text-color: #f8f9fa;
   --primary-color: #ffffff;
   --hero-bg: #1c262f;
+  --nav-background-color: #1c262f;
+  --nav-text-color: #f8f9fa;
 }
 
 body.dark-theme {
