@@ -1,9 +1,7 @@
 <header>
   <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container d-flex align-items-center">
-      <label class="form-check form-switch mb-0 me-3">
-        <input class="form-check-input" type="checkbox" (change)="themeService.toggle()" [checked]="themeService.isDark">
-      </label>
+
       <div class="navbar-brand d-flex align-items-center me-auto">
         <a [routerLink]="['/']">
           <img src="assets/OpenHD-Logo.png" height="40" class="d-inline-block align-top logo-dark" alt="OpenHD logo">
@@ -21,6 +19,7 @@
         (click)="toggle()">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
            [ngClass]="{ show: isExpanded }">
         <ul class="navbar-nav flex-grow">
@@ -48,6 +47,12 @@
             <a class="nav-link" [routerLink]="['/update']">Update</a>
           </li>
         </ul>
+
+        <label class="form-check form-switch mb-0 ms-3">
+          <input class="form-check-input" type="checkbox"
+                 (change)="themeService.toggle()"
+                 [checked]="themeService.isDark">
+        </label>
       </div>
     </div>
   </nav>
