@@ -47,10 +47,14 @@ code {
 }
 
 .dark-theme {
-  --background-color: #1c262f;
+  --background-color: #212d37;
   --text-color: #f8f9fa;
   --primary-color: #ffffff;
-  --hero-bg: linear-gradient(135deg, #000000 0%, #000000 100%);
+  --hero-bg: #1c262f;
+}
+
+body.dark-theme {
+  background-color: #212d37;
 }
 
 .logo-dark {
