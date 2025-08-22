@@ -43,7 +43,7 @@ code {
 }
 
 .dark-theme {
-  --background-color: #121212;
+  --background-color: #1c262f;
   --text-color: #f8f9fa;
   --hero-bg: linear-gradient(135deg, #d62828 0%, #000000 100%);
 }
