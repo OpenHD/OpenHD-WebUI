@@ -1,19 +1,28 @@
-.hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: var(--hero-bg);
-  color: var(--text-color);
+.frontpage {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.logo {
-  width: 150px;
-  height: auto;
+.section-label {
+  color: var(--primary-color);
+  letter-spacing: 0.1rem;
 }
 
-.tagline {
-  font-size: 1.25rem;
+.features-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.feature-icon {
+  font-size: 2rem;
   margin-bottom: 1rem;
 }
+

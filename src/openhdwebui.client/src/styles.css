@@ -15,6 +15,10 @@ body {
   font-family: Arial, sans-serif;
 }
 
+body.dark-theme {
+  background-color: pink;
+}
+
 a {
   color: var(--link-color);
 }
