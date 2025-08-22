@@ -3,7 +3,7 @@
 :root {
   --primary-color: #d62828;
   --background-color: #ffffff;
-  --text-color: #212529;
+  --text-color: #ffffff;
   --link-color: var(--primary-color);
   --hero-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
 }
@@ -45,7 +45,7 @@ code {
 .dark-theme {
   --background-color: #1c262f;
   --text-color: #f8f9fa;
-  --hero-bg: linear-gradient(135deg, #d62828 0%, #000000 100%);
+  --hero-bg: linear-gradient(135deg, #000000 0%, #000000 100%);
 }
 
 .logo-dark {
