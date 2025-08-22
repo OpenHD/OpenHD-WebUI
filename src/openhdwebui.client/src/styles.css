@@ -1,7 +1,7 @@
 /* Global theme variables and styles */
 
 :root {
-  --primary-color: #d62828;
+  --primary-color: #00a6f2;
   --background-color: #ffffff;
   --text-color: #ffffff;
   --link-color: var(--primary-color);

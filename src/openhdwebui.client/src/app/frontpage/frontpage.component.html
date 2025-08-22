@@ -1,46 +1,85 @@
+
 <section class="frontpage container text-center py-5">
-  <p class="section-label text-uppercase fw-semibold mb-2">What Makes OpenHD so great</p>
-  <h1 class="display-5 mb-3">Explore unlimited possibilities</h1>
-  <p class="lead mb-5">
-    OpenHD is an exceptionally versatile system, adaptable to a wide array of platforms and diverse hardware configurations. Tailored with a strong focus on the FPV hobbyist community, OpenHD remains responsive to valuable feedback from its extensive user base; its remarkable modularity and user-friendly design render OpenHD an invaluable solution across various applications, including education, industry, and the everyday use of FPV enthusiasts.
+  <p class="section-label text-uppercase fw-semibold mb-2">
+      Welcome to the OpenHD Web Interface
   </p>
 
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">📡</div>
-      <h3>Long Range</h3>
-      <p>OpenHD's groundbreaking long-range system empowers users to achieve extraordinary communication distances. Distances exceeding 50 kilometers are realistically achievable within optimal settings.</p>
-    </div>
+  <h1 class="display-5 mb-3 gradient-title">
+    Explore unlimited possibilities
+  </h1>
 
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">📷</div>
+  <p class="lead mb-5 maxw">
+    This lightweight interface lets you configure and manage OpenHD directly in your browser.  
+  Settings here are <strong>not synchronized</strong> with the QOpenHD App and must be applied manually on both air and ground units.  
+  </p>
+
+  <div class="cta">
+    <a routerLink="https://openhdfpv.org/introduction" class="btn btn--ghost">Docs</a>
+    <a loginLink="/" class="btn btn--ghost">Login</a>
+  </div>
+
+  <div class="features-grid mt-5">
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <!-- antenna -->
+        <svg viewBox="0 0 24 24" class="ico">
+          <path d="M12 3v6M6 9a6 6 0 0 1 12 0" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+          <path d="M4 11a8 8 0 0 1 16 0" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" opacity=".7"/>
+          <path d="M2.5 13a9.5 9.5 0 0 1 19 0" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+          <circle cx="12" cy="12.5" r="1.4" />
+          <path d="M9 21h6l-3-8-3 8z" />
+        </svg>
+      </div>
+      <h3>Networking</h3>
+      <p>
+        Here you can configure the networking settings for your OpenHD system, including IP addresses, routing, and more.
+        Ensure your devices are properly connected to maximize performance.
+      </p>
+    </article>
+
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <!-- camera -->
+        <svg viewBox="0 0 24 24" class="ico">
+          <path d="M4 7h4l2-2h4l2 2h4v12H4z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+          <circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+        </svg>
+      </div>
       <h3>Cameras</h3>
-      <p>OpenHD offers support for a vast array of cameras and image sensors. It enables high-definition video, making it an essential component for exploration or scenarios that ask for exceptional clarity.</p>
-    </div>
+      <p>
+        Here you can manage camera settings, including resolution, frame rate, and other parameters.
+        Adjust these settings to optimize video quality and performance for your specific use case.
+      </p>
+    </article>
 
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">🛠</div>
-      <h3>Custom Hardware</h3>
-      <p>With its declared hardware-agnostic nature, OpenHD integrates seamlessly with a diverse range of bespoke hardware configurations, including specialized flight control systems and custom ground stations.</p>
-    </div>
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <!-- wrench -->
+        <svg viewBox="0 0 24 24" class="ico">
+          <path d="M21 7.5a5 5 0 0 1-7.07 7.07L6.5 22l-4.5-4.5 7.43-7.43A5 5 0 0 1 16.5 3a4.5 4.5 0 0 0 4.5 4.5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Download Recordings</h3>
+      <p>
+        Access and download your recorded video files directly from the OpenHD system.
+        This feature allows you to manage and retrieve footage for analysis, sharing, or archiving.
+      </p>
+    </article>
 
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">⚙️</div>
-      <h3>Dynamic Settings</h3>
-      <p>OpenHD supports fine-grained configuration of every subsystem, letting you tailor the video link to your unique requirements.</p>
-    </div>
+    <article class="feature-card">
+      <div class="feature-icon" aria-hidden="true">
+        <!-- cog -->
+        <svg viewBox="0 0 24 24" class="ico">
+          <path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" fill="none" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M3 12h3M18 12h3M12 3v3M12 18v3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h3>Debug</h3>
+      <p>
+        Here you can access debugging tools and logs to troubleshoot issues with your OpenHD system.
+        This section provides insights into system performance and helps identify potential problems.
+      </p>
+    </article>
 
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">🔌</div>
-      <h3>Custom Drivers</h3>
-      <p>In pursuit of ambitious performance goals, OpenHD pushes the boundaries of what's possible, delivering drivers for custom hardware platforms that maximize throughput and minimize latency.</p>
-    </div>
-
-    <div class="feature-card">
-      <div class="feature-icon" aria-hidden="true">🤝</div>
-      <h3>Business Partners</h3>
-      <p>Our diverse array of business partners continue to drive OpenHD forward. Their contributions ensure that the platform continues to evolve with the needs of its community.</p>
-    </div>
   </div>
 </section>
-
