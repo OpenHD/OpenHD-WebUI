@@ -15,7 +15,7 @@
 
   <div class="cta">
     <a routerLink="https://openhdfpv.org/introduction" class="btn btn--ghost">Docs</a>
-    <a loginLink="/" class="btn btn--ghost">Login</a>
+    <button class="btn btn--ghost" (click)="openLogin()">Login</button>
   </div>
 
   <div class="features-grid mt-5">
@@ -83,3 +83,25 @@
 
   </div>
 </section>
+
+<div class="login-backdrop" [class.open]="isLoginOpen" (click)="closeLogin()"></div>
+<div class="login-drawer" [class.open]="isLoginOpen">
+  <button class="drawer__close" type="button" (click)="closeLogin()" aria-label="Close">&times;</button>
+  <form class="login-form" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+    <label>
+      <span>Username</span>
+      <input type="text" formControlName="username" />
+    </label>
+    <label>
+      <span>Password</span>
+      <input type="password" formControlName="password" />
+    </label>
+    <div class="form-row">
+      <label class="checkbox">
+        <input type="checkbox" formControlName="remember" />
+        Remember me
+      </label>
+      <button type="submit" class="btn btn--accent">Login</button>
+    </div>
+  </form>
+</div>

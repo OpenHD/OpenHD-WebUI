@@ -1,6 +1,7 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +11,7 @@ import { SystemComponent } from './system/system.component';
 import { UpdateComponent } from './update/update.component';
 import { FrontpageComponent } from './frontpage/frontpage.component';
 import { SettingsComponent } from './settings/settings.component';
+
 
 @NgModule({
     declarations: [
@@ -24,7 +26,8 @@ import { SettingsComponent } from './settings/settings.component';
     bootstrap: [AppComponent],
     imports: [
         BrowserModule,
-        AppRoutingModule
+        AppRoutingModule,
+        ReactiveFormsModule
     ],
     providers: [
         provideHttpClient(withInterceptorsFromDi())

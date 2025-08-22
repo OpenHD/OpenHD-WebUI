@@ -9,3 +9,5 @@ public record RunCommandRequest(string Id);
 public record ServerFileInfo(string FileName, string DownloadPath);
 
 public record AirGroundStatus(bool IsAir, bool IsGround);
+
+public record LoginRequest(string Username, string Password);

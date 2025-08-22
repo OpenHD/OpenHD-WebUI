@@ -8,6 +8,7 @@
   --hero-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   --nav-background-color: var(--background-color);
   --nav-text-color: var(--text-color);
+  --nav-highlight-color: #00a6f2;
 }
 
 body {
@@ -30,9 +31,14 @@ nav a.nav-link {
   color: var(--nav-text-color);
 }
 
+nav a.nav-link:hover,
+nav a.nav-link:focus,
+.navbar-nav .link-active > a.nav-link {
+  color: var(--nav-highlight-color);
+}
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--primary-color);
+  box-shadow: 0 0 0 0.1rem #00a6f2, 0 0 0 0.25rem var(--primary-color);
 }
 
 code {
