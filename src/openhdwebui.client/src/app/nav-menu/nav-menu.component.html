@@ -1,16 +1,15 @@
 <header>
   <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
-    <div class="container">
-        <div class="row navbar-brand" >
-            <div class="col">
-              <div class="row">
-                <a [routerLink]="['/']">
-                  <img src="assets/OpenHD-Logo.png" height="40" class="d-inline-block align-top logo-dark" alt="OpenHD logo">
-                </a>
-              </div>
-            </div>
-            <div class="col">OpenHD WebUI</div>
-        </div>
+    <div class="container d-flex align-items-center">
+      <label class="form-check form-switch mb-0 me-3">
+        <input class="form-check-input" type="checkbox" (change)="themeService.toggle()" [checked]="themeService.isDark">
+      </label>
+      <div class="navbar-brand d-flex align-items-center me-auto">
+        <a [routerLink]="['/']">
+          <img src="assets/OpenHD-Logo.png" height="40" class="d-inline-block align-top logo-dark" alt="OpenHD logo">
+        </a>
+        <span class="ms-2">OpenHD WebUI</span>
+      </div>
 
       <button
         class="navbar-toggler"
