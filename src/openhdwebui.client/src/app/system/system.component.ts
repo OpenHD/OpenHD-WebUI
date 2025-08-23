@@ -13,7 +13,7 @@ export class SystemComponent implements OnInit, AfterViewInit {
 
   public commands: SystemCommandDto[] = [];
   public files: SystemFileDto[] = [];
-  public showTerminal = false;
+  public showTerminal = true;
   private term: Terminal = new Terminal({ cols: 80, rows: 24 });
   private fitAddon: FitAddon = new FitAddon();
   private currentInput = '';
