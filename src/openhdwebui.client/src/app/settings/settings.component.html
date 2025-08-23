@@ -6,25 +6,20 @@
       Dark mode
     </label>
   </div>
-  <div *ngIf="network">
-    <h3>WiFi Interfaces</h3>
-    <table>
-      <tr><th>Name</th><th>Driver</th></tr>
-      <tr *ngFor="let wifi of network.wifi">
-        <td>{{wifi.name}}</td>
-        <td>{{wifi.driver}}</td>
-      </tr>
-    </table>
-
-    <h3>Ethernet Interfaces</h3>
-    <div *ngFor="let eth of network.ethernet" class="form-group">
-      <label>{{eth.name}} IP
-        <input type="text" [(ngModel)]="eth.ipAddress">
-      </label>
-      <label>Netmask
-        <input type="text" [(ngModel)]="eth.netmask">
-      </label>
-      <button (click)="saveEthernet(eth)">Save</button>
-    </div>
+  <div class="form-group">
+    <label>
+      <input type="checkbox"> Dummy switch
+    </label>
   </div>
+  <div class="form-group">
+    <label>Dummy slider
+      <input type="range" min="0" max="100">
+    </label>
+  </div>
+  <div class="form-group">
+    <label>Dummy text
+      <input type="text" placeholder="Enter text">
+    </label>
+  </div>
+  <p>These settings are placeholders for future configuration.</p>
 </div>
