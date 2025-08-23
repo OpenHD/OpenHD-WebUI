@@ -1,35 +1,26 @@
 <div class="system-container">
   <div class="lists">
-    <mat-card class="list-card">
-      <mat-card-title>System Commands</mat-card-title>
-      <mat-list>
-        <mat-list-item *ngFor="let command of commands">
-          <button mat-raised-button color="primary" (click)="onCommandClick(command)">
-            {{ command.displayName }}
-          </button>
-        </mat-list-item>
-      </mat-list>
-    </mat-card>
+    <div class="commands">
+      <h2>System Commands</h2>
+      <button *ngFor="let command of commands" (click)="onCommandClick(command)">
+        {{ command.displayName }}
+      </button>
+    </div>
 
-  <mat-card class="list-card">
-      <mat-card-title>System Files</mat-card-title>
-      <mat-list>
-        <mat-list-item *ngFor="let file of files">
-          <a mat-raised-button color="primary" [href]="'api/system/get-file/' + file.id">
-            {{ file.displayName }}
-          </a>
-        </mat-list-item>
-      </mat-list>
-    </mat-card>
+    <div class="files">
+      <h2>System Files</h2>
+      <a *ngFor="let file of files" [href]="'api/system/get-file/' + file.id">
+        {{ file.displayName }}
+      </a>
+    </div>
   </div>
 
-  <button mat-raised-button color="primary" class="terminal-toggle" (click)="toggleTerminal()">
+  <div class="terminal-wrapper" [hidden]="!showTerminal">
+    <div #terminal class="terminal"></div>
+  </div>
+
+  <button class="terminal-toggle" (click)="toggleTerminal()">
     {{ showTerminal ? 'Hide Terminal' : 'Show Terminal' }}
   </button>
-
-  <mat-card class="terminal-card" [hidden]="!showTerminal">
-    <mat-card-title>Terminal</mat-card-title>
-    <div #terminal class="terminal"></div>
-  </mat-card>
 </div>
 
