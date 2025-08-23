@@ -8,6 +8,7 @@ using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
+using OpenHdWebUi.Server.Services.Network;
 
 namespace OpenHdWebUi.Server;
 
@@ -26,7 +27,8 @@ public class Program
             .Bind(builder.Configuration);
         builder.Services
             .AddScoped<SystemCommandsService>()
-            .AddScoped<SystemFilesService>();
+            .AddScoped<SystemFilesService>()
+            .AddScoped<NetworkInfoService>();
         builder.Services
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>();

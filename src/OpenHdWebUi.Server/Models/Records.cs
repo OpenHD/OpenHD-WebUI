@@ -13,3 +13,10 @@ public record ServerFileInfo(string FileName, string DownloadPath);
 public record AirGroundStatus(bool IsAir, bool IsGround);
 
 public record LoginRequest(string Username, string Password);
+public record WifiInterfaceDto(string Name, string Driver);
+
+public record EthernetInterfaceDto(string Name, string IpAddress, string Netmask);
+
+public record NetworkInfoDto(IReadOnlyCollection<WifiInterfaceDto> Wifi, IReadOnlyCollection<EthernetInterfaceDto> Ethernet);
+
+public record SetIpRequest(string Interface, string Ip, string Netmask);
