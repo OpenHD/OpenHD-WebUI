@@ -11,6 +11,8 @@ export class SystemComponent implements OnInit {
 
   public commands: SystemCommandDto[] = [];
   public files: SystemFileDto[] = [];
+  public showTerminal = true;
+  public terminalText = 'guest@5';
 
   constructor(http: HttpClient) {
     
@@ -33,6 +35,10 @@ export class SystemComponent implements OnInit {
 
   onFileClick(file: SystemFileDto): void {
     //this.httpClient.get(this.baseUrl + 'api/system/run-command', { id: command.id }).subscribe(result => { }, error => console.error(error));
+  }
+
+  toggleTerminal(): void {
+    this.showTerminal = !this.showTerminal;
   }
 
 }

@@ -1,0 +1,40 @@
+/* Dark themed container for the system debug page */
+:host {
+  display: block;
+  background-color: #1c252e;
+  color: #ffffff;
+  padding: 1rem;
+}
+
+.card {
+  background-color: #2a3440;
+  color: #ffffff;
+}
+
+.btn-outline-primary {
+  color: #ffffff;
+  border-color: #4b5563;
+}
+
+.btn-outline-primary:hover {
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+.terminal-wrapper {
+  background-color: #0d1117;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.terminal {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #ffffff;
+  background-color: #0d1117;
+  width: 100%;
+  height: 200px;
+  overflow-y: auto;
+  font-family: monospace;
+}
