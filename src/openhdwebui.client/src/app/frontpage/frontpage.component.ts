@@ -12,14 +12,12 @@ export class FrontpageComponent {
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
-    password: ['', [Validators.required]],
-    remember: [true]
+    password: ['', [Validators.required]]
   });
 
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
-  openLogin() { this.isLoginOpen = true; }
-  closeLogin() { this.isLoginOpen = false; }
+  toggleLogin() { this.isLoginOpen = !this.isLoginOpen; }
 
   submitLogin() {
     if (this.loginForm.invalid) { return; }
@@ -28,7 +26,7 @@ export class FrontpageComponent {
       .subscribe({
         next: () => {
           console.log('login success');
-          this.closeLogin();
+          this.isLoginOpen = false;
         },
         error: () => {
           console.log('login failed');

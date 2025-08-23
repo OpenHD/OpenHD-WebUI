@@ -19,6 +19,11 @@
   flex: 1 1 300px;
 }
 
+.terminal-toggle {
+  margin-top: 16px;
+  align-self: flex-start;
+}
+
 .terminal-card {
   flex: 1 1 auto;
   margin-top: 16px;

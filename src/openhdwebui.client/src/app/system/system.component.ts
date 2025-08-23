@@ -13,6 +13,7 @@ export class SystemComponent implements OnInit, AfterViewInit {
 
   public commands: SystemCommandDto[] = [];
   public files: SystemFileDto[] = [];
+  public showTerminal = false;
   private term: Terminal = new Terminal({ cols: 80, rows: 24 });
   private fitAddon: FitAddon = new FitAddon();
   private currentInput = '';
@@ -69,6 +70,13 @@ export class SystemComponent implements OnInit, AfterViewInit {
     });
 
     window.addEventListener('resize', () => this.fitAddon.fit());
+  }
+
+  toggleTerminal(): void {
+    this.showTerminal = !this.showTerminal;
+    if (this.showTerminal) {
+      setTimeout(() => this.fitAddon.fit());
+    }
   }
 
   private prompt(): void {
