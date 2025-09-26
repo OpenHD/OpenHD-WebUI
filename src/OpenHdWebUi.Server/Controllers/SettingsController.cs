@@ -42,12 +42,17 @@ public class SettingsController : ControllerBase
             return BadRequest();
         }
 
-        var updated = _settingsService.TrySaveSettingFile(id, request.Content, out var file, out var notFound);
+        var updated = _settingsService.TrySaveSettingFile(id, request.Content, out var file, out var notFound, out var invalidJson);
         if (!updated)
         {
             if (notFound)
             {
                 return NotFound();
+            }
+
+            if (invalidJson)
+            {
+                return BadRequest("The provided settings file is not valid JSON.");
             }
 
             return Problem("Unable to save the requested settings file.");

@@ -1,6 +1,11 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Models;
@@ -9,6 +14,11 @@ namespace OpenHdWebUi.Server.Services.Settings;
 
 public class SettingsService
 {
+    private static readonly string[] ExcludedDirectories =
+    {
+        "web-ui"
+    };
+
     private readonly ILogger<SettingsService> _logger;
     private readonly string[] _settingsRoots;
 
@@ -38,6 +48,7 @@ public class SettingsService
     public IReadOnlyCollection<SettingFileSummaryDto> GetSettingFiles()
     {
         var summaries = new List<SettingFileSummaryDto>();
+        var seenFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var root in _settingsRoots)
         {
@@ -46,15 +57,21 @@ public class SettingsService
                 foreach (var file in Directory.EnumerateFiles(root, "*.json", SearchOption.AllDirectories))
                 {
                     var fullPath = Path.GetFullPath(file);
-                    if (!IsPathInRoot(fullPath))
+                    if (!IsPathInRoot(fullPath) || !seenFiles.Add(fullPath))
                     {
                         continue;
                     }
 
                     var relativePath = Path.GetRelativePath(root, fullPath);
-                    var category = ExtractCategory(relativePath);
+                    if (IsExcluded(relativePath))
+                    {
+                        continue;
+                    }
+
+                    var normalizedRelativePath = NormalizeSeparators(relativePath);
+                    var category = ExtractCategory(normalizedRelativePath);
                     var id = EncodePath(fullPath);
-                    summaries.Add(new SettingFileSummaryDto(id, Path.GetFileName(fullPath), NormalizeSeparators(relativePath), category));
+                    summaries.Add(new SettingFileSummaryDto(id, Path.GetFileName(fullPath), normalizedRelativePath, category));
                 }
             }
             catch (IOException ex)
@@ -83,11 +100,17 @@ public class SettingsService
 
         var root = ResolveRoot(fullPath);
         var relativePath = root != null ? Path.GetRelativePath(root, fullPath) : Path.GetFileName(fullPath);
-        var category = ExtractCategory(relativePath);
+        if (root != null && IsExcluded(relativePath))
+        {
+            return null;
+        }
+
+        var normalizedRelativePath = NormalizeSeparators(relativePath);
+        var category = ExtractCategory(normalizedRelativePath);
         try
         {
             var content = File.ReadAllText(fullPath);
-            return new SettingFileDto(id, Path.GetFileName(fullPath), NormalizeSeparators(relativePath), category, content);
+            return new SettingFileDto(id, Path.GetFileName(fullPath), normalizedRelativePath, category, content);
         }
         catch (IOException ex)
         {
@@ -101,14 +124,30 @@ public class SettingsService
         }
     }
 
-    public bool TrySaveSettingFile(string id, string content, out SettingFileDto? updated, out bool notFound)
+    public bool TrySaveSettingFile(string id, string content, out SettingFileDto? updated, out bool notFound, out bool invalidJson)
     {
         updated = null;
         notFound = false;
+        invalidJson = false;
         var fullPath = DecodeAndValidate(id);
         if (fullPath == null || !File.Exists(fullPath))
         {
             notFound = true;
+            return false;
+        }
+
+        var root = ResolveRoot(fullPath);
+        var relativePath = root != null ? Path.GetRelativePath(root, fullPath) : null;
+        if (relativePath != null && IsExcluded(relativePath))
+        {
+            notFound = true;
+            return false;
+        }
+
+        if (!IsValidJson(content))
+        {
+            invalidJson = true;
+            _logger.LogWarning("Attempted to write invalid JSON to settings file {SettingsFile}", fullPath);
             return false;
         }
 
@@ -180,9 +219,33 @@ public class SettingsService
         return _settingsRoots.FirstOrDefault(root => IsPathUnderRoot(fullPath, root));
     }
 
+    private static bool IsExcluded(string relativePath)
+    {
+        var segments = NormalizeSeparators(relativePath).Split('/', StringSplitOptions.RemoveEmptyEntries);
+        return segments.Any(segment => ExcludedDirectories.Contains(segment, StringComparer.OrdinalIgnoreCase));
+    }
+
     private static bool IsPathUnderRoot(string fullPath, string root)
     {
         var relative = Path.GetRelativePath(root, fullPath);
         return !relative.StartsWith("..", StringComparison.Ordinal) && !Path.IsPathRooted(relative);
+    }
+
+    private static bool IsValidJson(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(content);
+            return document.RootElement.ValueKind != JsonValueKind.Undefined;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 }
