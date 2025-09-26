@@ -186,7 +186,8 @@ partial class Build : NukeBuild
 
         var environmentVariables = new Dictionary<string, string>
         {
-            ["BASE_URL"] = DocsBaseUrl
+            ["BASE_URL"] = DocsBaseUrl,
+            ["PATH"] = Environment.GetEnvironmentVariable("PATH") ?? string.Empty
         };
 
         ProcessTasks.StartProcess("npm", "run build", workingDirectory: DocsClonePath.ToString(), environmentVariables: environmentVariables)
