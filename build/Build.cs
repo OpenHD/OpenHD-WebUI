@@ -176,7 +176,7 @@ partial class Build : NukeBuild
 
     AbsolutePath BuildDocumentation()
     {
-        DocsClonePath.CreateOrCleanDirectory();
+        EnsureEmptyDirectory(DocsClonePath);
 
         ProcessTasks.StartProcess("git", $"clone --depth 1 {DocsRepositoryUrl} .", workingDirectory: DocsClonePath.ToString())
             .AssertZeroExitCode();
@@ -274,5 +274,23 @@ partial class Build : NukeBuild
 
             File.Copy(file, targetFile, overwrite: true);
         }
+    }
+    static void EnsureEmptyDirectory(AbsolutePath directory)
+    {
+        var directoryPath = directory.ToString();
+
+        if (Directory.Exists(directoryPath))
+        {
+            try
+            {
+                Directory.Delete(directoryPath, recursive: true);
+            }
+            catch (Exception exception)
+            {
+                throw new IOException($"Failed to delete directory '{directoryPath}' before recreation.", exception);
+            }
+        }
+
+        Directory.CreateDirectory(directoryPath);
     }
 }
