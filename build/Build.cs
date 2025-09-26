@@ -275,7 +275,6 @@ partial class Build : NukeBuild
             File.Copy(file, targetFile, overwrite: true);
         }
     }
-
     static void EnsureEmptyDirectory(AbsolutePath directory)
     {
         var directoryPath = directory.ToString();
