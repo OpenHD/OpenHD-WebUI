@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -82,6 +83,13 @@ public class DocsController : ControllerBase
             var absolutePath = Path.GetFullPath(configuredRoot);
             if (Directory.Exists(absolutePath))
             {
+                if (!HasFullDocusaurusAssets(absolutePath))
+                {
+                    _logger.LogDebug("Local documentation at {DocsRoot} does not contain a full Docusaurus build.", absolutePath);
+                    url = string.Empty;
+                    return false;
+                }
+
                 var introductionFullPath = Path.Combine(absolutePath, introRelativePath);
                 if (IsSafeChildPath(absolutePath, introductionFullPath) && System.IO.File.Exists(introductionFullPath))
                 {
@@ -93,6 +101,30 @@ public class DocsController : ControllerBase
 
         url = string.Empty;
         return false;
+    }
+
+    private static bool HasFullDocusaurusAssets(string docsRoot)
+    {
+        try
+        {
+            var assetsPath = Path.Combine(docsRoot, "assets");
+            if (!Directory.Exists(assetsPath))
+            {
+                return false;
+            }
+
+            var jsAssetsPath = Path.Combine(assetsPath, "js");
+            if (!Directory.Exists(jsAssetsPath))
+            {
+                return false;
+            }
+
+            return Directory.EnumerateFiles(jsAssetsPath, "*.js").Any();
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private bool TryGetBundledDocsUrl(out string url)
