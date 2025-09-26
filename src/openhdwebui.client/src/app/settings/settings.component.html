@@ -133,10 +133,10 @@
                 <span class="field-tag" *ngIf="!field.hasMetadata">Generic control</span>
                 <div class="field-control" [ngSwitch]="field.control">
                   <label class="toggle structured-toggle" *ngSwitchCase="'toggle'">
-                    <input type="checkbox" [checked]="field.value as boolean"
-                           (change)="onFieldChange(field, $event.target?.checked)"
+                    <input type="checkbox" [checked]="coerceBoolean(field)"
+                           (change)="onToggleChange(field, $event)"
                            [disabled]="isLoadingFile || isSavingFile">
-                    <span>{{ field.value ? 'Enabled' : 'Disabled' }}</span>
+                    <span>{{ coerceBoolean(field) ? 'Enabled' : 'Disabled' }}</span>
                   </label>
                   <select *ngSwitchCase="'select'" class="structured-input"
                           [ngModel]="field.value"

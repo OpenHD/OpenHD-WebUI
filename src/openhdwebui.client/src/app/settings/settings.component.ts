@@ -233,6 +233,26 @@ export class SettingsComponent implements OnInit {
     }
   }
 
+  onToggleChange(field: StructuredSettingField, event: Event): void {
+    const target = event.target;
+    const isChecked = target instanceof HTMLInputElement ? target.checked : false;
+    this.onFieldChange(field, isChecked);
+  }
+
+  coerceBoolean(field: StructuredSettingField): boolean {
+    const value = field.value;
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'number') {
+      return value !== 0;
+    }
+    if (typeof value === 'string') {
+      return value === 'true' || value === '1';
+    }
+    return false;
+  }
+
   onRawContentChange(content: string): void {
     this.rawContent = content;
     if (this.selectedSetting) {
