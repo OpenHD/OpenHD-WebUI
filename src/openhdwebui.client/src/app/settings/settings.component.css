@@ -1,0 +1,41 @@
+.settings-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+}
+
+.settings-sidebar {
+  width: 320px;
+  max-height: calc(100vh - 180px);
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.settings-editor {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-textarea {
+  min-height: 420px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  white-space: pre;
+}
+
+@media (max-width: 992px) {
+  .settings-container {
+    flex-direction: column;
+  }
+
+  .settings-sidebar {
+    width: 100%;
+    max-height: none;
+  }
+}

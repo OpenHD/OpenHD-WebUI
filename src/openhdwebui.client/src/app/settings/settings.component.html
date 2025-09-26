@@ -1,0 +1,69 @@
+<div class="settings-container" *ngIf="!isLoadingList || filteredFiles.length > 0">
+  <div class="settings-sidebar">
+    <div class="d-flex align-items-center mb-3">
+      <input
+        type="search"
+        class="form-control"
+        placeholder="Search settings files"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchTermChange()"
+      />
+    </div>
+    <div class="list-group settings-list">
+      <button
+        type="button"
+        class="list-group-item list-group-item-action"
+        *ngFor="let file of filteredFiles"
+        [ngClass]="{ active: file.id === selectedFile?.id }"
+        (click)="selectFile(file)"
+      >
+        <div class="fw-semibold">{{ file.name }}</div>
+        <small class="text-muted d-block">{{ file.relativePath }}</small>
+        <small class="text-muted d-block">{{ file.rootDirectory }}</small>
+      </button>
+    </div>
+    <div *ngIf="filteredFiles.length === 0 && !isLoadingList" class="text-muted text-center mt-4">
+      No settings files were found.
+    </div>
+  </div>
+
+  <div class="settings-editor" *ngIf="selectedFile">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0">{{ selectedFile.name }}</h2>
+      <div class="btn-group">
+        <button class="btn btn-outline-secondary" type="button" (click)="formatContent()" [disabled]="!fileContent">
+          Format JSON
+        </button>
+        <button class="btn btn-primary" type="button" (click)="saveChanges()" [disabled]="isSaving || !fileContent">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Save Changes
+        </button>
+      </div>
+    </div>
+    <p class="text-muted small">{{ selectedFile.rootDirectory }}/{{ selectedFile.relativePath }}</p>
+
+    <textarea
+      class="form-control settings-textarea"
+      [(ngModel)]="fileContent"
+      spellcheck="false"
+      [readonly]="isLoadingContent"
+    ></textarea>
+
+    <div class="text-muted small mt-2" *ngIf="isLoadingContent">
+      Loading file contents...
+    </div>
+
+    <div class="alert alert-danger mt-3" role="alert" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+    <div class="alert alert-success mt-3" role="alert" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+  </div>
+
+  <div class="flex-fill d-flex justify-content-center align-items-center" *ngIf="isLoadingList && filteredFiles.length === 0">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
