@@ -36,6 +36,7 @@ jobs:
       - name: 'Run: Clean, CloudsmithPublish'
         run: |
           set -o pipefail
+          apt install -y git
           ./build.cmd Clean CloudsmithPublish 2>&1 | tee build.log
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
