@@ -72,7 +72,7 @@ partial class Build : NukeBuild
 
     IReadOnlyCollection<string> Rids;
 
-    const string PackageName = "open-hd-web-ui";
+    const string PackageName = "openhd-web-ui";
 
     protected override void OnBuildInitialized()
     {
