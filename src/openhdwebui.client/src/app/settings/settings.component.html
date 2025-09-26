@@ -119,7 +119,75 @@
             <span class="error" *ngIf="fileError">{{ fileError }}</span>
           </div>
         </div>
-        <textarea [(ngModel)]="selectedSetting.content" [disabled]="isLoadingFile || isSavingFile"></textarea>
+
+        <div class="structured-editor" *ngIf="hasStructuredView">
+          <div class="structured-group" *ngFor="let group of structuredGroups">
+            <h5 *ngIf="group.title">{{ group.title }}</h5>
+            <div class="structured-grid">
+              <div class="structured-field" *ngFor="let field of group.fields" [class.toggle-field]="field.control === 'toggle'">
+                <div class="field-header">
+                  <div class="field-title">{{ field.label }}</div>
+                  <span class="field-unit" *ngIf="field.unit">{{ field.unit }}</span>
+                </div>
+                <p class="field-description" *ngIf="field.description">{{ field.description }}</p>
+                <span class="field-tag" *ngIf="!field.hasMetadata">Generic control</span>
+                <div class="field-control" [ngSwitch]="field.control">
+                  <label class="toggle structured-toggle" *ngSwitchCase="'toggle'">
+                    <input type="checkbox" [checked]="field.value as boolean"
+                           (change)="onFieldChange(field, $event.target?.checked)"
+                           [disabled]="isLoadingFile || isSavingFile">
+                    <span>{{ field.value ? 'Enabled' : 'Disabled' }}</span>
+                  </label>
+                  <select *ngSwitchCase="'select'" class="structured-input"
+                          [ngModel]="field.value"
+                          (ngModelChange)="onFieldChange(field, $event)"
+                          [ngModelOptions]="{ standalone: true }"
+                          [disabled]="isLoadingFile || isSavingFile">
+                    <option *ngFor="let option of field.options" [ngValue]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <input *ngSwitchCase="'number'" type="number" class="structured-input"
+                         [ngModel]="field.value"
+                         (ngModelChange)="onFieldChange(field, $event)"
+                         [ngModelOptions]="{ standalone: true }"
+                         [attr.min]="field.min"
+                         [attr.max]="field.max"
+                         [attr.step]="field.step"
+                         [disabled]="isLoadingFile || isSavingFile">
+                  <input *ngSwitchDefault type="text" class="structured-input"
+                         [ngModel]="field.value"
+                         (ngModelChange)="onFieldChange(field, $event)"
+                         [ngModelOptions]="{ standalone: true }"
+                         [disabled]="isLoadingFile || isSavingFile">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="structured-unknown" *ngIf="structuredUnknownEntries.length">
+          <h5>Other values</h5>
+          <p>These settings are available in the file but do not yet have a dedicated control.</p>
+          <ul>
+            <li *ngFor="let entry of structuredUnknownEntries">
+              <strong>{{ entry.key }}</strong>
+              <code>{{ entry.value | json }}</code>
+            </li>
+          </ul>
+        </div>
+
+        <div class="raw-editor">
+          <div class="raw-header">
+            <h5>Raw JSON</h5>
+            <span class="raw-hint">Advanced users can edit the JSON directly. Changes sync with the controls above.</span>
+          </div>
+          <textarea [ngModel]="rawContent"
+                    (ngModelChange)="onRawContentChange($event)"
+                    [disabled]="isLoadingFile || isSavingFile"></textarea>
+          <div class="raw-error" *ngIf="rawParseError">{{ rawParseError }}</div>
+        </div>
+
         <div class="editor-actions">
           <button (click)="saveSelectedSetting()" [disabled]="isSavingFile">Save changes</button>
         </div>
