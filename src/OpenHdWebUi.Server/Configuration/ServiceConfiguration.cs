@@ -13,8 +13,6 @@ public class ServiceConfiguration
 
     public List<SystemFileConfiguration> SystemFiles { get; set; }
 
-    public List<string> SettingsDirectories { get; set; }
-
     public UpdateFileConfiguration UpdateConfig { get; set; }
 }
 
