@@ -1,34 +1,70 @@
 
-<section class="frontpage container text-center py-5">
-  <p class="section-label text-uppercase fw-semibold mb-2">
-      Welcome to the OpenHD Web Interface
-  </p>
+<section class="frontpage container py-5">
+  <div class="frontpage__layout">
+    <div class="frontpage__intro">
+      <p class="section-label text-uppercase fw-semibold mb-2">
+        Welcome to the OpenHD Web Interface
+      </p>
 
-  <h1 class="display-5 mb-3 gradient-title">
-    Explore unlimited possibilities
-  </h1>
+      <h1 class="display-5 mb-3 gradient-title">
+        Explore unlimited possibilities
+      </h1>
 
-  <p class="lead mb-5 maxw">
-    This lightweight interface lets you configure and manage OpenHD directly in your browser.  
-  Settings here are <strong>not synchronized</strong> with the QOpenHD App and must be applied manually on both air and ground units.  
-  </p>
+      <p class="lead mb-4 maxw">
+        This lightweight interface lets you configure and manage OpenHD directly in your browser.
+        Settings here are <strong>not synchronized</strong> with the QOpenHD App and must be applied manually on both air and ground units.
+      </p>
 
-  <div class="cta">
-    <a routerLink="https://openhdfpv.org/introduction" class="btn btn--ghost">Docs</a>
-    <button class="btn btn--ghost" (click)="toggleLogin()">Login</button>
+      <div class="cta">
+        <a routerLink="https://openhdfpv.org/introduction" class="btn btn--ghost">Docs</a>
+        <button class="btn btn--ghost" (click)="toggleLogin()">Login</button>
+      </div>
+
+      <form *ngIf="isLoginOpen" class="login-form" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
+        <label>
+          <span>Username</span>
+          <input type="text" formControlName="username" />
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" formControlName="password" />
+        </label>
+        <button type="submit" class="btn btn--accent">Login</button>
+      </form>
+    </div>
+
+    <aside class="frontpage__panel" aria-label="Quick configuration overview">
+      <div class="panel-card">
+        <h2>Everything you need, side by side</h2>
+        <p>
+          Take advantage of the full desktop width with a dashboard that keeps critical controls and documentation within reach.
+        </p>
+        <ul class="panel-list">
+          <li>
+            <span class="dot" aria-hidden="true"></span>
+            <div>
+              <h3>Visual system status</h3>
+              <p>Review network, camera, and storage health at a glance.</p>
+            </div>
+          </li>
+          <li>
+            <span class="dot" aria-hidden="true"></span>
+            <div>
+              <h3>Streamlined editing</h3>
+              <p>Edit JSON settings with side-by-side navigation and live feedback.</p>
+            </div>
+          </li>
+          <li>
+            <span class="dot" aria-hidden="true"></span>
+            <div>
+              <h3>Desktop-first layout</h3>
+              <p>Optimized spacing ensures wide screens are fully utilized.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </aside>
   </div>
-
-  <form *ngIf="isLoginOpen" class="login-form mt-3" [formGroup]="loginForm" (ngSubmit)="submitLogin()">
-    <label>
-      <span>Username</span>
-      <input type="text" formControlName="username" />
-    </label>
-    <label>
-      <span>Password</span>
-      <input type="password" formControlName="password" />
-    </label>
-    <button type="submit" class="btn btn--accent">Login</button>
-  </form>
 
   <div class="features-grid mt-5">
     <article class="feature-card">
@@ -44,8 +80,7 @@
       </div>
       <h3>Networking</h3>
       <p>
-        Here you can configure the networking settings for your OpenHD system, including IP addresses, routing, and more.
-        Ensure your devices are properly connected to maximize performance.
+        Configure addresses, routing, and interface priorities with space for detailed context and warnings.
       </p>
     </article>
 
@@ -59,8 +94,7 @@
       </div>
       <h3>Cameras</h3>
       <p>
-        Here you can manage camera settings, including resolution, frame rate, and other parameters.
-        Adjust these settings to optimize video quality and performance for your specific use case.
+        Adjust resolution, frame rate, and encoding options with plenty of horizontal room for previews and notes.
       </p>
     </article>
 
@@ -73,8 +107,7 @@
       </div>
       <h3>Download Recordings</h3>
       <p>
-        Access and download your recorded video files directly from the OpenHD system.
-        This feature allows you to manage and retrieve footage for analysis, sharing, or archiving.
+        Browse recordings in a responsive grid that scales to your monitor and keeps actions accessible.
       </p>
     </article>
 
@@ -88,8 +121,7 @@
       </div>
       <h3>Debug</h3>
       <p>
-        Here you can access debugging tools and logs to troubleshoot issues with your OpenHD system.
-        This section provides insights into system performance and helps identify potential problems.
+        Run commands and review logs with a wide terminal pane that adapts to your display.
       </p>
     </article>
 
