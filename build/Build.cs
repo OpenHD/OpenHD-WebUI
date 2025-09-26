@@ -77,9 +77,16 @@ partial class Build : NukeBuild
     IReadOnlyCollection<string> Rids;
 
     const string PackageName = "openhd-web-ui";
-    const string DocsRepositoryUrl = "https://github.com/OpenHD/OpenHD-Website.git";
     const string DocsBaseUrl = "/docs/";
     const string DocsTargetRelativePath = "docs";
+
+    [Parameter("Path to documentation repository")]
+    readonly string DocsRepositoryPath;
+
+    AbsolutePath EffectiveDocsRepositoryPath =>
+        !string.IsNullOrWhiteSpace(DocsRepositoryPath)
+            ? (AbsolutePath)DocsRepositoryPath
+            : RootDirectory / "OpenHD-Website";
 
     protected override void OnBuildInitialized()
     {
@@ -180,8 +187,13 @@ partial class Build : NukeBuild
     {
         EnsureEmptyDirectory(DocsClonePath);
 
-        ProcessTasks.StartProcess("git", $"clone --depth 1 {DocsRepositoryUrl} .", workingDirectory: DocsClonePath.ToString())
-            .AssertZeroExitCode();
+        var docsRepositoryPath = EffectiveDocsRepositoryPath;
+        if (!Directory.Exists(docsRepositoryPath))
+        {
+            throw new DirectoryNotFoundException($"Documentation repository path '{docsRepositoryPath}' was not found.");
+        }
+
+        CopyDirectoryContents(docsRepositoryPath, DocsClonePath);
 
         AlignDocusaurusPackageVersions(DocsClonePath);
 
