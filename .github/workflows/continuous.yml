@@ -37,3 +37,10 @@ jobs:
         run: ./build.cmd Clean CloudsmithPublish
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+      - name: 'Upload deb artifacts'
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: out/deb/*.deb
+          if-no-files-found: warn
