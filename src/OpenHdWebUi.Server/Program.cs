@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
@@ -36,6 +37,9 @@ public class Program
             .AddSingleton<AirGroundService>()
             .AddSingleton<SettingsService>();
         builder.Services
+            .AddOptions<DocumentationConfiguration>()
+            .Bind(builder.Configuration.GetSection("Documentation"));
+        builder.Services
             .AddDirectoryBrowser()
             .AddControllers();
 
@@ -48,6 +52,28 @@ public class Program
 
         app.UseDefaultFiles();
         app.UseStaticFiles();
+
+        var documentationOptions = app.Services.GetRequiredService<IOptions<DocumentationConfiguration>>().Value;
+        var docsRoot = documentationOptions.LocalDocsRoot;
+        if (!string.IsNullOrWhiteSpace(docsRoot))
+        {
+            var absoluteDocsPath = Path.GetFullPath(docsRoot);
+            if (Directory.Exists(absoluteDocsPath))
+            {
+                var requestPath = documentationOptions.RequestPath;
+                if (string.IsNullOrWhiteSpace(requestPath))
+                {
+                    requestPath = "/docs";
+                }
+
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(absoluteDocsPath),
+                    RequestPath = requestPath.StartsWith('/') ? requestPath : $"/{requestPath}",
+                    ServeUnknownFileTypes = true
+                });
+            }
+        }
 
         var mediaService = app.Services.GetRequiredService<MediaService>();
         var absoluteMediaPath = mediaService.MediaDirectoryFullPath;
