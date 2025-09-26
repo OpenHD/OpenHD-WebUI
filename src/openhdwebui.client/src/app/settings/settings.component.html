@@ -9,36 +9,75 @@
     </label>
   </section>
 
-  <section class="card" *ngIf="network">
-    <h3>Network</h3>
+  <section class="card network-card" *ngIf="network">
+    <div class="network-header">
+      <div>
+        <h3>Network</h3>
+        <p class="description">Review available interfaces and update static settings for your wired connections.</p>
+      </div>
+      <div class="badge-group">
+        <span class="badge" *ngIf="wifiInterfaces.length">WiFi: {{ wifiInterfaces.length }}</span>
+        <span class="badge" *ngIf="ethernetInterfaces.length">Ethernet: {{ ethernetInterfaces.length }}</span>
+      </div>
+    </div>
+
     <div class="network-grid">
-      <div class="network-column">
-        <h4>WiFi Interfaces</h4>
-        <table>
+      <div class="network-panel">
+        <div class="panel-header">
+          <h4>WiFi Interfaces</h4>
+          <p class="panel-subtitle">Detected wireless adapters with their corresponding drivers.</p>
+        </div>
+        <table *ngIf="wifiInterfaces.length; else noWifi">
           <thead>
-            <tr><th>Name</th><th>Driver</th></tr>
+            <tr>
+              <th scope="col">Interface</th>
+              <th scope="col">Driver</th>
+            </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let wifi of network.wifi">
-              <td>{{ wifi.name }}</td>
-              <td>{{ wifi.driver }}</td>
+            <tr *ngFor="let wifi of wifiInterfaces">
+              <td data-label="Interface">{{ wifi.name }}</td>
+              <td data-label="Driver">{{ wifi.driver || 'Unknown' }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div class="network-column">
-        <h4>Ethernet Interfaces</h4>
-        <div *ngFor="let eth of network.ethernet" class="form-group">
-          <label>{{ eth.name }} IP
-            <input type="text" [(ngModel)]="eth.ipAddress">
-          </label>
-          <label>Netmask
-            <input type="text" [(ngModel)]="eth.netmask">
-          </label>
-          <button (click)="saveEthernet(eth)">Save</button>
+
+      <div class="network-panel">
+        <div class="panel-header">
+          <h4>Ethernet Interfaces</h4>
+          <p class="panel-subtitle">Assign or update static IP details for wired links.</p>
         </div>
+        <ng-container *ngIf="ethernetInterfaces.length; else noEthernet">
+          <div class="ethernet-card" *ngFor="let eth of ethernetInterfaces">
+            <header>
+              <h5>{{ eth.name }}</h5>
+              <span class="ethernet-hint">Current configuration</span>
+            </header>
+            <div class="ethernet-fields">
+              <label>
+                <span>IP address</span>
+                <input type="text" [(ngModel)]="eth.ipAddress" placeholder="e.g. 192.168.1.10">
+              </label>
+              <label>
+                <span>Netmask</span>
+                <input type="text" [(ngModel)]="eth.netmask" placeholder="e.g. 255.255.255.0">
+              </label>
+            </div>
+            <div class="ethernet-actions">
+              <button type="button" (click)="saveEthernet(eth)">Save settings</button>
+            </div>
+          </div>
+        </ng-container>
       </div>
     </div>
+
+    <ng-template #noWifi>
+      <p class="empty-state">No WiFi interfaces were detected.</p>
+    </ng-template>
+    <ng-template #noEthernet>
+      <p class="empty-state">No Ethernet interfaces were found on this device.</p>
+    </ng-template>
   </section>
 
   <section class="card settings-card">
