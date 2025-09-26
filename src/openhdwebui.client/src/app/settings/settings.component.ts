@@ -71,6 +71,14 @@ export class SettingsComponent implements OnInit {
       .sort((a, b) => a.title.localeCompare(b.title));
   }
 
+  get wifiInterfaces(): WifiInterface[] {
+    return this.network?.wifi ?? [];
+  }
+
+  get ethernetInterfaces(): EthernetInterface[] {
+    return this.network?.ethernet ?? [];
+  }
+
   trackBySetting(_index: number, item: SettingFileSummary): string {
     return item.id;
   }

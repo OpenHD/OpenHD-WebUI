@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -54,6 +55,10 @@ public class NetworkInfoService
             var lines = block.Split('\n');
             if (lines.Length == 0) continue;
             var name = lines[0].Split(':')[0];
+            if (ShouldIgnoreInterface(name))
+            {
+                continue;
+            }
             if (wifiSet.Contains(name)) continue;
             var ipMatch = Regex.Match(block, @"inet (addr:)?(?<ip>\d+\.\d+\.\d+\.\d+)");
             var maskMatch = Regex.Match(block, @"netmask (?<mask>\d+\.\d+\.\d+\.\d+)|Mask:(?<mask>\d+\.\d+\.\d+\.\d+)");
@@ -62,6 +67,32 @@ public class NetworkInfoService
             result.Add(new EthernetInterfaceDto(name, ip, mask));
         }
         return result.ToArray();
+    }
+
+    private static bool ShouldIgnoreInterface(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return true;
+        }
+
+        name = name.Trim();
+
+        if (name.Equals("lo", StringComparison.OrdinalIgnoreCase) || name.StartsWith("lo@", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var ignoredPrefixes = new[] { "docker", "br-", "veth", "tun", "tap" };
+        foreach (var prefix in ignoredPrefixes)
+        {
+            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static async Task RunCommandAsync(string command)
