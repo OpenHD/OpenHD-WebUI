@@ -20,3 +20,9 @@ public record EthernetInterfaceDto(string Name, string IpAddress, string Netmask
 public record NetworkInfoDto(IReadOnlyCollection<WifiInterfaceDto> Wifi, IReadOnlyCollection<EthernetInterfaceDto> Ethernet);
 
 public record SetIpRequest(string Interface, string Ip, string Netmask);
+
+public record SettingFileSummaryDto(string Id, string Name, string RelativePath, string? Category);
+
+public record SettingFileDto(string Id, string Name, string RelativePath, string? Category, string Content);
+
+public record UpdateSettingFileRequest(string Content);
