@@ -13,6 +13,8 @@ using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Stubble.Core.Builders;
 using Nuke.Common.Tools.MinVer;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 [GitHubActions(
     "continuous",
@@ -181,6 +183,8 @@ partial class Build : NukeBuild
         ProcessTasks.StartProcess("git", $"clone --depth 1 {DocsRepositoryUrl} .", workingDirectory: DocsClonePath.ToString())
             .AssertZeroExitCode();
 
+        AlignDocusaurusPackageVersions(DocsClonePath);
+
         ProcessTasks.StartProcess("npm", "install", workingDirectory: DocsClonePath.ToString())
             .AssertZeroExitCode();
 
@@ -201,6 +205,69 @@ partial class Build : NukeBuild
 
         return buildOutput;
     }
+
+    void AlignDocusaurusPackageVersions(AbsolutePath docsDirectory)
+    {
+        var packageJsonPath = docsDirectory / "package.json";
+        if (!File.Exists(packageJsonPath))
+        {
+            return;
+        }
+
+        if (JsonNode.Parse(File.ReadAllText(packageJsonPath)) is not JsonObject packageJson)
+        {
+            return;
+        }
+
+        var dependencies = packageJson["dependencies"] as JsonObject;
+        var devDependencies = packageJson["devDependencies"] as JsonObject;
+
+        if (dependencies?.TryGetPropertyValue("@docusaurus/core", out var coreVersionNode) != true || coreVersionNode is null)
+        {
+            return;
+        }
+
+        var normalizedVersion = NormalizeVersion(coreVersionNode.GetValue<string>());
+        if (string.IsNullOrWhiteSpace(normalizedVersion))
+        {
+            return;
+        }
+
+        dependencies["@docusaurus/core"] = normalizedVersion;
+
+        AlignContainer(dependencies, normalizedVersion);
+        AlignContainer(devDependencies, normalizedVersion);
+
+        var serializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
+        File.WriteAllText(packageJsonPath, packageJson.ToJsonString(serializerOptions) + Environment.NewLine);
+    }
+
+    static void AlignContainer(JsonObject? container, string version)
+    {
+        if (container is null)
+        {
+            return;
+        }
+
+        foreach (var key in container.Select(pair => pair.Key).ToList())
+        {
+            if (IsDocusaurusPackage(key))
+            {
+                container[key] = version;
+            }
+        }
+    }
+
+    static bool IsDocusaurusPackage(string packageName) =>
+        packageName.StartsWith("@docusaurus/", StringComparison.Ordinal) ||
+        packageName.Equals("docusaurus-theme-mermaid", StringComparison.Ordinal);
+
+    static string NormalizeVersion(string version) =>
+        version?.Trim()?.TrimStart('^', '~') ?? string.Empty;
 
     AbsolutePath GetPublishPathForRim(string rid)
     {
