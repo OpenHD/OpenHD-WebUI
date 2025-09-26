@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
@@ -7,8 +7,10 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './frontpage.component.html',
   styleUrls: ['./frontpage.component.css']
 })
-export class FrontpageComponent {
+export class FrontpageComponent implements OnInit {
   isLoginOpen = false;
+  docLink = 'https://openhdfpv.org/introduction/';
+  private readonly localDocsLink = '/docs/introduction/index.html';
 
   loginForm = this.fb.group({
     username: ['', [Validators.required]],
@@ -16,6 +18,10 @@ export class FrontpageComponent {
   });
 
   constructor(private fb: FormBuilder, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.resolveDocsLink();
+  }
 
   toggleLogin() { this.isLoginOpen = !this.isLoginOpen; }
 
@@ -32,5 +38,17 @@ export class FrontpageComponent {
           console.log('login failed');
         }
       });
+  }
+
+  private resolveDocsLink() {
+    this.http.get<{ url: string }>('/api/docs/link').subscribe({
+      next: (response) => {
+        const resolvedUrl = response?.url?.trim();
+        this.docLink = resolvedUrl ? resolvedUrl : this.localDocsLink;
+      },
+      error: () => {
+        this.docLink = this.localDocsLink;
+      }
+    });
   }
 }

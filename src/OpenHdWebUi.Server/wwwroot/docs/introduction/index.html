@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Introduction to OpenHD (Offline Mirror)</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f172a;
+      --fg: #e2e8f0;
+      --accent: #0ea5e9;
+      --card-bg: rgba(15, 23, 42, 0.6);
+      --border: rgba(148, 163, 184, 0.35);
+      font-family: "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #020617 0%, #0f172a 60%, #111827 100%);
+      color: var(--fg);
+    }
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: clamp(1.5rem, 2vw, 3rem);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header img {
+      max-width: 240px;
+      width: 100%;
+      filter: drop-shadow(0 12px 25px rgba(14, 165, 233, 0.35));
+    }
+    h1, h2 {
+      color: #f8fafc;
+      font-weight: 600;
+    }
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: 1rem;
+    }
+    h2 {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .35rem;
+      margin-top: 2.5rem;
+    }
+    p, li {
+      font-size: 1.05rem;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    iframe {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
+      margin: 2rem 0;
+      width: 100%;
+      min-height: 320px;
+    }
+    .callout {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--accent);
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin: 2rem 0;
+    }
+    .callout strong {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: .35rem;
+    }
+    .callout.tip {
+      --accent: #22c55e;
+    }
+    .callout.warning {
+      --accent: #f97316;
+    }
+    figure {
+      margin: 2.5rem 0;
+      text-align: center;
+    }
+    figure img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border);
+    }
+    figure figcaption {
+      margin-top: .75rem;
+      font-size: .95rem;
+      color: rgba(226, 232, 240, 0.75);
+    }
+    a {
+      color: var(--accent);
+    }
+    footer {
+      margin-top: 3rem;
+      padding: 2rem 0;
+      text-align: center;
+      font-size: .95rem;
+      color: rgba(226, 232, 240, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="https://openhdfpv.org/img/assets/plain_openhd_logo.jpg" alt="OpenHD logo">
+      <h1>Introduction to OpenHD</h1>
+      <p>This offline copy mirrors the OpenHD documentation page so you can continue reading when <code>openhdfpv.org</code> is unavailable.</p>
+    </header>
+
+    <section>
+      <p>OpenHD is a suite of software designed for long-range video transmission, telemetry, and RC control. While originally built with hobbyist drones in mind, it adapts to a wide range of other applications.</p>
+
+      <iframe src="https://www.youtube.com/embed/5Ht9P3uv5N4" title="Introduction to OpenHD video" allowfullscreen loading="lazy"></iframe>
+
+      <div class="callout tip">
+        <strong>Current Version</strong>
+        <p>You are viewing the documentation for the latest development version. Use the version selector on the main documentation site to switch between OpenHD releases.</p>
+      </div>
+
+      <h2>What OpenHD Can Do</h2>
+      <p>Our software stack can transmit all of the following over a single link:</p>
+      <ul>
+        <li>High definition video, including multiple camera streams</li>
+        <li>Two-way UAV telemetry</li>
+        <li>Two-way OpenHD telemetry for settings, range adjustments, channel changes, Wi-Fi modulation, and more</li>
+        <li>RC control signals</li>
+      </ul>
+
+      <figure>
+        <img src="https://openhdfpv.org/img/assets/NorbertScreenshot.png" alt="Arducam Skymaster HDR screenshot">
+        <figcaption>Example OpenHD ground station view</figcaption>
+      </figure>
+
+      <p>All of these signals travel over a single transmission channel, with telemetry using MAVLink for high compatibility and reliability.</p>
+
+      <h2>OpenHD Digital FPV World Record &mdash; 55&nbsp;km</h2>
+
+      <figure>
+        <img src="https://openhdfpv.org/img/assets/Record_55Km.jpg" alt="OpenHD 55 km record">
+        <figcaption>Current long-range record set with OpenHD</figcaption>
+      </figure>
+
+      <p>See more achievements on the <a href="https://sites.google.com/view/wbb-longrange/fixed-wing" target="_blank" rel="noopener">community leaderboard</a>.</p>
+
+      <h2>How the OpenHD Link Works</h2>
+      <p>OpenHD relies on readily available Wi-Fi adapters, but not in the typical consumer Wi-Fi configuration. To achieve long-range, low-latency performance we configure the adapters to behave similarly to analog video transmitters. The protocol, originally pioneered by <a href="https://befinitiv.wordpress.com/wifibroadcast-analog-like-transmission-of-live-video-data/" target="_blank" rel="noopener">befinitiv</a>, has been reimplemented and refined by the OpenHD community.</p>
+
+      <p>This configuration enables high quality video and control data to travel great distances while keeping latency low.</p>
+
+      <h2>QOpenHD App</h2>
+      <p>We provide a multi-platform <a href="https://github.com/OpenHD/QOpenHD/releases" target="_blank" rel="noopener">QOpenHD app</a> with a customizable on-screen display for live video. The app integrates tightly with the rest of the OpenHD suite so you can monitor and manage your link in real time.</p>
+
+      <h2>Support and Further Reading</h2>
+      <p>If you need help or want to dive deeper, these resources are great starting points:</p>
+      <ul>
+        <li>Public <a href="https://t.me/OpenHD_User" target="_blank" rel="noopener">Telegram</a> and <a href="https://discord.gg/P9kXs9N2RP" target="_blank" rel="noopener">Discord</a> communities</li>
+        <li>Issue tracking on <a href="https://github.com/OpenHD/OpenHD/issues" target="_blank" rel="noopener">GitHub</a></li>
+        <li>Introductory <a href="https://www.youtube.com/playlist?list=PL7WaECFssECJWfTc0vKYTfUdH5y8UgdI9" target="_blank" rel="noopener">YouTube playlist by CurryKitten</a></li>
+      </ul>
+
+      <div class="callout warning">
+        <strong>Important Note</strong>
+        <p>Support for OpenHD 2.0.x has ended.</p>
+      </div>
+
+      <div class="callout warning">
+        <strong>Important Note</strong>
+        <p>When reporting an issue, include the exact OpenHD image name you used so the team can help reproduce and diagnose the problem.</p>
+      </div>
+    </section>
+    <footer>
+      <p>This mirror was generated from the <a href="https://github.com/OpenHD/OpenHD-Website/tree/main/docs" target="_blank" rel="noopener">OpenHD documentation source</a>. Some assets (images, videos) still load from the public OpenHD website when available.</p>
+    </footer>
+  </main>
+</body>
+</html>

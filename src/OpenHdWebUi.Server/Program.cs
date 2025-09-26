@@ -31,6 +31,7 @@ public class Program
             .AddScoped<SystemFilesService>()
             .AddScoped<NetworkInfoService>();
         builder.Services
+            .AddHttpClient()
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
             .AddSingleton<SettingsService>();
