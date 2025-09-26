@@ -35,6 +35,7 @@ partial class Build : NukeBuild
         OutputPath = RootDirectory / "out";
         PublishPath = OutputPath / "publish";
         DebBuildPath = OutputPath / "deb";
+        DocsClonePath = OutputPath / "OpenHD-Website";
     }
 
     public static int Main () => Execute<Build>(x => x.Publish);
@@ -65,6 +66,7 @@ partial class Build : NukeBuild
     readonly AbsolutePath OutputPath;
     readonly AbsolutePath PublishPath;
     readonly AbsolutePath DebBuildPath;
+    readonly AbsolutePath DocsClonePath;
 
     [Solution(GenerateProjects = true)]
     readonly Solution Solution;
@@ -73,6 +75,9 @@ partial class Build : NukeBuild
     IReadOnlyCollection<string> Rids;
 
     const string PackageName = "openhd-web-ui";
+    const string DocsRepositoryUrl = "https://github.com/OpenHD/OpenHD-Website.git";
+    const string DocsBaseUrl = "/docs/";
+    const string DocsTargetRelativePath = "docs";
 
     protected override void OnBuildInitialized()
     {
@@ -114,6 +119,8 @@ partial class Build : NukeBuild
         .DependsOn(Publish)
         .Executes(() =>
         {
+            var documentationBuildOutput = BuildDocumentation();
+
             foreach (var rid in Rids)
             {
                 var arc = rid.Split('-', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)[1];
@@ -124,6 +131,10 @@ partial class Build : NukeBuild
 
                 var serviceTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / "web-ui";
                 GetPublishPathForRim(rid).Copy(serviceTargetDirectory, excludeFile: info => info.Name == "appsettings.Development.json");
+
+                var docsTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / DocsTargetRelativePath;
+                docsTargetDirectory.CreateOrCleanDirectory();
+                FileSystemTasks.CopyDirectoryRecursively(documentationBuildOutput, docsTargetDirectory, DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
                 packSystemDDir.CreateOrCleanDirectory();
@@ -162,6 +173,33 @@ partial class Build : NukeBuild
                 Cloudsmith($"push deb openhd/{repoName}/any-distro/any-version {debFile.Name}", DebBuildPath);
             }
         });
+
+    AbsolutePath BuildDocumentation()
+    {
+        FileSystemTasks.EnsureCleanDirectory(DocsClonePath);
+
+        ProcessTasks.StartProcess("git", $"clone --depth 1 {DocsRepositoryUrl} .", workingDirectory: DocsClonePath.ToString())
+            .AssertZeroExitCode();
+
+        ProcessTasks.StartProcess("npm", "install", workingDirectory: DocsClonePath.ToString())
+            .AssertZeroExitCode();
+
+        var environmentVariables = new Dictionary<string, string>
+        {
+            ["BASE_URL"] = DocsBaseUrl
+        };
+
+        ProcessTasks.StartProcess("npm", "run build", workingDirectory: DocsClonePath.ToString(), environmentVariables: environmentVariables)
+            .AssertZeroExitCode();
+
+        var buildOutput = DocsClonePath / "build";
+        if (!Directory.Exists(buildOutput))
+        {
+            throw new Exception($"Documentation build output not found at '{buildOutput}'.");
+        }
+
+        return buildOutput;
+    }
 
     AbsolutePath GetPublishPathForRim(string rid)
     {
