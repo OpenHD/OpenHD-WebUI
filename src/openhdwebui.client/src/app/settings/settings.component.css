@@ -385,6 +385,231 @@ td {
   min-width: 0;
 }
 
+.structured-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+:host-context(.dark-theme) .structured-editor {
+  background: rgba(21, 30, 39, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.structured-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.structured-group h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+:host-context(.dark-theme) .structured-group h5 {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.structured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.structured-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+:host-context(.dark-theme) .structured-field {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.structured-field.toggle-field {
+  align-items: flex-start;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field-unit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+:host-context(.dark-theme) .field-unit {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.field-description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+:host-context(.dark-theme) .field-description {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.field-tag {
+  align-self: flex-start;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  background: rgba(0, 166, 242, 0.12);
+  color: #0377bd;
+}
+
+:host-context(.dark-theme) .field-tag {
+  background: rgba(255, 255, 255, 0.12);
+  color: #8fd1ff;
+}
+
+.field-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.structured-input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+:host-context(.dark-theme) .structured-input {
+  background: rgba(21, 30, 39, 0.9);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.structured-toggle {
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.structured-toggle span {
+  font-weight: 600;
+}
+
+.structured-unknown {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(15, 23, 42, 0.18);
+  background: rgba(15, 23, 42, 0.02);
+}
+
+:host-context(.dark-theme) .structured-unknown {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.structured-unknown h5 {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+}
+
+.structured-unknown p {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+:host-context(.dark-theme) .structured-unknown p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.structured-unknown ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.structured-unknown code {
+  background: rgba(15, 23, 42, 0.08);
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+:host-context(.dark-theme) .structured-unknown code {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.raw-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.raw-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.raw-header h5 {
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+:host-context(.dark-theme) .raw-header h5 {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.raw-hint {
+  font-size: 0.75rem;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+:host-context(.dark-theme) .raw-hint {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.raw-error {
+  color: #d9534f;
+  font-size: 0.8rem;
+}
+
+:host-context(.dark-theme) .raw-error {
+  color: #ff6b6b;
+}
+
 .settings-editor.placeholder {
   justify-content: center;
   align-items: center;
