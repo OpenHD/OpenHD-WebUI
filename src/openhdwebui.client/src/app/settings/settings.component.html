@@ -1,30 +1,94 @@
 <div class="settings">
   <h2>Settings</h2>
-  <div class="form-group">
-    <label>
-      <input type="checkbox" (change)="onThemeToggle()" [checked]="themeService.isDark">
-      Dark mode
-    </label>
-  </div>
-  <div *ngIf="network">
-    <h3>WiFi Interfaces</h3>
-    <table>
-      <tr><th>Name</th><th>Driver</th></tr>
-      <tr *ngFor="let wifi of network.wifi">
-        <td>{{wifi.name}}</td>
-        <td>{{wifi.driver}}</td>
-      </tr>
-    </table>
 
-    <h3>Ethernet Interfaces</h3>
-    <div *ngFor="let eth of network.ethernet" class="form-group">
-      <label>{{eth.name}} IP
-        <input type="text" [(ngModel)]="eth.ipAddress">
-      </label>
-      <label>Netmask
-        <input type="text" [(ngModel)]="eth.netmask">
-      </label>
-      <button (click)="saveEthernet(eth)">Save</button>
+  <section class="card">
+    <h3>Theme</h3>
+    <label class="toggle">
+      <input type="checkbox" (change)="onThemeToggle()" [checked]="themeService.isDark">
+      <span>Dark mode</span>
+    </label>
+  </section>
+
+  <section class="card" *ngIf="network">
+    <h3>Network</h3>
+    <div class="network-grid">
+      <div class="network-column">
+        <h4>WiFi Interfaces</h4>
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Driver</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let wifi of network.wifi">
+              <td>{{ wifi.name }}</td>
+              <td>{{ wifi.driver }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="network-column">
+        <h4>Ethernet Interfaces</h4>
+        <div *ngFor="let eth of network.ethernet" class="form-group">
+          <label>{{ eth.name }} IP
+            <input type="text" [(ngModel)]="eth.ipAddress">
+          </label>
+          <label>Netmask
+            <input type="text" [(ngModel)]="eth.netmask">
+          </label>
+          <button (click)="saveEthernet(eth)">Save</button>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <section class="card settings-card">
+    <div class="settings-header">
+      <div>
+        <h3>OpenHD configuration</h3>
+        <p class="description">Select a JSON settings file from OpenHD and edit it directly in the browser.</p>
+      </div>
+      <div class="status" *ngIf="isLoadingSettings">Loading settings…</div>
+      <div class="status error" *ngIf="settingsError">{{ settingsError }}</div>
+    </div>
+
+    <div class="settings-content" *ngIf="!settingsError">
+      <div class="settings-list" [class.disabled]="isLoadingSettings">
+        <p *ngIf="!isLoadingSettings && settingFiles.length === 0" class="empty">No settings files were found. Ensure OpenHD is installed and the settings directory is accessible.</p>
+        <ng-container *ngFor="let group of groupedSettings">
+          <h4>{{ group.title }}</h4>
+          <ul>
+            <li *ngFor="let file of group.items; trackBy: trackBySetting"
+                (click)="selectSetting(file)"
+                [class.active]="selectedSetting?.id === file.id">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-path">{{ file.relativePath }}</span>
+            </li>
+          </ul>
+        </ng-container>
+      </div>
+
+      <div class="settings-editor" *ngIf="selectedSetting">
+        <div class="editor-header">
+          <div>
+            <h4>{{ selectedSetting.name }}</h4>
+            <span class="editor-path">{{ selectedSetting.relativePath }}</span>
+          </div>
+          <div class="editor-status">
+            <span class="info" *ngIf="isSavingFile">Saving…</span>
+            <span class="info" *ngIf="isLoadingFile">Loading…</span>
+            <span class="success" *ngIf="saveSuccess">Saved</span>
+            <span class="error" *ngIf="fileError">{{ fileError }}</span>
+          </div>
+        </div>
+        <textarea [(ngModel)]="selectedSetting.content" [disabled]="isLoadingFile || isSavingFile"></textarea>
+        <div class="editor-actions">
+          <button (click)="saveSelectedSetting()" [disabled]="isSavingFile">Save changes</button>
+        </div>
+      </div>
+
+      <div class="settings-editor placeholder" *ngIf="!selectedSetting && !isLoadingSettings && settingFiles.length > 0">
+        <p>Select a settings file to start editing its contents.</p>
+      </div>
+    </div>
+  </section>
 </div>
