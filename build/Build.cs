@@ -134,7 +134,7 @@ partial class Build : NukeBuild
 
                 var docsTargetDirectory = debPackDirectory / "usr" / "local" / "share" / "openhd" / DocsTargetRelativePath;
                 docsTargetDirectory.CreateOrCleanDirectory();
-                FileSystemTasks.CopyDirectoryRecursively(documentationBuildOutput, docsTargetDirectory, DirectoryExistsPolicy.Merge, FileExistsPolicy.Overwrite);
+                CopyDirectoryContents(documentationBuildOutput, docsTargetDirectory);
 
                 var packSystemDDir = debPackDirectory / "etc" / "systemd" / "system";
                 packSystemDDir.CreateOrCleanDirectory();
@@ -176,7 +176,7 @@ partial class Build : NukeBuild
 
     AbsolutePath BuildDocumentation()
     {
-        FileSystemTasks.EnsureCleanDirectory(DocsClonePath);
+        DocsClonePath.CreateOrCleanDirectory();
 
         ProcessTasks.StartProcess("git", $"clone --depth 1 {DocsRepositoryUrl} .", workingDirectory: DocsClonePath.ToString())
             .AssertZeroExitCode();
@@ -241,6 +241,38 @@ partial class Build : NukeBuild
 #pragma warning disable CA1416 // Validate platform compatibility
             File.SetUnixFileMode(debianDirectory / filename, (UnixFileMode)509);
 #pragma warning restore CA1416 // Validate platform compatibility
+        }
+    }
+
+    static void CopyDirectoryContents(AbsolutePath source, AbsolutePath destination)
+    {
+        var sourcePath = source.ToString();
+        var destinationPath = destination.ToString();
+
+        if (!Directory.Exists(sourcePath))
+        {
+            throw new DirectoryNotFoundException($"Source directory '{source}' was not found.");
+        }
+
+        Directory.CreateDirectory(destinationPath);
+
+        foreach (var directory in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(sourcePath, directory);
+            Directory.CreateDirectory(Path.Combine(destinationPath, relative));
+        }
+
+        foreach (var file in Directory.GetFiles(sourcePath, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(sourcePath, file);
+            var targetFile = Path.Combine(destinationPath, relative);
+            var targetDirectory = Path.GetDirectoryName(targetFile);
+            if (!string.IsNullOrEmpty(targetDirectory))
+            {
+                Directory.CreateDirectory(targetDirectory);
+            }
+
+            File.Copy(file, targetFile, overwrite: true);
         }
     }
 }
