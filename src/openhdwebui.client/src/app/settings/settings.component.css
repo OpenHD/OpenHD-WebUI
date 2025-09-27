@@ -23,6 +23,13 @@
   box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
 }
 
+:host-context(.dark-theme) .settings h2,
+:host-context(.dark-theme) .settings h3,
+:host-context(.dark-theme) .settings h4,
+:host-context(.dark-theme) .settings h5 {
+  color: #fff;
+}
+
 :host-context(.dark-theme) .card {
   background-color: #2b3845;
   border-color: rgba(255, 255, 255, 0.08);
@@ -228,8 +235,8 @@ td {
   padding: 0.5rem 1.1rem;
   border-radius: 6px;
   border: none;
-  background-color: var(--primary-color);
-  color: var(--text-color);
+  background-color: #00a6f2;
+  color: #0f172a;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -238,6 +245,16 @@ td {
 .ethernet-actions button:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+}
+
+:host-context(.dark-theme) .ethernet-actions button {
+  background-color: #38bdf8;
+  color: #041527;
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.32);
+}
+
+:host-context(.dark-theme) .ethernet-actions button:hover {
+  box-shadow: 0 8px 20px rgba(8, 145, 178, 0.38);
 }
 
 .settings-card {
@@ -666,6 +683,18 @@ td {
   color: #d9534f;
 }
 
+:host-context(.dark-theme) .editor-status .info {
+  color: #8fd1ff;
+}
+
+:host-context(.dark-theme) .editor-status .success {
+  color: #6ee7b7;
+}
+
+:host-context(.dark-theme) .editor-status .error {
+  color: #ff6b6b;
+}
+
 textarea {
   width: 100%;
   min-height: 320px;
@@ -701,8 +730,8 @@ textarea:disabled {
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   border: none;
-  background-color: var(--primary-color);
-  color: var(--text-color);
+  background-color: #00a6f2;
+  color: #0f172a;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -716,6 +745,16 @@ textarea:disabled {
 .editor-actions button:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+}
+
+:host-context(.dark-theme) .editor-actions button {
+  background-color: #38bdf8;
+  color: #041527;
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.32);
+}
+
+:host-context(.dark-theme) .editor-actions button:not(:disabled):hover {
+  box-shadow: 0 10px 24px rgba(8, 145, 178, 0.4);
 }
 
 @media (max-width: 900px) {
