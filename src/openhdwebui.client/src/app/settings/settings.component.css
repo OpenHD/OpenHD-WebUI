@@ -43,6 +43,10 @@
   font-weight: 600;
 }
 
+:host-context(.dark-theme) .toggle {
+  color: #fff;
+}
+
 .toggle input {
   width: 1.2rem;
   height: 1.2rem;
@@ -375,6 +379,10 @@ td {
   font-weight: 600;
 }
 
+:host-context(.dark-theme) .file-name {
+  color: #fff;
+}
+
 .file-path {
   font-size: 0.8rem;
   color: rgba(15, 23, 42, 0.6);
@@ -470,6 +478,10 @@ td {
 .field-title {
   font-weight: 600;
   font-size: 0.95rem;
+}
+
+:host-context(.dark-theme) .field-title {
+  color: #fff;
 }
 
 .field-unit {
