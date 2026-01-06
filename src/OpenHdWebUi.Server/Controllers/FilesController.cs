@@ -29,6 +29,12 @@ public class FilesController : ControllerBase
     {
         var fullPath = _mediaService.MediaDirectoryFullPath;
 
+        if (string.IsNullOrEmpty(fullPath))
+        {
+            _logger.LogWarning("Media directory is not configured.");
+            return Enumerable.Empty<ServerFileInfo>();
+        }
+
         var files = _mediaService.GetMediaFilesPaths();
 
         var serverFileInfos = new List<ServerFileInfo>();
@@ -52,4 +58,3 @@ public class FilesController : ControllerBase
         _mediaService.DeleteFile(fileName);
     }
 }
-
