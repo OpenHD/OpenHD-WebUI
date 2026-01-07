@@ -11,6 +11,7 @@ export class NavMenuComponent {
   isExpanded = false;
   isAir = false;
   isGround = false;
+  hasRecordings = false;
   version = "";
 
   constructor(
@@ -21,6 +22,14 @@ export class NavMenuComponent {
         next: obj => {
           this.isAir = obj.isAir;
           this.isGround = obj.isGround;
+        },
+        error: err => console.error(err)
+      });
+
+    http.get<IPartitionReport>('/api/partitions')
+      .subscribe({
+        next: report => {
+          this.hasRecordings = (report.recordings?.files?.length ?? 0) > 0;
         },
         error: err => console.error(err)
       });
@@ -50,4 +59,10 @@ export class NavMenuComponent {
 interface IAirGroundStatus {
   isAir: boolean;
   isGround: boolean;
+}
+
+interface IPartitionReport {
+  recordings?: {
+    files?: string[];
+  } | null;
 }

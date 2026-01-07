@@ -95,7 +95,7 @@ public class SysutilPartitionService
             }
 
             RecordingInfoDto? recordings = null;
-            if (payloadData.Recordings != null && payloadData.Recordings.FreeBytes > 0)
+            if (payloadData.Recordings != null)
             {
                 recordings = new RecordingInfoDto(
                     payloadData.Recordings.FreeBytes,

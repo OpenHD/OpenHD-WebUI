@@ -27,7 +27,7 @@
             <a class="nav-link" [routerLink]="['/status']">Status</a>
           </li>
         </ul>
-        <ul class="navbar-nav flex-grow" *ngIf="isAir">
+        <ul class="navbar-nav flex-grow" *ngIf="isAir && hasRecordings">
           <li class="nav-item" [routerLinkActive]="['link-active']">
             <a class="nav-link" [routerLink]="['/files']">Videos</a>
           </li>

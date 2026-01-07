@@ -143,13 +143,13 @@
             <div class="prompt-title">Recordings free space</div>
             <p class="muted">{{ recordingsFreeLabel }}</p>
           </div>
-          <div class="resize-summary-card">
-            <div class="prompt-title">Files on /Video</div>
-            <div class="file-list" *ngIf="partitionReport?.recordings?.files?.length; else noFiles">
+          <div class="resize-summary-card" *ngIf="partitionReport?.recordings">
+            <div class="prompt-title">Recordings</div>
+            <div class="file-list" *ngIf="partitionReport?.recordings?.files?.length; else noRecordings">
               <div class="file-row" *ngFor="let file of partitionReport?.recordings?.files">{{ file }}</div>
             </div>
-            <ng-template #noFiles>
-              <p class="muted">No files detected.</p>
+            <ng-template #noRecordings>
+              <p class="muted">No recordings saved.</p>
             </ng-template>
           </div>
         </div>
