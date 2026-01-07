@@ -17,6 +17,14 @@ export class StatusComponent implements OnInit, OnDestroy {
   resizeChoice: 'yes' | 'no' | null = null;
   private isDestroyed = false;
   private isStreaming = false;
+  private readonly partitionColors = [
+    '#4cc3ff',
+    '#3ddc97',
+    '#ffc857',
+    '#ff7a7a',
+    '#8b7bff',
+    '#f78c6b'
+  ];
 
   constructor(
     private http: HttpClient) { }
@@ -113,6 +121,24 @@ export class StatusComponent implements OnInit, OnDestroy {
       return 0;
     }
     return Math.max(0, (segment.sizeBytes / disk.sizeBytes) * 100);
+  }
+
+  partitionColor(device: string | undefined, disk: PartitionDisk): string {
+    if (!device) {
+      return '#93a4b5';
+    }
+    const index = disk.partitions.findIndex(part => part.device === device);
+    if (index < 0) {
+      return '#93a4b5';
+    }
+    return this.partitionColors[index % this.partitionColors.length];
+  }
+
+  segmentStyle(segment: PartitionSegment, disk: PartitionDisk): { [key: string]: string } {
+    if (segment.kind === 'free') {
+      return {};
+    }
+    return { backgroundColor: this.partitionColor(segment.device, disk) };
   }
 
   setResizeChoice(choice: 'yes' | 'no'): void {

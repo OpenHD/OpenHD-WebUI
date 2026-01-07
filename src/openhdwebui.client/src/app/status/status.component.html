@@ -149,20 +149,22 @@
             <div class="segment"
                  *ngFor="let segment of disk.segments"
                  [class.free]="segment.kind === 'free'"
+                 [ngStyle]="segmentStyle(segment, disk)"
                  [style.width.%]="segmentPercent(segment, disk)">
-              <span class="segment-label">
-                {{ segment.kind === 'free' ? 'Free' : (segment.device || 'Partition') }}
-              </span>
             </div>
           </div>
           <div class="partition-list">
             <div class="partition-row" *ngFor="let part of disk.partitions">
-              <div class="partition-name">{{ part.device }}</div>
+              <div class="partition-name">
+                <span class="partition-swatch"
+                      [style.backgroundColor]="partitionColor(part.device, disk)"></span>
+                <span class="partition-label">{{ part.device }}</span>
+              </div>
               <div class="partition-meta">
                 <span>{{ part.fstype || 'Unknown' }}</span>
                 <span>{{ part.mountpoint || 'Unmounted' }}</span>
-                <span>{{ formatBytes(part.sizeBytes) }}</span>
               </div>
+              <div class="partition-size">{{ formatBytes(part.sizeBytes) }}</div>
             </div>
           </div>
         </div>
