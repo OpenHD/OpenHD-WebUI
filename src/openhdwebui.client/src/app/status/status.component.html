@@ -134,6 +134,7 @@
                   (click)="setResizeChoice('no')">No</button>
         </div>
         <div class="prompt-status">{{ resizeChoiceLabel }}</div>
+        <p class="error-text" *ngIf="resizeError">{{ resizeError }}</p>
       </div>
 
       <p class="error-text" *ngIf="partitionError">{{ partitionError }}</p>

@@ -10,6 +10,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   status?: IOpenHdStatus;
   partitionReport?: PartitionReport;
   partitionError = '';
+  resizeError = '';
   isLoading = true;
   lastError = '';
   errorHistory: StatusEntry[] = [];
@@ -116,6 +117,15 @@ export class StatusComponent implements OnInit, OnDestroy {
 
   setResizeChoice(choice: 'yes' | 'no'): void {
     this.resizeChoice = choice;
+    this.resizeError = '';
+    const resize = choice === 'yes';
+    this.http.post('/api/partitions/resize', { resize })
+      .subscribe({
+        next: () => {},
+        error: () => {
+          this.resizeError = 'Unable to send resize request.';
+        }
+      });
   }
 
   private refreshStatus(): void {

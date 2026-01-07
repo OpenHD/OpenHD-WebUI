@@ -59,3 +59,5 @@ public record PartitionDiskDto(
     IReadOnlyCollection<PartitionEntryDto> Partitions);
 
 public record PartitionReportDto(IReadOnlyCollection<PartitionDiskDto> Disks);
+
+public record PartitionResizeRequestDto(bool Resize);

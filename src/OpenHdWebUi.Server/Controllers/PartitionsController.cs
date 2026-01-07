@@ -8,16 +8,24 @@ namespace OpenHdWebUi.Server.Controllers;
 [Route("api/partitions")]
 public class PartitionsController : ControllerBase
 {
-    private readonly PartitionService _service;
+    private readonly SysutilPartitionService _service;
 
-    public PartitionsController(PartitionService service)
+    public PartitionsController(SysutilPartitionService service)
     {
         _service = service;
     }
 
     [HttpGet]
-    public PartitionReportDto Get()
+    public Task<PartitionReportDto> Get(CancellationToken cancellationToken)
     {
-        return _service.GetPartitions();
+        return _service.GetPartitionsAsync(cancellationToken);
+    }
+
+    [HttpPost("resize")]
+    public async Task<IActionResult> RequestResize([FromBody] PartitionResizeRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _service.SendResizeRequestAsync(request.Resize, cancellationToken);
+        return ok ? Ok() : StatusCode(503);
     }
 }

@@ -32,7 +32,7 @@ public class Program
             .AddScoped<SystemCommandsService>()
             .AddScoped<SystemFilesService>()
             .AddScoped<NetworkInfoService>()
-            .AddScoped<PartitionService>();
+            .AddScoped<SysutilPartitionService>();
         builder.Services
             .AddHttpClient()
             .AddSingleton<MediaService>()
