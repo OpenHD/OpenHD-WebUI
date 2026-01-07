@@ -69,6 +69,9 @@ public record PartitionResizableDto(
 
 public record PartitionReportDto(
     IReadOnlyCollection<PartitionDiskDto> Disks,
+    RecordingInfoDto? Recordings,
     PartitionResizableDto? Resizable);
+
+public record RecordingInfoDto(long FreeBytes, IReadOnlyCollection<string> Files);
 
 public record PartitionResizeRequestDto(bool Resize);

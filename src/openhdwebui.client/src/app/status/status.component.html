@@ -120,7 +120,7 @@
         </div>
       </div>
 
-      <div class="resize-prompt" *ngIf="partitionReport?.resizable; else noResize">
+      <div class="resize-prompt" *ngIf="showResizePrompt; else noResize">
         <div class="prompt-title">{{ resizableLabel() }}</div>
         <p class="muted">Only the last FAT32 partition next to free space can be expanded.</p>
         <div class="prompt-actions">
@@ -138,15 +138,26 @@
       </div>
 
       <ng-template #noResize>
-        <div class="resize-prompt muted">
-          <div class="prompt-title">Not resizable</div>
-          <p class="muted">No FAT32 partition with free space is available.</p>
+        <div class="resize-summary">
+          <div class="resize-summary-card">
+            <div class="prompt-title">Recordings free space</div>
+            <p class="muted">{{ recordingsFreeLabel }}</p>
+          </div>
+          <div class="resize-summary-card">
+            <div class="prompt-title">Files on /Video</div>
+            <div class="file-list" *ngIf="partitionReport?.recordings?.files?.length; else noFiles">
+              <div class="file-row" *ngFor="let file of partitionReport?.recordings?.files">{{ file }}</div>
+            </div>
+            <ng-template #noFiles>
+              <p class="muted">No files detected.</p>
+            </ng-template>
+          </div>
         </div>
       </ng-template>
 
       <p class="error-text" *ngIf="partitionError">{{ partitionError }}</p>
 
-      <ng-container *ngIf="partitionReport?.disks?.length; else noDisks">
+      <ng-container *ngIf="showResizePrompt && partitionReport?.disks?.length; else noDisks">
         <div class="disk-block" *ngFor="let disk of partitionReport?.disks">
           <div class="disk-header">
             <span class="disk-name">{{ disk.name }}</span>
@@ -185,7 +196,7 @@
       </ng-container>
 
       <ng-template #noDisks>
-        <p class="muted">No partitions detected yet.</p>
+        <p class="muted" *ngIf="showResizePrompt">No partitions detected yet.</p>
       </ng-template>
     </article>
   </div>

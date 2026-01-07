@@ -162,6 +162,38 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
+.resize-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.resize-summary-card {
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.file-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.4rem;
+  padding-right: 0.3rem;
+}
+
+.file-row {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.35rem;
+}
+
+.file-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
 .prompt-title {
   font-size: 0.95rem;
   font-weight: 600;

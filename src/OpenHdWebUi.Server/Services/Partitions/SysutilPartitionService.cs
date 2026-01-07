@@ -16,12 +16,12 @@ public class SysutilPartitionService
     {
         if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null, null);
         }
 
         if (!File.Exists(SocketPath))
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null, null);
         }
 
         try
@@ -49,7 +49,7 @@ public class SysutilPartitionService
 
             if (string.IsNullOrWhiteSpace(line))
             {
-                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
+                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null, null);
             }
 
             var payloadData = JsonSerializer.Deserialize<PartitionReportPayload>(line, new JsonSerializerOptions
@@ -59,7 +59,7 @@ public class SysutilPartitionService
 
             if (payloadData?.Disks == null)
             {
-                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
+                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null, null);
             }
 
             var disks = payloadData.Disks.Select(d => new PartitionDiskDto(
@@ -94,11 +94,19 @@ public class SysutilPartitionService
                     payloadData.Resizable.FreeBytes);
             }
 
-            return new PartitionReportDto(disks, resizable);
+            RecordingInfoDto? recordings = null;
+            if (payloadData.Recordings != null && payloadData.Recordings.FreeBytes > 0)
+            {
+                recordings = new RecordingInfoDto(
+                    payloadData.Recordings.FreeBytes,
+                    payloadData.Recordings.Files ?? Array.Empty<string>());
+            }
+
+            return new PartitionReportDto(disks, recordings, resizable);
         }
         catch
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null, null);
         }
     }
 
@@ -146,6 +154,7 @@ public class SysutilPartitionService
 
     private sealed record PartitionReportPayload(
         [property: JsonPropertyName("disks")] PartitionDiskPayload[]? Disks,
+        [property: JsonPropertyName("recordings")] RecordingInfoPayload? Recordings,
         [property: JsonPropertyName("resizable")] PartitionResizablePayload? Resizable);
 
     private sealed record PartitionDiskPayload(
@@ -177,4 +186,8 @@ public class SysutilPartitionService
         [property: JsonPropertyName("label")] string? Label,
         [property: JsonPropertyName("fstype")] string? Fstype,
         [property: JsonPropertyName("freeBytes")] long FreeBytes);
+
+    private sealed record RecordingInfoPayload(
+        [property: JsonPropertyName("freeBytes")] long FreeBytes,
+        [property: JsonPropertyName("files")] string[]? Files);
 }

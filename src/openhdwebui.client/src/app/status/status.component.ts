@@ -156,6 +156,15 @@ export class StatusComponent implements OnInit, OnDestroy {
     return `Resize ${name} to fill ${this.formatBytes(resizable.freeBytes)} free space?`;
   }
 
+  get showResizePrompt(): boolean {
+    return !!this.partitionReport?.resizable;
+  }
+
+  get recordingsFreeLabel(): string {
+    const free = this.partitionReport?.recordings?.freeBytes ?? 0;
+    return this.formatBytes(free);
+  }
+
   partitionColor(device: string | undefined, disk: PartitionDisk): string {
     if (!device) {
       return '#93a4b5';
@@ -291,6 +300,7 @@ interface StatusEntry {
 
 interface PartitionReport {
   disks: PartitionDisk[];
+  recordings?: RecordingInfo | null;
   resizable?: PartitionResizable | null;
 }
 
@@ -326,4 +336,9 @@ interface PartitionResizable {
   label?: string;
   fstype?: string;
   freeBytes: number;
+}
+
+interface RecordingInfo {
+  freeBytes: number;
+  files: string[];
 }
