@@ -15,6 +15,7 @@ import { SystemComponent } from './system/system.component';
 import { UpdateComponent } from './update/update.component';
 import { FrontpageComponent } from './frontpage/frontpage.component';
 import { SettingsComponent } from './settings/settings.component';
+import { StatusComponent } from './status/status.component';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { SettingsComponent } from './settings/settings.component';
         SystemComponent,
         UpdateComponent,
         FrontpageComponent,
-        SettingsComponent
+        SettingsComponent,
+        StatusComponent
     ],
     bootstrap: [AppComponent],
     imports: [

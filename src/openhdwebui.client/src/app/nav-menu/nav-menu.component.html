@@ -3,7 +3,7 @@
     <div class="container-fluid d-flex align-items-center">
 
       <div class="navbar-brand d-flex align-items-center me-auto">
-        <a [routerLink]="['/']">
+        <a [routerLink]="['/home']">
           <img src="assets/OpenHD-Logo.png" height="40" class="d-inline-block align-top logo-dark" alt="OpenHD logo">
         </a>
         <span class="ms-2">OpenHD WebUI</span>
@@ -24,7 +24,7 @@
            [ngClass]="{ show: isExpanded }">
         <ul class="navbar-nav flex-grow">
           <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link" [routerLink]="['/']">Home</a>
+            <a class="nav-link" [routerLink]="['/home']">Home</a>
           </li>
         </ul>
         <ul class="navbar-nav flex-grow" *ngIf="isAir">

@@ -10,6 +10,7 @@ using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
 using OpenHdWebUi.Server.Services.Network;
 using OpenHdWebUi.Server.Services.Settings;
+using OpenHdWebUi.Server.Services.Status;
 
 namespace OpenHdWebUi.Server;
 
@@ -34,7 +35,8 @@ public class Program
             .AddHttpClient()
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
-            .AddSingleton<SettingsService>();
+            .AddSingleton<SettingsService>()
+            .AddSingleton<SysutilStatusService>();
         builder.Services
             .AddDirectoryBrowser()
             .AddControllers();

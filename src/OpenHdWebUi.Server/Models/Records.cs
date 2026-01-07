@@ -26,3 +26,13 @@ public record SettingFileSummaryDto(string Id, string Name, string RelativePath,
 public record SettingFileDto(string Id, string Name, string RelativePath, string? Category, string Content);
 
 public record UpdateSettingFileRequest(string Content);
+
+public record OpenHdStatusDto(
+    bool IsAvailable,
+    bool HasData,
+    bool HasError,
+    string? State,
+    string? Description,
+    string? Message,
+    int Severity,
+    long UpdatedMs);
