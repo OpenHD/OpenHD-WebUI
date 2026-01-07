@@ -125,8 +125,19 @@ export class StatusComponent implements OnInit, OnDestroy {
     return Math.max(0, (segment.sizeBytes / disk.sizeBytes) * 100);
   }
 
-  partitionDisplayName(part: PartitionEntry): string {
-    return part.label || part.fstype || 'Unknown';
+  partitionTypeLabel(part: Partial<PartitionEntry>): string {
+    const fstype = (part.fstype ?? '').toLowerCase();
+    if (!fstype) {
+      return 'Unformatted';
+    }
+    if (fstype === 'vfat' || fstype === 'fat32' || fstype === 'fat') {
+      return 'FAT32';
+    }
+    return fstype.toUpperCase();
+  }
+
+  partitionLabel(part: Partial<PartitionEntry>): string {
+    return part.label || '';
   }
 
   resizableLabel(): string {
@@ -134,9 +145,10 @@ export class StatusComponent implements OnInit, OnDestroy {
     if (!resizable) {
       return 'No resizable FAT32 partition detected.';
     }
-    const name = resizable.label
-      ? `${resizable.label} (${resizable.device})`
-      : resizable.device;
+    const typeLabel = resizable.fstype
+      ? this.partitionTypeLabel({ fstype: resizable.fstype } as PartitionEntry)
+      : 'Unformatted';
+    const name = resizable.label ? `${resizable.label} (${typeLabel})` : typeLabel;
     return `Resize ${name} to fill ${this.formatBytes(resizable.freeBytes)} free space?`;
   }
 

@@ -266,7 +266,7 @@
 
 .partition-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 0 0.5rem 0.6rem;
@@ -298,19 +298,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.partition-meta {
   display: flex;
-  gap: 0.6rem;
-  font-size: 0.85rem;
-  color: color-mix(in srgb, var(--text-color) 70%, transparent);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
-.partition-meta-label {
-  font-weight: 600;
-  color: color-mix(in srgb, var(--text-color) 85%, transparent);
+.partition-sub {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--text-color) 60%, transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .partition-size {
