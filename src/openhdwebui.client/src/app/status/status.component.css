@@ -315,6 +315,15 @@
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--text-color) 70%, transparent);
   text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.partition-size-sub {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--text-color) 55%, transparent);
 }
 
 .partition-progress {

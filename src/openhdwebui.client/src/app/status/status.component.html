@@ -172,7 +172,13 @@
                   <span class="partition-sub" *ngIf="partitionLabel(part)">{{ partitionLabel(part) }}</span>
                 </span>
               </div>
-              <div class="partition-size">{{ formatBytes(part.sizeBytes) }}</div>
+              <div class="partition-size">
+                {{ formatBytes(part.sizeBytes) }}
+                <span class="partition-size-sub"
+                      *ngIf="isRecordings(part) && part.freeBytes">
+                  {{ formatBytes(part.freeBytes) }} free
+                </span>
+              </div>
             </div>
           </div>
         </div>

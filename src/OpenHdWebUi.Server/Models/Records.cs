@@ -42,6 +42,7 @@ public record PartitionEntryDto(
     string? Mountpoint,
     string? Fstype,
     string? Label,
+    long? FreeBytes,
     long SizeBytes,
     long StartBytes);
 

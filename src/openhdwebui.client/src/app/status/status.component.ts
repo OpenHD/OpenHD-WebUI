@@ -140,6 +140,10 @@ export class StatusComponent implements OnInit, OnDestroy {
     return part.label || '';
   }
 
+  isRecordings(part: Partial<PartitionEntry>): boolean {
+    return (part.label ?? '').toLowerCase() === 'recordings';
+  }
+
   resizableLabel(): string {
     const resizable = this.partitionReport?.resizable;
     if (!resizable) {
@@ -312,6 +316,7 @@ interface PartitionEntry {
   mountpoint?: string;
   fstype?: string;
   label?: string;
+  freeBytes?: number;
   startBytes: number;
   sizeBytes: number;
 }

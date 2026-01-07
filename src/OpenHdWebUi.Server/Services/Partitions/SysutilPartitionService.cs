@@ -78,6 +78,7 @@ public class SysutilPartitionService
                     p.Mountpoint,
                     p.Fstype,
                     p.Label,
+                    p.FreeBytes,
                     p.SizeBytes,
                     p.StartBytes)).ToArray() ?? Array.Empty<PartitionEntryDto>()
             )).ToArray();
@@ -167,6 +168,7 @@ public class SysutilPartitionService
         [property: JsonPropertyName("mountpoint")] string? Mountpoint,
         [property: JsonPropertyName("fstype")] string? Fstype,
         [property: JsonPropertyName("label")] string? Label,
+        [property: JsonPropertyName("freeBytes")] long? FreeBytes,
         [property: JsonPropertyName("sizeBytes")] long SizeBytes,
         [property: JsonPropertyName("startBytes")] long StartBytes);
 
