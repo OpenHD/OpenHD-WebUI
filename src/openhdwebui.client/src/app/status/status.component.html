@@ -51,6 +51,13 @@
           <span class="value">{{ formatTimestamp(status?.updatedMs) }}</span>
         </div>
       </div>
+
+      <div class="partition-progress" *ngIf="isPartitioning">
+        <div class="progress-label">Partitioning in progress</div>
+        <div class="progress-track" role="progressbar" aria-label="Partitioning progress">
+          <span class="progress-fill"></span>
+        </div>
+      </div>
     </article>
 
     <article class="status-card secondary">
@@ -100,6 +107,5 @@
 
   <div class="status-footer">
     <p *ngIf="lastError" class="error-text">{{ lastError }}</p>
-    <p class="hint">Auto-refreshes every 3 seconds.</p>
   </div>
 </section>

@@ -144,6 +144,36 @@
   padding-bottom: 0;
 }
 
+.partition-progress {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.progress-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 166, 242, 0.35);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.progress-fill {
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(0, 166, 242, 0.2), rgba(0, 166, 242, 0.85), rgba(0, 166, 242, 0.2));
+  animation: progress-slide 1.4s ease-in-out infinite;
+}
+
 .label {
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -233,6 +263,18 @@
   100% {
     transform: scale(1);
     opacity: 0.7;
+  }
+}
+
+@keyframes progress-slide {
+  0% {
+    transform: translateX(-60%);
+  }
+  50% {
+    transform: translateX(60%);
+  }
+  100% {
+    transform: translateX(140%);
   }
 }
 

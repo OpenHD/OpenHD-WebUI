@@ -68,6 +68,10 @@ export class StatusComponent implements OnInit, OnDestroy {
     return 'Waiting for the first status update from OpenHD.';
   }
 
+  get isPartitioning(): boolean {
+    return (this.status?.state ?? '').toLowerCase() === 'partitioning';
+  }
+
   formatTimestamp(ms?: number): string {
     if (!ms) {
       return '—';
