@@ -1,0 +1,136 @@
+@import 'xterm/css/xterm.css';
+
+
+.system-container {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  box-sizing: border-box;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+}
+
+.lists {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.commands,
+.files {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background-color: rgba(15, 23, 42, 0.05);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+}
+
+:host-context(.dark-theme) .commands,
+:host-context(.dark-theme) .files {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.commands h2,
+.files h2 {
+  margin-top: 0;
+}
+
+
+.commands button,
+.files a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(0, 166, 242, 0.12), rgba(0, 166, 242, 0.02));
+  color: inherit;
+  border: 1px solid rgba(0, 166, 242, 0.18);
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: left;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.commands button {
+  cursor: pointer;
+}
+
+.commands button:hover,
+.files a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 166, 242, 0.18);
+}
+
+.terminal-wrapper {
+  height: 60vh;
+  border-radius: 18px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+:host-context(.dark-theme) .terminal-wrapper {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.terminal {
+  height: 100%;
+}
+
+.terminal-toggle {
+  justify-self: start;
+  padding: 0.65rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary-color), rgba(0, 166, 242, 0.4));
+  color: var(--text-color);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 166, 242, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.terminal-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(0, 166, 242, 0.28);
+}
+
+@media (min-width: 768px) {
+  .lists {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .system-container {
+    grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+    grid-template-areas:
+      "lists terminal"
+      "toggle terminal";
+    align-items: start;
+  }
+
+  .lists {
+    grid-area: lists;
+    grid-template-columns: 1fr;
+    position: sticky;
+    top: 1rem;
+  }
+
+  .terminal-wrapper {
+    grid-area: terminal;
+    height: clamp(26rem, 68vh, 42rem);
+  }
+
+  .terminal-toggle {
+    grid-area: toggle;
+  }
+}
+

@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
+import { ThemeService } from '../theme.service';
 
 @Component({
   selector: 'app-nav-menu',
@@ -13,7 +14,8 @@ export class NavMenuComponent {
   version = "";
 
   constructor(
-    http: HttpClient) {
+    http: HttpClient,
+    public themeService: ThemeService) {
     http.get<IAirGroundStatus>('/api/info/ag-state')
       .subscribe({
         next: obj => {

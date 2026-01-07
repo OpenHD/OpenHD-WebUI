@@ -34,6 +34,22 @@ jobs:
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
       - name: 'Run: Clean, CloudsmithPublish'
-        run: ./build.cmd Clean CloudsmithPublish
+        run: |
+          set -o pipefail
+          ./build.cmd Clean CloudsmithPublish 2>&1 | tee build.log
         env:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+      - name: 'Upload build log'
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          if-no-files-found: warn
+      - name: 'Upload deb artifacts'
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: out/deb/*.deb
+          if-no-files-found: warn

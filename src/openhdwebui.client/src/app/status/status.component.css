@@ -1,0 +1,262 @@
+:host {
+  display: block;
+}
+
+.status-page {
+  min-height: 100vh;
+  padding: 3.5rem 1.5rem 4rem;
+  color: var(--text-color);
+  background:
+    radial-gradient(1000px 400px at 10% -10%, rgba(0, 166, 242, 0.15), transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, rgba(0, 166, 242, 0.08), transparent 60%);
+}
+
+.status-hero {
+  max-width: 900px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+
+.status-hero h1 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin: 0.4rem 0 0.8rem;
+}
+
+.lead {
+  font-size: 1.1rem;
+  color: color-mix(in srgb, var(--text-color) 85%, transparent);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 166, 242, 0.4);
+  background: rgba(0, 166, 242, 0.08);
+  font-size: 0.85rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+}
+
+.status-chip.ok {
+  border-color: rgba(0, 186, 120, 0.45);
+  background: rgba(0, 186, 120, 0.12);
+}
+
+.status-chip.error {
+  border-color: rgba(255, 76, 76, 0.45);
+  background: rgba(255, 76, 76, 0.12);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.status-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.status-card {
+  background: var(--hero-bg);
+  border: 1px solid rgba(0, 166, 242, 0.25);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.status-card.ok {
+  border-color: rgba(0, 186, 120, 0.35);
+}
+
+.status-card.error {
+  border-color: rgba(255, 76, 76, 0.4);
+}
+
+.status-card.secondary {
+  border-style: dashed;
+}
+
+.card-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+
+.card-header h2 {
+  margin: 0 0 0.3rem;
+  font-size: 1.25rem;
+}
+
+.muted {
+  margin: 0;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 166, 242, 0.15);
+  color: var(--primary-color);
+}
+
+.icon.soft {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.status-rows {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  color: color-mix(in srgb, var(--text-color) 65%, transparent);
+}
+
+.value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.status-footer {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.status-history {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.status-history h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.8rem;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.history-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.history-meta {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text-color) 65%, transparent);
+}
+
+.history-state {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  text-align: right;
+  max-width: 40%;
+}
+
+.status-error {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 76, 76, 0.45);
+  background: rgba(255, 76, 76, 0.12);
+  padding: 1rem;
+}
+
+.status-error h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.error-text {
+  color: #ff4c4c;
+  margin-bottom: 0.5rem;
+}
+
+.hint {
+  color: color-mix(in srgb, var(--text-color) 60%, transparent);
+  font-size: 0.9rem;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+@media (max-width: 600px) {
+  .status-page {
+    padding: 2.5rem 1rem 3rem;
+  }
+
+  .status-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .value {
+    text-align: left;
+  }
+
+  .history-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-state {
+    text-align: left;
+    max-width: 100%;
+  }
+}

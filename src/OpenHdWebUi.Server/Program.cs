@@ -8,6 +8,9 @@ using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
+using OpenHdWebUi.Server.Services.Network;
+using OpenHdWebUi.Server.Services.Settings;
+using OpenHdWebUi.Server.Services.Status;
 
 namespace OpenHdWebUi.Server;
 
@@ -26,10 +29,14 @@ public class Program
             .Bind(builder.Configuration);
         builder.Services
             .AddScoped<SystemCommandsService>()
-            .AddScoped<SystemFilesService>();
+            .AddScoped<SystemFilesService>()
+            .AddScoped<NetworkInfoService>();
         builder.Services
+            .AddHttpClient()
             .AddSingleton<MediaService>()
-            .AddSingleton<AirGroundService>();
+            .AddSingleton<AirGroundService>()
+            .AddSingleton<SettingsService>()
+            .AddSingleton<SysutilStatusService>();
         builder.Services
             .AddDirectoryBrowser()
             .AddControllers();

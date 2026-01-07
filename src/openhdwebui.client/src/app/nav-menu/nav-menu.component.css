@@ -1,7 +1,8 @@
-a.navbar-brand {
+.navbar-brand {
   white-space: normal;
   text-align: center;
   word-break: break-all;
+  color: var(--primary-color);
 }
 
 html {

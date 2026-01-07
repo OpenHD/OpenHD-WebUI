@@ -1,0 +1,105 @@
+<section class="status-page">
+  <div class="status-hero">
+    <div class="status-chip"
+         [class.ok]="status?.hasData && !status?.hasError"
+         [class.error]="status?.hasError">
+      <span class="dot"></span>
+      {{ statusBadge }}
+    </div>
+
+    <h1>OpenHD Status</h1>
+    <p class="lead">{{ statusTitle }}</p>
+  </div>
+
+  <div class="status-grid">
+    <article class="status-card"
+             [class.ok]="status?.hasData && !status?.hasError"
+             [class.error]="status?.hasError">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v4m0 10v4M4.9 4.9l2.8 2.8m8.6 8.6 2.8 2.8M3 12h4m10 0h4M4.9 19.1l2.8-2.8m8.6-8.6 2.8-2.8"
+                  fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div>
+          <h2>System State</h2>
+          <p class="muted">{{ statusSummary }}</p>
+        </div>
+      </div>
+
+      <div class="status-rows">
+        <div class="status-row">
+          <span class="label">State</span>
+          <span class="value">{{ status?.state || 'Waiting for update' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Description</span>
+          <span class="value">{{ status?.description || '—' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Message</span>
+          <span class="value">{{ status?.message || '—' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Severity</span>
+          <span class="value">{{ status?.hasData ? status?.severity : '—' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Last update</span>
+          <span class="value">{{ formatTimestamp(status?.updatedMs) }}</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="status-card secondary">
+      <div class="card-header">
+        <div class="icon soft">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Connection</h2>
+          <p class="muted">WebUI connects to openhd_sys_utils over the Unix socket.</p>
+        </div>
+      </div>
+
+      <div class="status-rows">
+        <div class="status-row">
+          <span class="label">Socket</span>
+          <span class="value">{{ status?.isAvailable ? 'Connected' : 'Unavailable' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Redirect</span>
+          <span class="value">Status stays available from any tab.</span>
+        </div>
+      </div>
+      <div class="status-error" *ngIf="status?.hasError">
+        <h3>OpenHD errors detected</h3>
+        <p class="muted">Review the latest status values and check logs in the Debug tab.</p>
+      </div>
+
+      <div class="status-history" *ngIf="errorHistory.length">
+        <h3>Recent errors</h3>
+        <div class="history-row" *ngFor="let entry of errorHistory">
+          <div>
+            <div class="history-title">
+              {{ entry.description || entry.message || entry.state || 'Unknown error' }}
+            </div>
+            <div class="history-meta">
+              Severity {{ entry.severity }} · {{ formatTimestamp(entry.updatedMs) }}
+            </div>
+          </div>
+          <div class="history-state">{{ entry.state || '—' }}</div>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <div class="status-footer">
+    <p *ngIf="lastError" class="error-text">{{ lastError }}</p>
+    <p class="hint">Auto-refreshes every 3 seconds.</p>
+  </div>
+</section>

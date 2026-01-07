@@ -1,0 +1,201 @@
+<div class="settings">
+  <h2>Settings</h2>
+
+  <section class="card">
+    <h3>Theme</h3>
+    <label class="toggle">
+      <input type="checkbox" (change)="onThemeToggle()" [checked]="themeService.isDark">
+      <span>Dark mode</span>
+    </label>
+  </section>
+
+  <section class="card network-card" *ngIf="network">
+    <div class="network-header">
+      <div>
+        <h3>Network</h3>
+        <p class="description">Review available interfaces and update static settings for your wired connections.</p>
+      </div>
+      <div class="badge-group">
+        <span class="badge" *ngIf="wifiInterfaces.length">WiFi: {{ wifiInterfaces.length }}</span>
+        <span class="badge" *ngIf="ethernetInterfaces.length">Ethernet: {{ ethernetInterfaces.length }}</span>
+      </div>
+    </div>
+
+    <div class="network-grid">
+      <div class="network-panel">
+        <div class="panel-header">
+          <h4>WiFi Interfaces</h4>
+          <p class="panel-subtitle">Detected wireless adapters with their corresponding drivers.</p>
+        </div>
+        <table *ngIf="wifiInterfaces.length; else noWifi">
+          <thead>
+            <tr>
+              <th scope="col">Interface</th>
+              <th scope="col">Driver</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let wifi of wifiInterfaces">
+              <td data-label="Interface">{{ wifi.name }}</td>
+              <td data-label="Driver">{{ wifi.driver || 'Unknown' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="network-panel">
+        <div class="panel-header">
+          <h4>Ethernet Interfaces</h4>
+          <p class="panel-subtitle">Assign or update static IP details for wired links.</p>
+        </div>
+        <ng-container *ngIf="ethernetInterfaces.length; else noEthernet">
+          <div class="ethernet-card" *ngFor="let eth of ethernetInterfaces">
+            <header>
+              <h5>{{ eth.name }}</h5>
+              <span class="ethernet-hint">Current configuration</span>
+            </header>
+            <div class="ethernet-fields">
+              <label>
+                <span>IP address</span>
+                <input type="text" [(ngModel)]="eth.ipAddress" placeholder="e.g. 192.168.1.10">
+              </label>
+              <label>
+                <span>Netmask</span>
+                <input type="text" [(ngModel)]="eth.netmask" placeholder="e.g. 255.255.255.0">
+              </label>
+            </div>
+            <div class="ethernet-actions">
+              <button type="button" (click)="saveEthernet(eth)">Save settings</button>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <ng-template #noWifi>
+      <p class="empty-state">No WiFi interfaces were detected.</p>
+    </ng-template>
+    <ng-template #noEthernet>
+      <p class="empty-state">No Ethernet interfaces were found on this device.</p>
+    </ng-template>
+  </section>
+
+  <section class="card settings-card">
+    <div class="settings-header">
+      <div>
+        <h3>OpenHD configuration</h3>
+        <p class="description">Select a JSON settings file from OpenHD and edit it directly in the browser.</p>
+      </div>
+      <div class="status" *ngIf="isLoadingSettings">Loading settings…</div>
+      <div class="status error" *ngIf="settingsError">{{ settingsError }}</div>
+    </div>
+
+    <div class="settings-content" *ngIf="!settingsError">
+      <div class="settings-list" [class.disabled]="isLoadingSettings">
+        <p *ngIf="!isLoadingSettings && settingFiles.length === 0" class="empty">No settings files were found. Ensure OpenHD is installed and the settings directory is accessible.</p>
+        <ng-container *ngFor="let group of groupedSettings">
+          <h4>{{ group.title }}</h4>
+          <ul>
+            <li *ngFor="let file of group.items; trackBy: trackBySetting"
+                (click)="selectSetting(file)"
+                [class.active]="selectedSetting?.id === file.id">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-path">{{ file.relativePath }}</span>
+            </li>
+          </ul>
+        </ng-container>
+      </div>
+
+      <div class="settings-editor" *ngIf="selectedSetting">
+        <div class="editor-header">
+          <div>
+            <h4>{{ selectedSetting.name }}</h4>
+            <span class="editor-path">{{ selectedSetting.relativePath }}</span>
+          </div>
+          <div class="editor-status">
+            <span class="info" *ngIf="isSavingFile">Saving…</span>
+            <span class="info" *ngIf="isLoadingFile">Loading…</span>
+            <span class="success" *ngIf="saveSuccess">Saved</span>
+            <span class="error" *ngIf="fileError">{{ fileError }}</span>
+          </div>
+        </div>
+
+        <div class="structured-editor" *ngIf="hasStructuredView">
+          <div class="structured-group" *ngFor="let group of structuredGroups">
+            <h5 *ngIf="group.title">{{ group.title }}</h5>
+            <div class="structured-grid">
+              <div class="structured-field" *ngFor="let field of group.fields" [class.toggle-field]="field.control === 'toggle'">
+                <div class="field-header">
+                  <div class="field-title">{{ field.label }}</div>
+                  <span class="field-unit" *ngIf="field.unit">{{ field.unit }}</span>
+                </div>
+                <p class="field-description" *ngIf="field.description">{{ field.description }}</p>
+                <span class="field-tag" *ngIf="!field.hasMetadata">Generic control</span>
+                <div class="field-control" [ngSwitch]="field.control">
+                  <label class="toggle structured-toggle" *ngSwitchCase="'toggle'">
+                    <input type="checkbox" [checked]="coerceBoolean(field)"
+                           (change)="onToggleChange(field, $event)"
+                           [disabled]="isLoadingFile || isSavingFile">
+                    <span>{{ coerceBoolean(field) ? 'Enabled' : 'Disabled' }}</span>
+                  </label>
+                  <select *ngSwitchCase="'select'" class="structured-input"
+                          [ngModel]="field.value"
+                          (ngModelChange)="onFieldChange(field, $event)"
+                          [ngModelOptions]="{ standalone: true }"
+                          [disabled]="isLoadingFile || isSavingFile">
+                    <option *ngFor="let option of field.options" [ngValue]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <input *ngSwitchCase="'number'" type="number" class="structured-input"
+                         [ngModel]="field.value"
+                         (ngModelChange)="onFieldChange(field, $event)"
+                         [ngModelOptions]="{ standalone: true }"
+                         [attr.min]="field.min"
+                         [attr.max]="field.max"
+                         [attr.step]="field.step"
+                         [disabled]="isLoadingFile || isSavingFile">
+                  <input *ngSwitchDefault type="text" class="structured-input"
+                         [ngModel]="field.value"
+                         (ngModelChange)="onFieldChange(field, $event)"
+                         [ngModelOptions]="{ standalone: true }"
+                         [disabled]="isLoadingFile || isSavingFile">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="structured-unknown" *ngIf="structuredUnknownEntries.length">
+          <h5>Other values</h5>
+          <p>These settings are available in the file but do not yet have a dedicated control.</p>
+          <ul>
+            <li *ngFor="let entry of structuredUnknownEntries">
+              <strong>{{ entry.key }}</strong>
+              <code>{{ entry.value | json }}</code>
+            </li>
+          </ul>
+        </div>
+
+        <div class="raw-editor">
+          <div class="raw-header">
+            <h5>Raw JSON</h5>
+            <span class="raw-hint">Advanced users can edit the JSON directly. Changes sync with the controls above.</span>
+          </div>
+          <textarea [ngModel]="rawContent"
+                    (ngModelChange)="onRawContentChange($event)"
+                    [disabled]="isLoadingFile || isSavingFile"></textarea>
+          <div class="raw-error" *ngIf="rawParseError">{{ rawParseError }}</div>
+        </div>
+
+        <div class="editor-actions">
+          <button (click)="saveSelectedSetting()" [disabled]="isSavingFile">Save changes</button>
+        </div>
+      </div>
+
+      <div class="settings-editor placeholder" *ngIf="!selectedSetting && !isLoadingSettings && settingFiles.length > 0">
+        <p>Select a settings file to start editing its contents.</p>
+      </div>
+    </div>
+  </section>
+</div>
