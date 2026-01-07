@@ -36,3 +36,26 @@ public record OpenHdStatusDto(
     string? Message,
     int Severity,
     long UpdatedMs);
+
+public record PartitionEntryDto(
+    string Device,
+    string? Mountpoint,
+    string? Fstype,
+    long SizeBytes,
+    long StartBytes);
+
+public record PartitionSegmentDto(
+    string Kind,
+    string? Device,
+    string? Mountpoint,
+    string? Fstype,
+    long StartBytes,
+    long SizeBytes);
+
+public record PartitionDiskDto(
+    string Name,
+    long SizeBytes,
+    IReadOnlyCollection<PartitionSegmentDto> Segments,
+    IReadOnlyCollection<PartitionEntryDto> Partitions);
+
+public record PartitionReportDto(IReadOnlyCollection<PartitionDiskDto> Disks);

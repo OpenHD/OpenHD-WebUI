@@ -9,6 +9,7 @@ using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
 using OpenHdWebUi.Server.Services.Network;
+using OpenHdWebUi.Server.Services.Partitions;
 using OpenHdWebUi.Server.Services.Settings;
 using OpenHdWebUi.Server.Services.Status;
 
@@ -30,7 +31,8 @@ public class Program
         builder.Services
             .AddScoped<SystemCommandsService>()
             .AddScoped<SystemFilesService>()
-            .AddScoped<NetworkInfoService>();
+            .AddScoped<NetworkInfoService>()
+            .AddScoped<PartitionService>();
         builder.Services
             .AddHttpClient()
             .AddSingleton<MediaService>()

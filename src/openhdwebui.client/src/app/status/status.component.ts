@@ -8,9 +8,12 @@ import { HttpClient } from '@angular/common/http';
 })
 export class StatusComponent implements OnInit, OnDestroy {
   status?: IOpenHdStatus;
+  partitionReport?: PartitionReport;
+  partitionError = '';
   isLoading = true;
   lastError = '';
   errorHistory: StatusEntry[] = [];
+  resizeChoice: 'yes' | 'no' | null = null;
   private isDestroyed = false;
   private isStreaming = false;
 
@@ -20,6 +23,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.refreshStatus();
     this.startStream();
+    this.loadPartitions();
   }
 
   ngOnDestroy(): void {
@@ -72,11 +76,46 @@ export class StatusComponent implements OnInit, OnDestroy {
     return (this.status?.state ?? '').toLowerCase() === 'partitioning';
   }
 
+  get resizeChoiceLabel(): string {
+    if (this.resizeChoice === 'yes') {
+      return 'Resize requested';
+    }
+    if (this.resizeChoice === 'no') {
+      return 'Resize skipped';
+    }
+    return 'No selection yet';
+  }
+
   formatTimestamp(ms?: number): string {
     if (!ms) {
       return '—';
     }
     return new Date(ms).toLocaleTimeString();
+  }
+
+  formatBytes(bytes?: number): string {
+    if (!bytes || bytes <= 0) {
+      return '0 B';
+    }
+    const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+    let value = bytes;
+    let unitIndex = 0;
+    while (value >= 1024 && unitIndex < units.length - 1) {
+      value /= 1024;
+      unitIndex += 1;
+    }
+    return `${value.toFixed(value < 10 ? 2 : 1)} ${units[unitIndex]}`;
+  }
+
+  segmentPercent(segment: PartitionSegment, disk: PartitionDisk): number {
+    if (!disk.sizeBytes || disk.sizeBytes <= 0) {
+      return 0;
+    }
+    return Math.max(0, (segment.sizeBytes / disk.sizeBytes) * 100);
+  }
+
+  setResizeChoice(choice: 'yes' | 'no'): void {
+    this.resizeChoice = choice;
   }
 
   private refreshStatus(): void {
@@ -142,6 +181,19 @@ export class StatusComponent implements OnInit, OnDestroy {
     const withKey = { ...entry, key };
     this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
   }
+
+  private loadPartitions(): void {
+    this.http.get<PartitionReport>('/api/partitions')
+      .subscribe({
+        next: response => {
+          this.partitionReport = response;
+          this.partitionError = '';
+        },
+        error: () => {
+          this.partitionError = 'Unable to read partition layout.';
+        }
+      });
+  }
 }
 
 interface IOpenHdStatus {
@@ -162,4 +214,32 @@ interface StatusEntry {
   message: string;
   severity: number;
   updatedMs: number;
+}
+
+interface PartitionReport {
+  disks: PartitionDisk[];
+}
+
+interface PartitionDisk {
+  name: string;
+  sizeBytes: number;
+  segments: PartitionSegment[];
+  partitions: PartitionEntry[];
+}
+
+interface PartitionSegment {
+  kind: string;
+  device?: string;
+  mountpoint?: string;
+  fstype?: string;
+  startBytes: number;
+  sizeBytes: number;
+}
+
+interface PartitionEntry {
+  device: string;
+  mountpoint?: string;
+  fstype?: string;
+  startBytes: number;
+  sizeBytes: number;
 }

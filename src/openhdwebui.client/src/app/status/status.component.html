@@ -103,6 +103,74 @@
         </div>
       </div>
     </article>
+
+    <article class="status-card storage">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3.5" y="4" width="17" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3.5" y="14" width="17" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="7" cy="7" r="0.9" fill="currentColor"/>
+            <circle cx="7" cy="17" r="0.9" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Storage</h2>
+          <p class="muted">Review partitions and free space before resizing.</p>
+        </div>
+      </div>
+
+      <div class="resize-prompt">
+        <div class="prompt-title">Resize partitions?</div>
+        <p class="muted">Choose whether to expand partitions to fill available space.</p>
+        <div class="prompt-actions">
+          <button type="button"
+                  class="prompt-button"
+                  [class.active]="resizeChoice === 'yes'"
+                  (click)="setResizeChoice('yes')">Yes</button>
+          <button type="button"
+                  class="prompt-button"
+                  [class.active]="resizeChoice === 'no'"
+                  (click)="setResizeChoice('no')">No</button>
+        </div>
+        <div class="prompt-status">{{ resizeChoiceLabel }}</div>
+      </div>
+
+      <p class="error-text" *ngIf="partitionError">{{ partitionError }}</p>
+
+      <ng-container *ngIf="partitionReport?.disks?.length; else noDisks">
+        <div class="disk-block" *ngFor="let disk of partitionReport?.disks">
+          <div class="disk-header">
+            <span class="disk-name">{{ disk.name }}</span>
+            <span class="disk-size">{{ formatBytes(disk.sizeBytes) }}</span>
+          </div>
+          <div class="disk-bar">
+            <div class="segment"
+                 *ngFor="let segment of disk.segments"
+                 [class.free]="segment.kind === 'free'"
+                 [style.width.%]="segmentPercent(segment, disk)">
+              <span class="segment-label">
+                {{ segment.kind === 'free' ? 'Free' : (segment.device || 'Partition') }}
+              </span>
+            </div>
+          </div>
+          <div class="partition-list">
+            <div class="partition-row" *ngFor="let part of disk.partitions">
+              <div class="partition-name">{{ part.device }}</div>
+              <div class="partition-meta">
+                <span>{{ part.fstype || 'Unknown' }}</span>
+                <span>{{ part.mountpoint || 'Unmounted' }}</span>
+                <span>{{ formatBytes(part.sizeBytes) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #noDisks>
+        <p class="muted">No partitions detected yet.</p>
+      </ng-template>
+    </article>
   </div>
 
   <div class="status-footer">
