@@ -80,6 +80,21 @@
         <h3>OpenHD errors detected</h3>
         <p class="muted">Review the latest status values and check logs in the Debug tab.</p>
       </div>
+
+      <div class="status-history" *ngIf="errorHistory.length">
+        <h3>Recent errors</h3>
+        <div class="history-row" *ngFor="let entry of errorHistory">
+          <div>
+            <div class="history-title">
+              {{ entry.description || entry.message || entry.state || 'Unknown error' }}
+            </div>
+            <div class="history-meta">
+              Severity {{ entry.severity }} · {{ formatTimestamp(entry.updatedMs) }}
+            </div>
+          </div>
+          <div class="history-state">{{ entry.state || '—' }}</div>
+        </div>
+      </div>
     </article>
   </div>
 

@@ -20,4 +20,10 @@ public class StatusController : ControllerBase
     {
         return _statusService.GetStatusAsync(cancellationToken);
     }
+
+    [HttpGet("stream")]
+    public Task<OpenHdStatusDto> GetStatusStream([FromQuery] long since, CancellationToken cancellationToken)
+    {
+        return _statusService.WaitForStatusChangeAsync(since, cancellationToken);
+    }
 }

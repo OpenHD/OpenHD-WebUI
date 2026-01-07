@@ -161,6 +161,44 @@
   margin-top: 2rem;
 }
 
+.status-history {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.status-history h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.8rem;
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.history-title {
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.history-meta {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--text-color) 65%, transparent);
+}
+
+.history-state {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  text-align: right;
+  max-width: 40%;
+}
+
 .status-error {
   border-radius: 0.9rem;
   border: 1px solid rgba(255, 76, 76, 0.45);
@@ -210,5 +248,15 @@
 
   .value {
     text-align: left;
+  }
+
+  .history-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .history-state {
+    text-align: left;
+    max-width: 100%;
   }
 }

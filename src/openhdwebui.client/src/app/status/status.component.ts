@@ -10,18 +10,20 @@ export class StatusComponent implements OnInit, OnDestroy {
   status?: IOpenHdStatus;
   isLoading = true;
   lastError = '';
-  private pollId?: number;
+  errorHistory: StatusEntry[] = [];
+  private isDestroyed = false;
+  private isStreaming = false;
 
   constructor(
     private http: HttpClient) { }
 
   ngOnInit(): void {
     this.refreshStatus();
-    this.pollId = window.setInterval(() => this.refreshStatus(), 3000);
+    this.startStream();
   }
 
   ngOnDestroy(): void {
-    this.stopPolling();
+    this.isDestroyed = true;
   }
 
   get statusBadge(): string {
@@ -77,12 +79,9 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.http.get<IOpenHdStatus>('/api/status')
       .subscribe({
         next: response => {
-          this.status = response;
+          this.applyStatus(response);
           this.isLoading = false;
           this.lastError = '';
-          if (response.isAvailable && response.hasData && !response.hasError) {
-            this.stopPolling();
-          }
         },
         error: () => {
           this.isLoading = false;
@@ -91,11 +90,53 @@ export class StatusComponent implements OnInit, OnDestroy {
       });
   }
 
-  private stopPolling(): void {
-    if (this.pollId !== undefined) {
-      window.clearInterval(this.pollId);
-      this.pollId = undefined;
+  private startStream(): void {
+    if (this.isStreaming || this.isDestroyed) {
+      return;
     }
+    this.isStreaming = true;
+    const since = this.status?.updatedMs ?? 0;
+
+    this.http.get<IOpenHdStatus>(`/api/status/stream?since=${since}`)
+      .subscribe({
+        next: response => {
+          this.applyStatus(response);
+          this.isLoading = false;
+          this.lastError = '';
+          this.isStreaming = false;
+          this.startStream();
+        },
+        error: () => {
+          this.isStreaming = false;
+          this.lastError = 'Unable to reach the status endpoint. Retrying...';
+          if (!this.isDestroyed) {
+            window.setTimeout(() => this.startStream(), 2000);
+          }
+        }
+      });
+  }
+
+  private applyStatus(response: IOpenHdStatus): void {
+    this.status = response;
+    if (response.hasError) {
+      const entry: StatusEntry = {
+        state: response.state ?? '',
+        description: response.description ?? '',
+        message: response.message ?? '',
+        severity: response.severity,
+        updatedMs: response.updatedMs
+      };
+      this.addErrorEntry(entry);
+    }
+  }
+
+  private addErrorEntry(entry: StatusEntry): void {
+    const key = `${entry.state}|${entry.description}|${entry.message}|${entry.severity}|${entry.updatedMs}`;
+    if (this.errorHistory.some(item => item.key === key)) {
+      return;
+    }
+    const withKey = { ...entry, key };
+    this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
   }
 }
 
@@ -106,6 +147,15 @@ interface IOpenHdStatus {
   state?: string;
   description?: string;
   message?: string;
+  severity: number;
+  updatedMs: number;
+}
+
+interface StatusEntry {
+  key?: string;
+  state: string;
+  description: string;
+  message: string;
   severity: number;
   updatedMs: number;
 }

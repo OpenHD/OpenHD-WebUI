@@ -14,7 +14,7 @@ export class SystemComponent implements OnInit, AfterViewInit {
   public commands: SystemCommandDto[] = [];
   public files: SystemFileDto[] = [];
   public showTerminal = true;
-  private term: Terminal = new Terminal({ cols: 80, rows: 24 });
+  private term: Terminal = new Terminal({ cols: 80, rows: 24, convertEol: true });
   private fitAddon: FitAddon = new FitAddon();
   private currentInput = '';
 
@@ -49,7 +49,9 @@ export class SystemComponent implements OnInit, AfterViewInit {
           this.httpClient.post('/api/system/run-terminal', { command }, { responseType: 'text' })
             .subscribe(output => {
               if (output) {
-                this.term.writeln(`\r\n${output}`);
+                this.term.write(`\r\n${this.normalizeOutput(output)}`);
+              } else {
+                this.term.write('\r\n');
               }
               this.prompt();
             }, error => {
@@ -81,6 +83,10 @@ export class SystemComponent implements OnInit, AfterViewInit {
 
   private prompt(): void {
     this.term.write('\r\n$ ');
+  }
+
+  private normalizeOutput(output: string): string {
+    return output.replace(/\r?\n/g, '\r\n');
   }
 
   onCommandClick(command: SystemCommandDto): void {

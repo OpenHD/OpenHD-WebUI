@@ -11,6 +11,8 @@ public class SysutilStatusService
     private const string SocketPath = "/run/openhd/openhd_sys.sock";
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromMilliseconds(400);
     private static readonly TimeSpan ReadTimeout = TimeSpan.FromMilliseconds(700);
+    private static readonly TimeSpan StreamTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan StreamPollDelay = TimeSpan.FromMilliseconds(400);
 
     public async Task<OpenHdStatusDto> GetStatusAsync(CancellationToken cancellationToken)
     {
@@ -76,6 +78,37 @@ public class SysutilStatusService
         {
             return Unavailable();
         }
+    }
+
+    public async Task<OpenHdStatusDto> WaitForStatusChangeAsync(long sinceUpdatedMs, CancellationToken cancellationToken)
+    {
+        if (sinceUpdatedMs <= 0)
+        {
+            return await GetStatusAsync(cancellationToken);
+        }
+
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(StreamTimeout);
+
+        while (!timeoutCts.IsCancellationRequested)
+        {
+            var status = await GetStatusAsync(timeoutCts.Token);
+            if (status.UpdatedMs != sinceUpdatedMs)
+            {
+                return status;
+            }
+
+            try
+            {
+                await Task.Delay(StreamPollDelay, timeoutCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
+
+        return await GetStatusAsync(cancellationToken);
     }
 
     private static OpenHdStatusDto Unavailable()
