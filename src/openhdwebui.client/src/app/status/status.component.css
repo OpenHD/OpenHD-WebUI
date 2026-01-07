@@ -161,6 +161,18 @@
   margin-top: 2rem;
 }
 
+.status-error {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 76, 76, 0.45);
+  background: rgba(255, 76, 76, 0.12);
+  padding: 1rem;
+}
+
+.status-error h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
 .error-text {
   color: #ff4c4c;
   margin-bottom: 0.5rem;

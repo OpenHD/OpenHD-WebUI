@@ -35,6 +35,14 @@
           <span class="value">{{ status?.state || 'Waiting for update' }}</span>
         </div>
         <div class="status-row">
+          <span class="label">Description</span>
+          <span class="value">{{ status?.description || '—' }}</span>
+        </div>
+        <div class="status-row">
+          <span class="label">Message</span>
+          <span class="value">{{ status?.message || '—' }}</span>
+        </div>
+        <div class="status-row">
           <span class="label">Severity</span>
           <span class="value">{{ status?.hasData ? status?.severity : '—' }}</span>
         </div>
@@ -54,9 +62,7 @@
         </div>
         <div>
           <h2>Connection</h2>
-          <p class="muted">
-            WebUI connects to openhd_sys_utils over the Unix socket.
-          </p>
+          <p class="muted">WebUI connects to openhd_sys_utils over the Unix socket.</p>
         </div>
       </div>
 
@@ -67,8 +73,12 @@
         </div>
         <div class="status-row">
           <span class="label">Redirect</span>
-          <span class="value">Home loads when OpenHD is healthy.</span>
+          <span class="value">Status stays available from any tab.</span>
         </div>
+      </div>
+      <div class="status-error" *ngIf="status?.hasError">
+        <h3>OpenHD errors detected</h3>
+        <p class="muted">Review the latest status values and check logs in the Debug tab.</p>
       </div>
     </article>
   </div>

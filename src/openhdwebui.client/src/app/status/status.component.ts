@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-status',
@@ -14,8 +13,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   private pollId?: number;
 
   constructor(
-    private http: HttpClient,
-    private router: Router) { }
+    private http: HttpClient) { }
 
   ngOnInit(): void {
     this.refreshStatus();
@@ -84,7 +82,6 @@ export class StatusComponent implements OnInit, OnDestroy {
           this.lastError = '';
           if (response.isAvailable && response.hasData && !response.hasError) {
             this.stopPolling();
-            this.router.navigate(['/home']);
           }
         },
         error: () => {
