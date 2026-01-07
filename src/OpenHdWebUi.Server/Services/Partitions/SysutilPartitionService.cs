@@ -16,12 +16,12 @@ public class SysutilPartitionService
     {
         if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>());
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
         }
 
         if (!File.Exists(SocketPath))
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>());
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
         }
 
         try
@@ -49,7 +49,7 @@ public class SysutilPartitionService
 
             if (string.IsNullOrWhiteSpace(line))
             {
-                return new PartitionReportDto(Array.Empty<PartitionDiskDto>());
+                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
             }
 
             var payloadData = JsonSerializer.Deserialize<PartitionReportPayload>(line, new JsonSerializerOptions
@@ -59,7 +59,7 @@ public class SysutilPartitionService
 
             if (payloadData?.Disks == null)
             {
-                return new PartitionReportDto(Array.Empty<PartitionDiskDto>());
+                return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
             }
 
             var disks = payloadData.Disks.Select(d => new PartitionDiskDto(
@@ -70,21 +70,34 @@ public class SysutilPartitionService
                     s.Device,
                     s.Mountpoint,
                     s.Fstype,
+                    s.Label,
                     s.StartBytes,
                     s.SizeBytes)).ToArray() ?? Array.Empty<PartitionSegmentDto>(),
                 d.Partitions?.Select(p => new PartitionEntryDto(
                     p.Device ?? string.Empty,
                     p.Mountpoint,
                     p.Fstype,
+                    p.Label,
                     p.SizeBytes,
                     p.StartBytes)).ToArray() ?? Array.Empty<PartitionEntryDto>()
             )).ToArray();
 
-            return new PartitionReportDto(disks);
+            PartitionResizableDto? resizable = null;
+            if (payloadData.Resizable != null &&
+                !string.IsNullOrWhiteSpace(payloadData.Resizable.Device))
+            {
+                resizable = new PartitionResizableDto(
+                    payloadData.Resizable.Device,
+                    payloadData.Resizable.Label,
+                    payloadData.Resizable.Fstype,
+                    payloadData.Resizable.FreeBytes);
+            }
+
+            return new PartitionReportDto(disks, resizable);
         }
         catch
         {
-            return new PartitionReportDto(Array.Empty<PartitionDiskDto>());
+            return new PartitionReportDto(Array.Empty<PartitionDiskDto>(), null);
         }
     }
 
@@ -131,7 +144,8 @@ public class SysutilPartitionService
     }
 
     private sealed record PartitionReportPayload(
-        [property: JsonPropertyName("disks")] PartitionDiskPayload[]? Disks);
+        [property: JsonPropertyName("disks")] PartitionDiskPayload[]? Disks,
+        [property: JsonPropertyName("resizable")] PartitionResizablePayload? Resizable);
 
     private sealed record PartitionDiskPayload(
         [property: JsonPropertyName("name")] string? Name,
@@ -144,6 +158,7 @@ public class SysutilPartitionService
         [property: JsonPropertyName("device")] string? Device,
         [property: JsonPropertyName("mountpoint")] string? Mountpoint,
         [property: JsonPropertyName("fstype")] string? Fstype,
+        [property: JsonPropertyName("label")] string? Label,
         [property: JsonPropertyName("startBytes")] long StartBytes,
         [property: JsonPropertyName("sizeBytes")] long SizeBytes);
 
@@ -151,6 +166,13 @@ public class SysutilPartitionService
         [property: JsonPropertyName("device")] string? Device,
         [property: JsonPropertyName("mountpoint")] string? Mountpoint,
         [property: JsonPropertyName("fstype")] string? Fstype,
+        [property: JsonPropertyName("label")] string? Label,
         [property: JsonPropertyName("sizeBytes")] long SizeBytes,
         [property: JsonPropertyName("startBytes")] long StartBytes);
+
+    private sealed record PartitionResizablePayload(
+        [property: JsonPropertyName("device")] string? Device,
+        [property: JsonPropertyName("label")] string? Label,
+        [property: JsonPropertyName("fstype")] string? Fstype,
+        [property: JsonPropertyName("freeBytes")] long FreeBytes);
 }

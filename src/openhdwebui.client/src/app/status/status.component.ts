@@ -18,12 +18,14 @@ export class StatusComponent implements OnInit, OnDestroy {
   private isDestroyed = false;
   private isStreaming = false;
   private readonly partitionColors = [
-    '#4cc3ff',
-    '#3ddc97',
-    '#ffc857',
-    '#ff7a7a',
-    '#8b7bff',
-    '#f78c6b'
+    '#00c2ff',
+    '#ff6d00',
+    '#7c4dff',
+    '#00e676',
+    '#ffd600',
+    '#ff1744',
+    '#00bfa5',
+    '#d500f9'
   ];
 
   constructor(
@@ -123,6 +125,21 @@ export class StatusComponent implements OnInit, OnDestroy {
     return Math.max(0, (segment.sizeBytes / disk.sizeBytes) * 100);
   }
 
+  partitionDisplayName(part: PartitionEntry): string {
+    return part.label || part.fstype || 'Unknown';
+  }
+
+  resizableLabel(): string {
+    const resizable = this.partitionReport?.resizable;
+    if (!resizable) {
+      return 'No resizable FAT32 partition detected.';
+    }
+    const name = resizable.label
+      ? `${resizable.label} (${resizable.device})`
+      : resizable.device;
+    return `Resize ${name} to fill ${this.formatBytes(resizable.freeBytes)} free space?`;
+  }
+
   partitionColor(device: string | undefined, disk: PartitionDisk): string {
     if (!device) {
       return '#93a4b5';
@@ -144,6 +161,10 @@ export class StatusComponent implements OnInit, OnDestroy {
   setResizeChoice(choice: 'yes' | 'no'): void {
     this.resizeChoice = choice;
     this.resizeError = '';
+    if (!this.partitionReport?.resizable) {
+      this.resizeError = 'No resizable partition detected.';
+      return;
+    }
     const resize = choice === 'yes';
     this.http.post('/api/partitions/resize', { resize })
       .subscribe({
@@ -254,6 +275,7 @@ interface StatusEntry {
 
 interface PartitionReport {
   disks: PartitionDisk[];
+  resizable?: PartitionResizable | null;
 }
 
 interface PartitionDisk {
@@ -268,6 +290,7 @@ interface PartitionSegment {
   device?: string;
   mountpoint?: string;
   fstype?: string;
+  label?: string;
   startBytes: number;
   sizeBytes: number;
 }
@@ -276,6 +299,14 @@ interface PartitionEntry {
   device: string;
   mountpoint?: string;
   fstype?: string;
+  label?: string;
   startBytes: number;
   sizeBytes: number;
+}
+
+interface PartitionResizable {
+  device: string;
+  label?: string;
+  fstype?: string;
+  freeBytes: number;
 }

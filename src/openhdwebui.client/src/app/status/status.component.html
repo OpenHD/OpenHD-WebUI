@@ -120,9 +120,9 @@
         </div>
       </div>
 
-      <div class="resize-prompt">
-        <div class="prompt-title">Resize partitions?</div>
-        <p class="muted">Choose whether to expand partitions to fill available space.</p>
+      <div class="resize-prompt" *ngIf="partitionReport?.resizable; else noResize">
+        <div class="prompt-title">{{ resizableLabel() }}</div>
+        <p class="muted">Only the last FAT32 partition next to free space can be expanded.</p>
         <div class="prompt-actions">
           <button type="button"
                   class="prompt-button"
@@ -136,6 +136,13 @@
         <div class="prompt-status">{{ resizeChoiceLabel }}</div>
         <p class="error-text" *ngIf="resizeError">{{ resizeError }}</p>
       </div>
+
+      <ng-template #noResize>
+        <div class="resize-prompt muted">
+          <div class="prompt-title">Not resizable</div>
+          <p class="muted">No FAT32 partition with free space is available.</p>
+        </div>
+      </ng-template>
 
       <p class="error-text" *ngIf="partitionError">{{ partitionError }}</p>
 
@@ -154,15 +161,16 @@
             </div>
           </div>
           <div class="partition-list">
-            <div class="partition-row" *ngFor="let part of disk.partitions">
+            <div class="partition-row"
+                 *ngFor="let part of disk.partitions"
+                 [style.--partition-color]="partitionColor(part.device, disk)">
               <div class="partition-name">
                 <span class="partition-swatch"
                       [style.backgroundColor]="partitionColor(part.device, disk)"></span>
                 <span class="partition-label">{{ part.device }}</span>
               </div>
               <div class="partition-meta">
-                <span>{{ part.fstype || 'Unknown' }}</span>
-                <span>{{ part.mountpoint || 'Unmounted' }}</span>
+                <span class="partition-meta-label">{{ partitionDisplayName(part) }}</span>
               </div>
               <div class="partition-size">{{ formatBytes(part.sizeBytes) }}</div>
             </div>

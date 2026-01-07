@@ -41,6 +41,7 @@ public record PartitionEntryDto(
     string Device,
     string? Mountpoint,
     string? Fstype,
+    string? Label,
     long SizeBytes,
     long StartBytes);
 
@@ -49,6 +50,7 @@ public record PartitionSegmentDto(
     string? Device,
     string? Mountpoint,
     string? Fstype,
+    string? Label,
     long StartBytes,
     long SizeBytes);
 
@@ -58,6 +60,14 @@ public record PartitionDiskDto(
     IReadOnlyCollection<PartitionSegmentDto> Segments,
     IReadOnlyCollection<PartitionEntryDto> Partitions);
 
-public record PartitionReportDto(IReadOnlyCollection<PartitionDiskDto> Disks);
+public record PartitionResizableDto(
+    string Device,
+    string? Label,
+    string? Fstype,
+    long FreeBytes);
+
+public record PartitionReportDto(
+    IReadOnlyCollection<PartitionDiskDto> Disks,
+    PartitionResizableDto? Resizable);
 
 public record PartitionResizeRequestDto(bool Resize);
