@@ -16,7 +16,7 @@ namespace OpenHdWebUi.Server;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         Prestart();
 

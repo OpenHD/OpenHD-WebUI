@@ -9,7 +9,7 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 # Cloudsmith
 ###########################################################################
 
-pip install --user cloudsmith-cli
+pip install --user --upgrade cloudsmith-cli "requests>=2.32.0"
 
 ###########################################################################
 
