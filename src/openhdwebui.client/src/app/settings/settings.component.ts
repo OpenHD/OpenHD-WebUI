@@ -272,14 +272,14 @@ export class SettingsComponent implements OnInit {
 
     genericData['primary_camera_type'] = Number(this.recordCameraType);
 
-    const streamed = (cameraData.streamed_video_format ?? {}) as Record<string, unknown>;
-    streamed.width = Math.max(1, Math.round(Number(this.recordWidth)));
-    streamed.height = Math.max(1, Math.round(Number(this.recordHeight)));
-    streamed.framerate = Math.max(1, Math.round(Number(this.recordFramerate)));
-    cameraData.streamed_video_format = streamed;
+    const streamed = (cameraData['streamed_video_format'] ?? {}) as Record<string, unknown>;
+    streamed['width'] = Math.max(1, Math.round(Number(this.recordWidth)));
+    streamed['height'] = Math.max(1, Math.round(Number(this.recordHeight)));
+    streamed['framerate'] = Math.max(1, Math.round(Number(this.recordFramerate)));
+    cameraData['streamed_video_format'] = streamed;
 
     const bitrateKbits = Math.max(1, Math.round(Number(this.recordBitrateMbps) * 1000));
-    cameraData.h26x_bitrate_kbits = bitrateKbits;
+    cameraData['h26x_bitrate_kbits'] = bitrateKbits;
 
     const genericContent = JSON.stringify(genericData, null, 2);
     const cameraContent = JSON.stringify(cameraData, null, 2);
@@ -445,16 +445,16 @@ export class SettingsComponent implements OnInit {
         this.recordCameraType = cameraType;
       }
 
-      const bitrate = cameraData.h26x_bitrate_kbits;
+      const bitrate = cameraData['h26x_bitrate_kbits'];
       if (typeof bitrate === 'number' && bitrate > 0) {
         this.recordBitrateMbps = Math.max(1, Math.round((bitrate / 1000) * 10) / 10);
       }
 
-      const streamed = cameraData.streamed_video_format as Record<string, unknown> | undefined;
+      const streamed = cameraData['streamed_video_format'] as Record<string, unknown> | undefined;
       if (streamed) {
-        const width = streamed.width;
-        const height = streamed.height;
-        const framerate = streamed.framerate;
+        const width = streamed['width'];
+        const height = streamed['height'];
+        const framerate = streamed['framerate'];
         if (typeof width === 'number') {
           this.recordWidth = width;
         }
