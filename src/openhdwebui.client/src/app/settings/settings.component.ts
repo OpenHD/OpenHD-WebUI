@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ThemeService } from '../theme.service';
 import {
+  CAMERA_TYPE_OPTIONS,
   SETTINGS_METADATA,
   SettingFieldMeta,
   SettingFieldOption,
@@ -23,6 +24,18 @@ interface EthernetInterface {
 interface NetworkInfo {
   wifi: WifiInterface[];
   ethernet: EthernetInterface[];
+}
+
+interface SysutilCameraInfo {
+  isAvailable: boolean;
+  hasCameraType: boolean;
+  cameraType: number;
+}
+
+interface CameraSetupResponse {
+  ok: boolean;
+  applied: boolean;
+  message?: string | null;
 }
 
 interface SettingFileSummary {
@@ -79,6 +92,13 @@ export class SettingsComponent implements OnInit {
   structuredUnknownEntries: { key: string; value: unknown }[] = [];
   hasStructuredView = false;
 
+  cameraSetupOptions = CAMERA_TYPE_OPTIONS;
+  selectedCameraType: number = CAMERA_TYPE_OPTIONS[0].value;
+  cameraSetupStatus?: string;
+  cameraSetupError?: string;
+  isApplyingCameraSetup = false;
+  isCameraInfoAvailable = false;
+
   private selectedSettingData: Record<string, unknown> | null = null;
   private suppressRawChange = false;
 
@@ -87,6 +107,7 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.loadNetworkInformation();
     this.loadSettingFiles();
+    this.loadCameraSetupInfo();
   }
 
   onThemeToggle(): void {
@@ -166,10 +187,55 @@ export class SettingsComponent implements OnInit {
     }).subscribe({ error: err => console.error(err) });
   }
 
+  applyCameraSetup(): void {
+    if (this.isApplyingCameraSetup) {
+      return;
+    }
+
+    this.isApplyingCameraSetup = true;
+    this.cameraSetupStatus = undefined;
+    this.cameraSetupError = undefined;
+
+    this.http.post<CameraSetupResponse>('/api/camera-setup', {
+      cameraType: this.selectedCameraType
+    }).subscribe({
+      next: result => {
+        this.isApplyingCameraSetup = false;
+        if (result.ok && result.applied) {
+          this.cameraSetupStatus = 'Camera setup applied. Rebooting now.';
+        } else if (result.ok) {
+          this.cameraSetupError = 'Camera setup was accepted but not applied.';
+        } else {
+          this.cameraSetupError = result.message ?? 'Camera setup failed.';
+        }
+      },
+      error: err => {
+        this.isApplyingCameraSetup = false;
+        this.cameraSetupError = err?.error?.message ?? 'Camera setup failed.';
+        console.error(err);
+      }
+    });
+  }
+
   private loadNetworkInformation(): void {
     this.http.get<NetworkInfo>('/api/network/info').subscribe(result => {
       this.network = result;
     }, error => console.error(error));
+  }
+
+  private loadCameraSetupInfo(): void {
+    this.http.get<SysutilCameraInfo>('/api/camera-setup').subscribe({
+      next: info => {
+        this.isCameraInfoAvailable = info.isAvailable;
+        if (info.hasCameraType) {
+          this.selectedCameraType = info.cameraType;
+        }
+      },
+      error: err => {
+        this.isCameraInfoAvailable = false;
+        console.error(err);
+      }
+    });
   }
 
   private loadSettingFiles(): void {

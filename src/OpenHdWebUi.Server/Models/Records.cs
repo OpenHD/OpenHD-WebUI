@@ -27,6 +27,12 @@ public record SettingFileDto(string Id, string Name, string RelativePath, string
 
 public record UpdateSettingFileRequest(string Content);
 
+public record SysutilCameraInfoDto(bool IsAvailable, bool HasCameraType, int CameraType);
+
+public record CameraSetupRequestDto(int CameraType);
+
+public record CameraSetupResponseDto(bool Ok, bool Applied, string? Message);
+
 public record OpenHdStatusDto(
     bool IsAvailable,
     bool HasData,

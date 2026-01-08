@@ -80,6 +80,38 @@
     </ng-template>
   </section>
 
+  <section class="card camera-setup-card">
+    <div class="camera-setup-header">
+      <div>
+        <h3>Camera setup (sysutils)</h3>
+        <p class="description">
+          Apply the camera type to the boot configuration. This triggers a reboot when complete.
+        </p>
+      </div>
+      <div class="status error" *ngIf="cameraSetupError">{{ cameraSetupError }}</div>
+      <div class="status" *ngIf="cameraSetupStatus">{{ cameraSetupStatus }}</div>
+      <div class="status error" *ngIf="!isCameraInfoAvailable">Sysutils not available.</div>
+    </div>
+    <div class="camera-setup-body">
+      <label>
+        <span>Camera type</span>
+        <select class="structured-input"
+                [(ngModel)]="selectedCameraType"
+                [ngModelOptions]="{ standalone: true }"
+                [disabled]="isApplyingCameraSetup || !isCameraInfoAvailable">
+          <option *ngFor="let option of cameraSetupOptions" [ngValue]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+      <button type="button"
+              (click)="applyCameraSetup()"
+              [disabled]="isApplyingCameraSetup || !isCameraInfoAvailable">
+        {{ isApplyingCameraSetup ? 'Applying...' : 'Apply & reboot' }}
+      </button>
+    </div>
+  </section>
+
   <section class="card settings-card">
     <div class="settings-header">
       <div>

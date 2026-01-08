@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Services.AirGround;
+using OpenHdWebUi.Server.Services.Camera;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Media;
@@ -38,6 +39,7 @@ public class Program
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
             .AddSingleton<SettingsService>()
+            .AddSingleton<SysutilCameraService>()
             .AddSingleton<SysutilStatusService>();
         builder.Services
             .AddDirectoryBrowser()
