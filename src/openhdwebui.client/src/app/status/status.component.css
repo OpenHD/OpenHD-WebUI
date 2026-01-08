@@ -94,6 +94,40 @@
   border-color: rgba(0, 166, 242, 0.35);
 }
 
+.mode-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.mode-button {
+  border: 1px solid rgba(0, 166, 242, 0.4);
+  background: rgba(0, 166, 242, 0.12);
+  color: var(--text-color);
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.mode-button.active {
+  border-color: rgba(0, 186, 120, 0.5);
+  background: rgba(0, 186, 120, 0.2);
+}
+
+.mode-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mode-message {
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  margin: 0;
+}
+
 .card-header {
   display: grid;
   grid-template-columns: auto 1fr;

@@ -33,6 +33,12 @@ public record CameraSetupRequestDto(int CameraType);
 
 public record CameraSetupResponseDto(bool Ok, bool Applied, string? Message);
 
+public record RunModeInfoDto(bool IsAvailable, string Mode);
+
+public record RunModeUpdateRequestDto(string Mode);
+
+public record RunModeUpdateResponseDto(bool Ok, string? Message, string? Mode);
+
 public record OpenHdStatusDto(
     bool IsAvailable,
     bool HasData,

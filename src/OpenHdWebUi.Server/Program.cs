@@ -38,6 +38,7 @@ public class Program
             .AddHttpClient()
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
+            .AddSingleton<SysutilRunModeService>()
             .AddSingleton<SettingsService>()
             .AddSingleton<SysutilCameraService>()
             .AddSingleton<SysutilStatusService>();
@@ -67,6 +68,7 @@ public class Program
                 ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string> { { ".mkv", "video/x-matroska" } })
             });
         }
+
 
         //app.UseRouting();
         app.MapControllers();

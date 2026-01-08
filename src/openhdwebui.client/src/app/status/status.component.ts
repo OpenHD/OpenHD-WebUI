@@ -15,6 +15,10 @@ export class StatusComponent implements OnInit, OnDestroy {
   lastError = '';
   errorHistory: StatusEntry[] = [];
   resizeChoice: 'yes' | 'no' | null = null;
+  runMode?: RunModeInfo;
+  runModeMessage = '';
+  runModeError = '';
+  isUpdatingRunMode = false;
   private isDestroyed = false;
   private isStreaming = false;
   private readonly partitionColors = [
@@ -35,6 +39,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.refreshStatus();
     this.startStream();
     this.loadPartitions();
+    this.loadRunMode();
   }
 
   ngOnDestroy(): void {
@@ -200,6 +205,34 @@ export class StatusComponent implements OnInit, OnDestroy {
       });
   }
 
+  setRunMode(mode: 'air' | 'ground'): void {
+    if (this.isUpdatingRunMode) {
+      return;
+    }
+    this.isUpdatingRunMode = true;
+    this.runModeError = '';
+    this.runModeMessage = '';
+    this.http.post<RunModeUpdateResponse>('/api/air-ground', { mode })
+      .subscribe({
+        next: response => {
+          this.isUpdatingRunMode = false;
+          if (response.ok) {
+            this.runModeMessage = response.message ?? 'OpenHD restart requested.';
+            this.runMode = {
+              isAvailable: true,
+              mode: response.mode ?? mode
+            };
+            return;
+          }
+          this.runModeError = response.message ?? 'Unable to update mode.';
+        },
+        error: err => {
+          this.isUpdatingRunMode = false;
+          this.runModeError = err?.error?.message ?? 'Unable to update mode.';
+        }
+      });
+  }
+
   private refreshStatus(): void {
     this.http.get<IOpenHdStatus>('/api/status')
       .subscribe({
@@ -276,6 +309,19 @@ export class StatusComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  private loadRunMode(): void {
+    this.http.get<RunModeInfo>('/api/air-ground')
+      .subscribe({
+        next: response => {
+          this.runMode = response;
+          this.runModeError = '';
+        },
+        error: () => {
+          this.runModeError = 'Unable to read air/ground mode.';
+        }
+      });
+  }
 }
 
 interface IOpenHdStatus {
@@ -341,4 +387,15 @@ interface PartitionResizable {
 interface RecordingInfo {
   freeBytes: number;
   files: string[];
+}
+
+interface RunModeInfo {
+  isAvailable: boolean;
+  mode: string;
+}
+
+interface RunModeUpdateResponse {
+  ok: boolean;
+  message?: string | null;
+  mode?: string | null;
 }
