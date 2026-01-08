@@ -10,7 +10,7 @@
       <div class="mode-chip"
            [class.disabled]="!runMode?.isAvailable"
            (click)="toggleModeMenu()">
-        <span class="mode-label">{{ runMode?.isAvailable ? (runMode?.mode || 'unknown') : 'mode unavailable' }}</span>
+        <span class="mode-label">{{ runModeLabel }}</span>
         <span class="mode-chevron">▾</span>
         <div class="mode-menu" *ngIf="showModeMenu && runMode?.isAvailable">
           <button type="button"

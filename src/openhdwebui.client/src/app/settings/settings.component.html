@@ -1,7 +1,7 @@
 <div class="settings">
   <h2>Settings</h2>
 
-  <section class="card">
+  <section class="card" *ngIf="!isRecordMode">
     <h3>Theme</h3>
     <label class="toggle">
       <input type="checkbox" (change)="onThemeToggle()" [checked]="themeService.isDark">
@@ -9,7 +9,7 @@
     </label>
   </section>
 
-  <section class="card network-card" *ngIf="network">
+  <section class="card network-card" *ngIf="network && !isRecordMode">
     <div class="network-header">
       <div>
         <h3>Network</h3>
@@ -80,7 +80,7 @@
     </ng-template>
   </section>
 
-  <section class="card camera-setup-card">
+  <section class="card camera-setup-card" *ngIf="!isRecordMode">
     <div class="camera-setup-header">
       <div>
         <h3>Camera setup (sysutils)</h3>
