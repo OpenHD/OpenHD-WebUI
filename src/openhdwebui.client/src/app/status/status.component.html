@@ -1,10 +1,32 @@
 <section class="status-page">
   <div class="status-hero">
-    <div class="status-chip"
-         [class.ok]="status?.hasData && !status?.hasError"
-         [class.error]="status?.hasError">
-      <span class="dot"></span>
-      {{ statusBadge }}
+    <div class="status-chip-group">
+      <div class="status-chip"
+           [class.ok]="status?.hasData && !status?.hasError"
+           [class.error]="status?.hasError">
+        <span class="dot"></span>
+        {{ statusBadge }}
+      </div>
+      <div class="mode-chip"
+           [class.disabled]="!runMode?.isAvailable"
+           (click)="toggleModeMenu()">
+        <span class="mode-label">{{ runMode?.isAvailable ? (runMode?.mode || 'unknown') : 'mode unavailable' }}</span>
+        <span class="mode-chevron">▾</span>
+        <div class="mode-menu" *ngIf="showModeMenu && runMode?.isAvailable">
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'air'"
+                  (click)="setRunMode('ground')">
+            Set Ground
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'ground'"
+                  (click)="setRunMode('air')">
+            Set Air
+          </button>
+        </div>
+      </div>
     </div>
 
     <h1>OpenHD Status</h1>
@@ -104,48 +126,6 @@
       </div>
     </article>
 
-    <article class="status-card mode">
-      <div class="card-header">
-        <div class="icon soft">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M5 12h14M12 5v14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <div>
-          <h2>Air/Ground Mode</h2>
-          <p class="muted">Select the desired role and restart OpenHD.</p>
-        </div>
-      </div>
-
-      <div class="status-rows">
-        <div class="status-row">
-          <span class="label">Current mode</span>
-          <span class="value">
-            {{ runMode?.isAvailable ? (runMode?.mode || 'unknown') : 'Unavailable' }}
-          </span>
-        </div>
-      </div>
-
-      <div class="mode-actions">
-        <button type="button"
-                class="mode-button"
-                [class.active]="runMode?.mode === 'air'"
-                (click)="setRunMode('air')"
-                [disabled]="isUpdatingRunMode">
-          Set Air
-        </button>
-        <button type="button"
-                class="mode-button"
-                [class.active]="runMode?.mode === 'ground'"
-                (click)="setRunMode('ground')"
-                [disabled]="isUpdatingRunMode">
-          Set Ground
-        </button>
-      </div>
-
-      <p class="mode-message" *ngIf="runModeMessage">{{ runModeMessage }}</p>
-      <p class="error-text" *ngIf="runModeError">{{ runModeError }}</p>
-    </article>
 
     <article class="status-card storage">
       <div class="card-header">

@@ -19,6 +19,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   runModeMessage = '';
   runModeError = '';
   isUpdatingRunMode = false;
+  showModeMenu = false;
   private isDestroyed = false;
   private isStreaming = false;
   private readonly partitionColors = [
@@ -209,6 +210,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     if (this.isUpdatingRunMode) {
       return;
     }
+    this.showModeMenu = false;
     this.isUpdatingRunMode = true;
     this.runModeError = '';
     this.runModeMessage = '';
@@ -231,6 +233,13 @@ export class StatusComponent implements OnInit, OnDestroy {
           this.runModeError = err?.error?.message ?? 'Unable to update mode.';
         }
       });
+  }
+
+  toggleModeMenu(): void {
+    if (this.isUpdatingRunMode) {
+      return;
+    }
+    this.showModeMenu = !this.showModeMenu;
   }
 
   private refreshStatus(): void {
