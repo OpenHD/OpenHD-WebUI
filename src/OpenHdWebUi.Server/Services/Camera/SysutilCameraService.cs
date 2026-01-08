@@ -10,7 +10,7 @@ public class SysutilCameraService
 {
     private const string SocketPath = "/run/openhd/openhd_sys.sock";
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromMilliseconds(400);
-    private static readonly TimeSpan ReadTimeout = TimeSpan.FromMilliseconds(900);
+    private static readonly TimeSpan ReadTimeout = TimeSpan.FromSeconds(3);
 
     public async Task<SysutilCameraInfoDto> GetCameraInfoAsync(CancellationToken cancellationToken)
     {
@@ -122,6 +122,10 @@ public class SysutilCameraService
                 payloadData.Ok,
                 payloadData.Applied,
                 payloadData.Message);
+        }
+        catch (OperationCanceledException)
+        {
+            return new CameraSetupResponseDto(false, false, "No response from sysutils. Is it updated?");
         }
         catch
         {

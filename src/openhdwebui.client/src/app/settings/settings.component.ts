@@ -201,13 +201,17 @@ export class SettingsComponent implements OnInit {
     }).subscribe({
       next: result => {
         this.isApplyingCameraSetup = false;
-        if (result.ok && result.applied) {
-          this.cameraSetupStatus = 'Camera setup applied. Rebooting now.';
-        } else if (result.ok) {
-          this.cameraSetupError = 'Camera setup was accepted but not applied.';
-        } else {
-          this.cameraSetupError = result.message ?? 'Camera setup failed.';
+        if (result.ok) {
+          if (result.message) {
+            this.cameraSetupStatus = result.message;
+          } else if (result.applied) {
+            this.cameraSetupStatus = 'Camera setup applied. Rebooting now.';
+          } else {
+            this.cameraSetupStatus = 'Camera setup requested. Rebooting soon.';
+          }
+          return;
         }
+        this.cameraSetupError = result.message ?? 'Camera setup failed.';
       },
       error: err => {
         this.isApplyingCameraSetup = false;
