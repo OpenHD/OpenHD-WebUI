@@ -267,6 +267,92 @@ td {
   gap: 1.25rem;
 }
 
+.record-settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.record-settings-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.record-settings-header .description {
+  margin: 0.35rem 0 0;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+:host-context(.dark-theme) .record-settings-header .description {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.record-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.record-settings-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.record-settings-body span {
+  color: rgba(15, 23, 42, 0.75);
+}
+
+:host-context(.dark-theme) .record-settings-body span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem;
+}
+
+.record-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.record-actions button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #00a6f2;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.record-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.record-actions button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+}
+
+:host-context(.dark-theme) .record-actions button {
+  background-color: #38bdf8;
+  color: #041527;
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.32);
+}
+
+:host-context(.dark-theme) .record-actions button:not(:disabled):hover {
+  box-shadow: 0 10px 24px rgba(8, 145, 178, 0.4);
+}
+
 .camera-setup-card {
   display: flex;
   flex-direction: column;

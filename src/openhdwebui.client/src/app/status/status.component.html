@@ -21,9 +21,33 @@
           </button>
           <button type="button"
                   class="mode-option"
+                  *ngIf="runMode?.mode === 'air'"
+                  (click)="setRunMode('record')">
+            Set Record
+          </button>
+          <button type="button"
+                  class="mode-option"
                   *ngIf="runMode?.mode === 'ground'"
                   (click)="setRunMode('air')">
             Set Air
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'ground'"
+                  (click)="setRunMode('record')">
+            Set Record
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'record'"
+                  (click)="setRunMode('air')">
+            Set Air
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'record'"
+                  (click)="setRunMode('ground')">
+            Set Ground
           </button>
         </div>
       </div>

@@ -206,7 +206,7 @@ export class StatusComponent implements OnInit, OnDestroy {
       });
   }
 
-  setRunMode(mode: 'air' | 'ground'): void {
+  setRunMode(mode: 'air' | 'ground' | 'record'): void {
     if (this.isUpdatingRunMode) {
       return;
     }

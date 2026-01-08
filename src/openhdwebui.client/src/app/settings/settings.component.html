@@ -112,7 +112,84 @@
     </div>
   </section>
 
-  <section class="card settings-card">
+  <section class="card record-settings-card" *ngIf="isRecordMode">
+    <div class="record-settings-header">
+      <div>
+        <h3>Record mode settings</h3>
+        <p class="description">Adjust the capture defaults used for record-only runs.</p>
+      </div>
+      <div class="status" *ngIf="isRecordSettingsLoading">Loading record settings...</div>
+      <div class="status error" *ngIf="recordSettingsError">{{ recordSettingsError }}</div>
+      <div class="status" *ngIf="recordSettingsStatus">{{ recordSettingsStatus }}</div>
+    </div>
+
+    <div class="record-settings-body" *ngIf="!recordSettingsError">
+      <label>
+        <span>Camera type (primary)</span>
+        <select class="structured-input"
+                [(ngModel)]="recordCameraType"
+                [ngModelOptions]="{ standalone: true }"
+                [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+          <option *ngFor="let option of cameraSetupOptions" [ngValue]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+
+      <div class="record-grid">
+        <label>
+          <span>Bitrate (Mbit/s)</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordBitrateMbps"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="1"
+                 [step]="0.5"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Width</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordWidth"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="320"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Height</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordHeight"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="240"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Framerate (fps)</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordFramerate"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="1"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+      </div>
+
+      <div class="record-actions">
+        <button type="button"
+                (click)="saveRecordSettings()"
+                [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+          {{ isRecordSettingsSaving ? 'Saving...' : 'Save settings' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card settings-card" *ngIf="!isRecordMode">
     <div class="settings-header">
       <div>
         <h3>OpenHD configuration</h3>

@@ -78,7 +78,7 @@ public class SysutilRunModeService
             return new RunModeUpdateResponseDto(false, "Unsupported platform.", null);
         }
 
-        if (mode != "air" && mode != "ground")
+        if (mode != "air" && mode != "ground" && mode != "record")
         {
             return new RunModeUpdateResponseDto(false, "Invalid run mode.", null);
         }
