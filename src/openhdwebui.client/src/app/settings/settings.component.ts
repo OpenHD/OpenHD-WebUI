@@ -270,7 +270,7 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
-    genericData.primary_camera_type = Number(this.recordCameraType);
+    genericData['primary_camera_type'] = Number(this.recordCameraType);
 
     const streamed = (cameraData.streamed_video_format ?? {}) as Record<string, unknown>;
     streamed.width = Math.max(1, Math.round(Number(this.recordWidth)));
@@ -440,7 +440,7 @@ export class SettingsComponent implements OnInit {
       const genericData = JSON.parse(genericDetail.content) as Record<string, unknown>;
       const cameraData = JSON.parse(cameraDetail.content) as Record<string, unknown>;
 
-      const cameraType = genericData.primary_camera_type;
+      const cameraType = genericData['primary_camera_type'];
       if (typeof cameraType === 'number') {
         this.recordCameraType = cameraType;
       }
