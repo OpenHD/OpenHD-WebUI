@@ -39,6 +39,20 @@ public record RunModeUpdateRequestDto(string Mode);
 
 public record RunModeUpdateResponseDto(bool Ok, string? Message, string? Mode);
 
+public record SysutilDebugDto(bool IsAvailable, bool Debug);
+
+public record SysutilDebugUpdateRequestDto(bool Debug);
+
+public record SysutilDebugUpdateResponseDto(bool Ok, bool Debug, string? Message);
+
+public record SysutilPlatformInfoDto(bool IsAvailable, int PlatformType, string PlatformName);
+
+public record SysutilPlatformUpdateRequestDto(string Action, int? PlatformType, string? PlatformName);
+
+public record SysutilPlatformUpdateResponseDto(bool Ok, int PlatformType, string PlatformName, string? Message);
+
+public record SysutilVideoResponseDto(bool Ok, string? Pipeline, string? Message);
+
 public record OpenHdStatusDto(
     bool IsAvailable,
     bool HasData,

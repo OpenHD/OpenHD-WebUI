@@ -359,6 +359,153 @@ td {
   gap: 1rem;
 }
 
+.sysutil-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sysutil-header .description {
+  margin: 0.35rem 0 0;
+  color: rgba(15, 23, 42, 0.6);
+}
+
+:host-context(.dark-theme) .sysutil-header .description {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sysutil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.sysutil-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+:host-context(.dark-theme) .sysutil-panel {
+  background: rgba(21, 30, 39, 0.85);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.sysutil-panel h4 {
+  margin: 0;
+}
+
+.platform-current {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.platform-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: rgba(0, 166, 242, 0.12);
+  color: #0377bd;
+}
+
+:host-context(.dark-theme) .platform-pill {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #8fd1ff;
+}
+
+.platform-name {
+  font-weight: 600;
+}
+
+.platform-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.platform-override {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.platform-override label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+.platform-override span {
+  color: rgba(15, 23, 42, 0.75);
+}
+
+:host-context(.dark-theme) .platform-override span {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.platform-override-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.sysutil-panel button,
+.platform-override-actions button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #00a6f2;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sysutil-panel button:disabled,
+.platform-override-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sysutil-panel button:not(:disabled):hover,
+.platform-override-actions button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+}
+
+.platform-override-actions button.secondary {
+  background-color: rgba(15, 23, 42, 0.08);
+  color: rgba(15, 23, 42, 0.8);
+}
+
+:host-context(.dark-theme) .sysutil-panel button,
+:host-context(.dark-theme) .platform-override-actions button {
+  background-color: #38bdf8;
+  color: #041527;
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.32);
+}
+
+:host-context(.dark-theme) .platform-override-actions button.secondary {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  box-shadow: none;
+}
+
+:host-context(.dark-theme) .sysutil-panel button:not(:disabled):hover,
+:host-context(.dark-theme) .platform-override-actions button:not(:disabled):hover {
+  box-shadow: 0 10px 24px rgba(8, 145, 178, 0.4);
+}
+
 .camera-setup-header {
   display: flex;
   flex-wrap: wrap;

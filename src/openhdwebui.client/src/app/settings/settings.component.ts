@@ -55,6 +55,36 @@ interface RunModeInfo {
   mode: string;
 }
 
+interface SysutilDebugInfo {
+  isAvailable: boolean;
+  debug: boolean;
+}
+
+interface SysutilDebugUpdateResponse {
+  ok: boolean;
+  debug: boolean;
+  message?: string | null;
+}
+
+interface SysutilPlatformInfo {
+  isAvailable: boolean;
+  platformType: number;
+  platformName: string;
+}
+
+interface SysutilPlatformUpdateResponse {
+  ok: boolean;
+  platformType: number;
+  platformName: string;
+  message?: string | null;
+}
+
+interface SysutilVideoResponse {
+  ok: boolean;
+  pipeline?: string | null;
+  message?: string | null;
+}
+
 interface StructuredSettingField {
   key: string;
   label: string;
@@ -108,6 +138,23 @@ export class SettingsComponent implements OnInit {
   runMode?: RunModeInfo;
   runModeError?: string;
 
+  sysutilDebug?: SysutilDebugInfo;
+  sysutilDebugStatus?: string;
+  sysutilDebugError?: string;
+  isUpdatingSysutilDebug = false;
+
+  platformInfo?: SysutilPlatformInfo;
+  platformStatus?: string;
+  platformError?: string;
+  isRefreshingPlatform = false;
+  isUpdatingPlatform = false;
+  platformOverrideType = '';
+  platformOverrideName = '';
+
+  videoRestartStatus?: string;
+  videoRestartError?: string;
+  isRestartingVideo = false;
+
   recordSettingsError?: string;
   recordSettingsStatus?: string;
   isRecordSettingsLoading = false;
@@ -132,6 +179,8 @@ export class SettingsComponent implements OnInit {
     this.loadSettingFiles();
     this.loadCameraSetupInfo();
     this.loadRunMode();
+    this.loadSysutilDebug();
+    this.loadPlatformInfo();
   }
 
   onThemeToggle(): void {
@@ -249,6 +298,165 @@ export class SettingsComponent implements OnInit {
     });
   }
 
+  toggleSysutilDebug(): void {
+    if (this.isUpdatingSysutilDebug || !this.sysutilDebug?.isAvailable) {
+      return;
+    }
+
+    this.isUpdatingSysutilDebug = true;
+    this.sysutilDebugStatus = undefined;
+    this.sysutilDebugError = undefined;
+
+    const nextValue = !this.sysutilDebug.debug;
+    this.http.post<SysutilDebugUpdateResponse>('/api/sysutil/debug', { debug: nextValue })
+      .subscribe({
+        next: response => {
+          this.isUpdatingSysutilDebug = false;
+          if (response.ok) {
+            this.sysutilDebug = { isAvailable: true, debug: response.debug };
+            this.sysutilDebugStatus = response.debug ? 'Debug mode enabled.' : 'Debug mode disabled.';
+            return;
+          }
+          this.sysutilDebugError = response.message ?? 'Unable to update sysutils debug mode.';
+        },
+        error: err => {
+          this.isUpdatingSysutilDebug = false;
+          this.sysutilDebugError = err?.error?.message ?? 'Unable to update sysutils debug mode.';
+        }
+      });
+  }
+
+  refreshPlatformDetection(): void {
+    if (this.isRefreshingPlatform) {
+      return;
+    }
+    this.isRefreshingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/refresh', {})
+      .subscribe({
+        next: response => {
+          this.isRefreshingPlatform = false;
+          if (response.ok) {
+            this.platformInfo = {
+              isAvailable: true,
+              platformType: response.platformType,
+              platformName: response.platformName ?? 'unknown'
+            };
+            this.platformOverrideType = String(response.platformType);
+            this.platformOverrideName = response.platformName ?? '';
+            this.platformStatus = 'Platform detection refreshed.';
+            return;
+          }
+          this.platformError = response.message ?? 'Unable to refresh platform detection.';
+        },
+        error: err => {
+          this.isRefreshingPlatform = false;
+          this.platformError = err?.error?.message ?? 'Unable to refresh platform detection.';
+        }
+      });
+  }
+
+  applyPlatformOverride(): void {
+    if (this.isUpdatingPlatform) {
+      return;
+    }
+    const parsedType = Number(this.platformOverrideType);
+    if (!Number.isFinite(parsedType) || parsedType <= 0) {
+      this.platformError = 'Enter a valid numeric platform type.';
+      return;
+    }
+
+    this.isUpdatingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/override', {
+      action: 'set',
+      platformType: parsedType,
+      platformName: this.platformOverrideName || null
+    }).subscribe({
+      next: response => {
+        this.isUpdatingPlatform = false;
+        if (response.ok) {
+          this.platformInfo = {
+            isAvailable: true,
+            platformType: response.platformType,
+            platformName: response.platformName ?? 'unknown'
+          };
+          this.platformOverrideType = String(response.platformType);
+          this.platformOverrideName = response.platformName ?? '';
+          this.platformStatus = 'Platform override saved.';
+          return;
+        }
+        this.platformError = response.message ?? 'Unable to update platform override.';
+      },
+      error: err => {
+        this.isUpdatingPlatform = false;
+        this.platformError = err?.error?.message ?? 'Unable to update platform override.';
+      }
+    });
+  }
+
+  clearPlatformOverride(): void {
+    if (this.isUpdatingPlatform) {
+      return;
+    }
+    this.isUpdatingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/clear', {})
+      .subscribe({
+        next: response => {
+          this.isUpdatingPlatform = false;
+          if (response.ok) {
+            this.platformInfo = {
+              isAvailable: true,
+              platformType: response.platformType,
+              platformName: response.platformName ?? 'unknown'
+            };
+            this.platformOverrideType = String(response.platformType);
+            this.platformOverrideName = response.platformName ?? '';
+            this.platformStatus = 'Platform override cleared.';
+            return;
+          }
+          this.platformError = response.message ?? 'Unable to clear platform override.';
+        },
+        error: err => {
+          this.isUpdatingPlatform = false;
+          this.platformError = err?.error?.message ?? 'Unable to clear platform override.';
+        }
+      });
+  }
+
+  restartVideo(): void {
+    if (this.isRestartingVideo) {
+      return;
+    }
+    this.isRestartingVideo = true;
+    this.videoRestartStatus = undefined;
+    this.videoRestartError = undefined;
+
+    this.http.post<SysutilVideoResponse>('/api/sysutil/video/restart', {})
+      .subscribe({
+        next: response => {
+          this.isRestartingVideo = false;
+          if (response.ok) {
+            const pipeline = response.pipeline ? ` (${response.pipeline})` : '';
+            this.videoRestartStatus = `Video restart requested${pipeline}.`;
+            return;
+          }
+          this.videoRestartError = response.message ?? 'Video restart failed.';
+        },
+        error: err => {
+          this.isRestartingVideo = false;
+          this.videoRestartError = err?.error?.message ?? 'Video restart failed.';
+        }
+      });
+  }
+
   saveRecordSettings(): void {
     if (this.isRecordSettingsSaving || !this.recordGenericFile || !this.recordCameraFile) {
       return;
@@ -319,6 +527,34 @@ export class SettingsComponent implements OnInit {
       },
       error: err => {
         this.isCameraInfoAvailable = false;
+        console.error(err);
+      }
+    });
+  }
+
+  private loadSysutilDebug(): void {
+    this.http.get<SysutilDebugInfo>('/api/sysutil/debug').subscribe({
+      next: info => {
+        this.sysutilDebug = info;
+      },
+      error: err => {
+        this.sysutilDebug = { isAvailable: false, debug: false };
+        console.error(err);
+      }
+    });
+  }
+
+  private loadPlatformInfo(): void {
+    this.http.get<SysutilPlatformInfo>('/api/sysutil/platform').subscribe({
+      next: info => {
+        this.platformInfo = info;
+        if (info.isAvailable) {
+          this.platformOverrideType = String(info.platformType);
+          this.platformOverrideName = info.platformName ?? '';
+        }
+      },
+      error: err => {
+        this.platformInfo = { isAvailable: false, platformType: 0, platformName: 'unknown' };
         console.error(err);
       }
     });

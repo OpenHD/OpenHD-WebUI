@@ -13,6 +13,7 @@ using OpenHdWebUi.Server.Services.Network;
 using OpenHdWebUi.Server.Services.Partitions;
 using OpenHdWebUi.Server.Services.Settings;
 using OpenHdWebUi.Server.Services.Status;
+using OpenHdWebUi.Server.Services.Sysutil;
 
 namespace OpenHdWebUi.Server;
 
@@ -41,7 +42,8 @@ public class Program
             .AddSingleton<SysutilRunModeService>()
             .AddSingleton<SettingsService>()
             .AddSingleton<SysutilCameraService>()
-            .AddSingleton<SysutilStatusService>();
+            .AddSingleton<SysutilStatusService>()
+            .AddSingleton<SysutilControlService>();
         builder.Services
             .AddDirectoryBrowser()
             .AddControllers();

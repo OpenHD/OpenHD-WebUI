@@ -112,6 +112,96 @@
     </div>
   </section>
 
+  <section class="card sysutil-card" *ngIf="!isRecordMode">
+    <div class="sysutil-header">
+      <div>
+        <h3>Sysutils controls</h3>
+        <p class="description">
+          Manage sysutils features directly over the Unix socket (platform detection, debug mode, and video restart).
+        </p>
+      </div>
+    </div>
+
+    <div class="sysutil-grid">
+      <div class="sysutil-panel">
+        <h4>Debug mode</h4>
+        <p class="panel-subtitle">Toggle sysutils debug mode for extra logging.</p>
+        <label class="toggle">
+          <input type="checkbox"
+                 (change)="toggleSysutilDebug()"
+                 [checked]="sysutilDebug?.debug"
+                 [disabled]="isUpdatingSysutilDebug || !sysutilDebug?.isAvailable">
+          <span>{{ sysutilDebug?.debug ? 'Enabled' : 'Disabled' }}</span>
+        </label>
+        <div class="status error" *ngIf="sysutilDebugError">{{ sysutilDebugError }}</div>
+        <div class="status" *ngIf="sysutilDebugStatus">{{ sysutilDebugStatus }}</div>
+        <div class="status error" *ngIf="sysutilDebug && !sysutilDebug.isAvailable">Sysutils not available.</div>
+      </div>
+
+      <div class="sysutil-panel">
+        <h4>Platform detection</h4>
+        <p class="panel-subtitle">Refresh or override the detected platform profile.</p>
+        <div class="platform-current" *ngIf="platformInfo?.isAvailable">
+          <span class="platform-pill">Type {{ platformInfo?.platformType }}</span>
+          <span class="platform-name">{{ platformInfo?.platformName }}</span>
+        </div>
+        <div class="status error" *ngIf="platformInfo && !platformInfo.isAvailable">Sysutils not available.</div>
+        <div class="platform-actions">
+          <button type="button"
+                  (click)="refreshPlatformDetection()"
+                  [disabled]="isRefreshingPlatform || !platformInfo?.isAvailable">
+            {{ isRefreshingPlatform ? 'Refreshing...' : 'Refresh detection' }}
+          </button>
+        </div>
+        <div class="platform-override">
+          <label>
+            <span>Platform type override</span>
+            <input type="number"
+                   class="structured-input"
+                   [(ngModel)]="platformOverrideType"
+                   [ngModelOptions]="{ standalone: true }"
+                   [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+          </label>
+          <label>
+            <span>Platform name override</span>
+            <input type="text"
+                   class="structured-input"
+                   [(ngModel)]="platformOverrideName"
+                   [ngModelOptions]="{ standalone: true }"
+                   [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+          </label>
+          <div class="platform-override-actions">
+            <button type="button"
+                    (click)="applyPlatformOverride()"
+                    [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+              {{ isUpdatingPlatform ? 'Saving...' : 'Save override' }}
+            </button>
+            <button type="button"
+                    class="secondary"
+                    (click)="clearPlatformOverride()"
+                    [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+              Clear override
+            </button>
+          </div>
+        </div>
+        <div class="status error" *ngIf="platformError">{{ platformError }}</div>
+        <div class="status" *ngIf="platformStatus">{{ platformStatus }}</div>
+      </div>
+
+      <div class="sysutil-panel">
+        <h4>Video</h4>
+        <p class="panel-subtitle">Restart the ground video pipeline from sysutils.</p>
+        <button type="button"
+                (click)="restartVideo()"
+                [disabled]="isRestartingVideo">
+          {{ isRestartingVideo ? 'Restarting...' : 'Restart video' }}
+        </button>
+        <div class="status error" *ngIf="videoRestartError">{{ videoRestartError }}</div>
+        <div class="status" *ngIf="videoRestartStatus">{{ videoRestartStatus }}</div>
+      </div>
+    </div>
+  </section>
+
   <section class="card record-settings-card" *ngIf="isRecordMode">
     <div class="record-settings-header">
       <div>
