@@ -148,23 +148,6 @@ export class StatusComponent implements OnInit, OnDestroy {
     return Math.max(0, (segment.sizeBytes / disk.sizeBytes) * 100);
   }
 
-  get runModeLabel(): string {
-    if (!this.runMode?.isAvailable) {
-      return 'mode unavailable';
-    }
-    const mode = (this.runMode?.mode ?? 'unknown').toLowerCase();
-    if (mode === 'air') {
-      return 'Air';
-    }
-    if (mode === 'ground') {
-      return 'Ground';
-    }
-    if (mode === 'record') {
-      return 'Record';
-    }
-    return mode;
-  }
-
   partitionTypeLabel(part: Partial<PartitionEntry>): string {
     const fstype = (part.fstype ?? '').toLowerCase();
     if (!fstype) {
