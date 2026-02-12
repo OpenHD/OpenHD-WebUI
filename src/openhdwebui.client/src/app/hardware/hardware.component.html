@@ -101,7 +101,7 @@
         </div>
       </div>
 
-      <div class="hotspot-form" *ngIf="hotspot?.isAvailable as hotspotData; else hotspotUnavailable">
+      <div class="hotspot-form" *ngIf="hotspot?.isAvailable && hotspot as hotspotData; else hotspotUnavailable">
         <label class="form-field">
           <span>Hotspot mode</span>
           <select [(ngModel)]="hotspotData.hotspotMode" [disabled]="loadingHotspot">
