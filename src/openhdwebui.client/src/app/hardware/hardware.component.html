@@ -101,10 +101,10 @@
         </div>
       </div>
 
-      <div class="hotspot-form" *ngIf="hotspot?.isAvailable; else hotspotUnavailable">
+      <div class="hotspot-form" *ngIf="hotspot?.isAvailable as hotspotData; else hotspotUnavailable">
         <label class="form-field">
           <span>Hotspot mode</span>
-          <select [(ngModel)]="hotspot?.hotspotMode" [disabled]="loadingHotspot">
+          <select [(ngModel)]="hotspotData.hotspotMode" [disabled]="loadingHotspot">
             <option *ngFor="let option of hotspotModeOptions" [ngValue]="option.value">
               {{ option.label }}
             </option>
@@ -112,17 +112,17 @@
         </label>
         <label class="form-field">
           <span>SSID override</span>
-          <input type="text" [(ngModel)]="hotspot?.hotspotSsid" [disabled]="loadingHotspot"
+          <input type="text" [(ngModel)]="hotspotData.hotspotSsid" [disabled]="loadingHotspot"
                  placeholder="Leave blank for OpenHD default">
         </label>
         <label class="form-field">
           <span>Password override</span>
-          <input type="password" [(ngModel)]="hotspot?.hotspotPassword" [disabled]="loadingHotspot"
+          <input type="password" [(ngModel)]="hotspotData.hotspotPassword" [disabled]="loadingHotspot"
                  placeholder="Leave blank for OpenHD default">
         </label>
         <label class="form-field">
           <span>Interface override</span>
-          <input type="text" [(ngModel)]="hotspot?.hotspotInterfaceOverride" [disabled]="loadingHotspot"
+          <input type="text" [(ngModel)]="hotspotData.hotspotInterfaceOverride" [disabled]="loadingHotspot"
                  placeholder="Optional interface name">
         </label>
         <div class="hint-row">
