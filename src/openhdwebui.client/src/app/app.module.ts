@@ -16,6 +16,7 @@ import { UpdateComponent } from './update/update.component';
 import { FrontpageComponent } from './frontpage/frontpage.component';
 import { SettingsComponent } from './settings/settings.component';
 import { StatusComponent } from './status/status.component';
+import { HardwareComponent } from './hardware/hardware.component';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { StatusComponent } from './status/status.component';
         UpdateComponent,
         FrontpageComponent,
         SettingsComponent,
-        StatusComponent
+        StatusComponent,
+        HardwareComponent
     ],
     bootstrap: [AppComponent],
     imports: [

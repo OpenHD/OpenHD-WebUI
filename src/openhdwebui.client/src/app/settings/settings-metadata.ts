@@ -123,7 +123,13 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
   'interface/networking_settings.json': {
     title: 'Networking',
     groupOrder: ['Interfaces'],
-    order: ['wifi_hotspot_mode', 'ethernet_operating_mode'],
+    order: [
+      'wifi_hotspot_mode',
+      'wifi_hotspot_interface_override',
+      'wifi_hotspot_ssid',
+      'wifi_hotspot_password',
+      'ethernet_operating_mode'
+    ],
     fields: {
       wifi_hotspot_mode: {
         label: 'WiFi hotspot mode',
@@ -131,6 +137,27 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
         control: 'select',
         valueType: 'number',
         options: WIFI_HOTSPOT_OPTIONS,
+        group: 'Interfaces'
+      },
+      wifi_hotspot_interface_override: {
+        label: 'WiFi hotspot interface override',
+        description: 'Optional interface name to force for hotspot mode (leave blank for auto).',
+        control: 'text',
+        valueType: 'string',
+        group: 'Interfaces'
+      },
+      wifi_hotspot_ssid: {
+        label: 'WiFi hotspot SSID',
+        description: 'Override the default OpenHD hotspot SSID (blank uses the unit name).',
+        control: 'text',
+        valueType: 'string',
+        group: 'Interfaces'
+      },
+      wifi_hotspot_password: {
+        label: 'WiFi hotspot password',
+        description: 'Override the default hotspot password (8–63 chars; blank uses default).',
+        control: 'text',
+        valueType: 'string',
         group: 'Interfaces'
       },
       ethernet_operating_mode: {

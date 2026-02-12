@@ -36,3 +36,54 @@ public record OpenHdStatusDto(
     string? Message,
     int Severity,
     long UpdatedMs);
+
+public record PlatformInfoDto(
+    bool IsAvailable,
+    int PlatformType,
+    string PlatformName,
+    string? Action)
+{
+    public static PlatformInfoDto Unavailable() => new(false, 0, "Unavailable", null);
+}
+
+public record PlatformUpdateRequest(string Action, int? PlatformType, string? PlatformName);
+
+public record WifiCardInfoDto(
+    string InterfaceName,
+    string DriverName,
+    string Mac,
+    int PhyIndex,
+    string VendorId,
+    string DeviceId,
+    string DetectedType,
+    string OverrideType,
+    string EffectiveType,
+    bool Disabled);
+
+public record WifiInfoDto(
+    bool IsAvailable,
+    IReadOnlyCollection<WifiCardInfoDto> Cards,
+    string? Action)
+{
+    public static WifiInfoDto Unavailable() => new(false, Array.Empty<WifiCardInfoDto>(), null);
+}
+
+public record WifiUpdateRequest(string Action, string? Interface, string? OverrideType);
+
+public record HotspotSettingsDto(
+    bool IsAvailable,
+    int HotspotMode,
+    string HotspotSsid,
+    string HotspotPassword,
+    string HotspotInterfaceOverride,
+    string? Action)
+{
+    public static HotspotSettingsDto Unavailable() => new(false, 0, string.Empty, string.Empty, string.Empty, null);
+}
+
+public record HotspotSettingsUpdateRequest(
+    string? Action,
+    int? HotspotMode,
+    string? HotspotSsid,
+    string? HotspotPassword,
+    string? HotspotInterfaceOverride);

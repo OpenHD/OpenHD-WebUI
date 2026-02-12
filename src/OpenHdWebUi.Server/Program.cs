@@ -7,6 +7,7 @@ using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Services.AirGround;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
+using OpenHdWebUi.Server.Services.Hardware;
 using OpenHdWebUi.Server.Services.Media;
 using OpenHdWebUi.Server.Services.Network;
 using OpenHdWebUi.Server.Services.Settings;
@@ -36,7 +37,9 @@ public class Program
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
             .AddSingleton<SettingsService>()
-            .AddSingleton<SysutilStatusService>();
+            .AddSingleton<SysutilStatusService>()
+            .AddSingleton<SysutilHardwareService>()
+            .AddSingleton<HotspotSettingsService>();
         builder.Services
             .AddDirectoryBrowser()
             .AddControllers();

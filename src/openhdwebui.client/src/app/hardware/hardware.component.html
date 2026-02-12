@@ -1,0 +1,186 @@
+<section class="hardware-page">
+  <div class="hardware-hero">
+    <div class="chip" [class.offline]="!platform?.isAvailable">
+      <span class="dot"></span>
+      {{ platform?.isAvailable ? 'SYSUTILS ONLINE' : 'SYSUTILS OFFLINE' }}
+    </div>
+    <h1>Hardware Detection</h1>
+    <p class="lead">Platform and Wi-Fi detection are served by openhd_sys_utils. Use this page to refresh or override detection.</p>
+  </div>
+
+  <div class="hardware-grid">
+    <article class="card">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Platform Detection</h2>
+          <p class="muted">Current platform identification cached by sysutils.</p>
+        </div>
+      </div>
+
+      <div class="info-grid" *ngIf="platform?.isAvailable; else platformUnavailable">
+        <div class="info-row">
+          <span class="label">Platform Type</span>
+          <span class="value">{{ platform?.platformType }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Platform Name</span>
+          <span class="value">{{ platform?.platformName }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Last Action</span>
+          <span class="value">{{ platform?.action || 'detect' }}</span>
+        </div>
+      </div>
+
+      <ng-template #platformUnavailable>
+        <p class="muted">Sysutils socket not reachable.</p>
+      </ng-template>
+
+      <div class="actions">
+        <button class="btn" (click)="refreshPlatform()" [disabled]="loadingPlatform">Refresh Detection</button>
+        <button class="btn subtle" (click)="clearPlatformOverride()" [disabled]="loadingPlatform">Clear Override</button>
+      </div>
+
+      <div class="override">
+        <div class="override-title">Manual Override</div>
+        <div class="override-row">
+          <input type="text" placeholder="Platform type id"
+                 [(ngModel)]="platformTypeOverride"
+                 [disabled]="loadingPlatform">
+          <input type="text" placeholder="Optional platform name"
+                 [(ngModel)]="platformNameOverride"
+                 [disabled]="loadingPlatform">
+          <button class="btn primary" (click)="applyPlatformOverride()" [disabled]="loadingPlatform">Apply</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-header">
+        <div class="icon soft">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 9c3-4 15-4 18 0M6 12c2.5-2.5 9.5-2.5 12 0M9 15c1.2-1.2 4.8-1.2 6 0M12 18h0"
+                  fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Wi-Fi Detection</h2>
+          <p class="muted">Cards, drivers, vendor/device IDs and overrides.</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" (click)="refreshWifi()" [disabled]="loadingWifi">Refresh Wi-Fi Scan</button>
+      </div>
+
+      <div class="wifi-summary" *ngIf="wifi?.isAvailable; else wifiUnavailable">
+        <span>{{ wifi?.cards?.length || 0 }} card(s) detected</span>
+        <span class="muted">Action: {{ wifi?.action || 'detect' }}</span>
+      </div>
+
+      <ng-template #wifiUnavailable>
+        <p class="muted">Sysutils socket not reachable.</p>
+      </ng-template>
+    </article>
+
+    <article class="card">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 7h12M4 12h16M7 17h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Hotspot Settings</h2>
+          <p class="muted">Override the default hotspot strings and mode used by OpenHD.</p>
+        </div>
+      </div>
+
+      <div class="hotspot-form" *ngIf="hotspot?.isAvailable; else hotspotUnavailable">
+        <label class="form-field">
+          <span>Hotspot mode</span>
+          <select [(ngModel)]="hotspot.hotspotMode" [disabled]="loadingHotspot">
+            <option *ngFor="let option of hotspotModeOptions" [ngValue]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>SSID override</span>
+          <input type="text" [(ngModel)]="hotspot.hotspotSsid" [disabled]="loadingHotspot"
+                 placeholder="Leave blank for OpenHD default">
+        </label>
+        <label class="form-field">
+          <span>Password override</span>
+          <input type="password" [(ngModel)]="hotspot.hotspotPassword" [disabled]="loadingHotspot"
+                 placeholder="Leave blank for OpenHD default">
+        </label>
+        <label class="form-field">
+          <span>Interface override</span>
+          <input type="text" [(ngModel)]="hotspot.hotspotInterfaceOverride" [disabled]="loadingHotspot"
+                 placeholder="Optional interface name">
+        </label>
+        <div class="hint-row">
+          <span>Last action: {{ hotspot?.action || 'load' }}</span>
+          <span>Blank values keep OpenHD defaults.</span>
+        </div>
+      </div>
+
+      <ng-template #hotspotUnavailable>
+        <p class="muted">OpenHD settings directory not reachable.</p>
+      </ng-template>
+
+      <div class="actions">
+        <button class="btn" (click)="refreshHotspot()" [disabled]="loadingHotspot || !hotspot?.isAvailable">Refresh</button>
+        <button class="btn subtle" (click)="clearHotspotOverrides()" [disabled]="loadingHotspot || !hotspot?.isAvailable">Reset overrides</button>
+        <button class="btn primary" (click)="saveHotspot()" [disabled]="loadingHotspot || !hotspot?.isAvailable">Save settings</button>
+      </div>
+    </article>
+  </div>
+
+  <div class="table-wrap" *ngIf="wifi?.isAvailable">
+    <table class="wifi-table">
+      <thead>
+        <tr>
+          <th>Interface</th>
+          <th>Driver</th>
+          <th>Vendor</th>
+          <th>Device</th>
+          <th>PHY</th>
+          <th>MAC</th>
+          <th>Detected</th>
+          <th>Override</th>
+          <th>Effective</th>
+          <th>Apply Override</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let card of wifi?.cards" [class.disabled]="card.disabled">
+          <td>{{ card.interfaceName }}</td>
+          <td>{{ card.driverName || '-' }}</td>
+          <td>{{ card.vendorId || '-' }}</td>
+          <td>{{ card.deviceId || '-' }}</td>
+          <td>{{ card.phyIndex }}</td>
+          <td>{{ card.mac || '-' }}</td>
+          <td>{{ card.detectedType || 'UNKNOWN' }}</td>
+          <td>{{ card.overrideType || 'AUTO' }}</td>
+          <td>{{ card.effectiveType || card.detectedType || 'UNKNOWN' }}</td>
+          <td>
+            <select [ngModel]="card.overrideType || 'AUTO'"
+                    (ngModelChange)="applyWifiOverride(card, $event)"
+                    [disabled]="loadingWifi">
+              <option *ngFor="let option of overrideOptions" [ngValue]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
