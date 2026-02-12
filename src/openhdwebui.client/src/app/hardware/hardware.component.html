@@ -43,20 +43,6 @@
 
       <div class="actions">
         <button class="btn" (click)="refreshPlatform()" [disabled]="loadingPlatform">Refresh Detection</button>
-        <button class="btn subtle" (click)="clearPlatformOverride()" [disabled]="loadingPlatform">Clear Override</button>
-      </div>
-
-      <div class="override">
-        <div class="override-title">Manual Override</div>
-        <div class="override-row">
-          <input type="text" placeholder="Platform type id"
-                 [(ngModel)]="platformTypeOverride"
-                 [disabled]="loadingPlatform">
-          <input type="text" placeholder="Optional platform name"
-                 [(ngModel)]="platformNameOverride"
-                 [disabled]="loadingPlatform">
-          <button class="btn primary" (click)="applyPlatformOverride()" [disabled]="loadingPlatform">Apply</button>
-        </div>
       </div>
     </article>
 
@@ -154,9 +140,6 @@
           <th>PHY</th>
           <th>MAC</th>
           <th>Detected</th>
-          <th>Override</th>
-          <th>Effective</th>
-          <th>Apply Override</th>
         </tr>
       </thead>
       <tbody>
@@ -168,17 +151,6 @@
           <td>{{ card.phyIndex }}</td>
           <td>{{ card.mac || '-' }}</td>
           <td>{{ card.detectedType || 'UNKNOWN' }}</td>
-          <td>{{ card.overrideType || 'AUTO' }}</td>
-          <td>{{ card.effectiveType || card.detectedType || 'UNKNOWN' }}</td>
-          <td>
-            <select [ngModel]="card.overrideType || 'AUTO'"
-                    (ngModelChange)="applyWifiOverride(card, $event)"
-                    [disabled]="loadingWifi">
-              <option *ngFor="let option of overrideOptions" [ngValue]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </td>
         </tr>
       </tbody>
     </table>

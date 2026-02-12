@@ -10,8 +10,6 @@ export class HardwareComponent implements OnInit {
   public platform?: PlatformInfoDto;
   public wifi?: WifiInfoDto;
   public hotspot?: HotspotSettingsDto;
-  public platformTypeOverride = '';
-  public platformNameOverride = '';
   public loadingPlatform = false;
   public loadingWifi = false;
   public loadingHotspot = false;
@@ -20,26 +18,6 @@ export class HardwareComponent implements OnInit {
     { value: 0, label: 'Automatic (disable when armed)' },
     { value: 1, label: 'Always off' },
     { value: 2, label: 'Always on' }
-  ];
-
-  public readonly overrideOptions: OverrideOption[] = [
-    { value: 'AUTO', label: 'Auto (Detected)' },
-    { value: 'DISABLED', label: 'Disabled' },
-    { value: 'OPENHD_RTL_88X2AU', label: 'OPENHD_RTL_88X2AU' },
-    { value: 'OPENHD_RTL_88X2BU', label: 'OPENHD_RTL_88X2BU' },
-    { value: 'OPENHD_RTL_88X2CU', label: 'OPENHD_RTL_88X2CU' },
-    { value: 'OPENHD_RTL_88X2EU', label: 'OPENHD_RTL_88X2EU' },
-    { value: 'OPENHD_RTL_8852BU', label: 'OPENHD_RTL_8852BU' },
-    { value: 'RTL_88X2AU', label: 'RTL_88X2AU' },
-    { value: 'RTL_88X2BU', label: 'RTL_88X2BU' },
-    { value: 'ATHEROS', label: 'ATHEROS' },
-    { value: 'MT_7921u', label: 'MT_7921u' },
-    { value: 'RALINK', label: 'RALINK' },
-    { value: 'INTEL', label: 'INTEL' },
-    { value: 'BROADCOM', label: 'BROADCOM' },
-    { value: 'AIC', label: 'AIC' },
-    { value: 'QUALCOMM', label: 'QUALCOMM' },
-    { value: 'UNKNOWN', label: 'UNKNOWN' }
   ];
 
   constructor(private http: HttpClient) {}
@@ -103,26 +81,6 @@ export class HardwareComponent implements OnInit {
     this.updatePlatform({ action: 'refresh' });
   }
 
-  clearPlatformOverride(): void {
-    this.updatePlatform({ action: 'clear' });
-  }
-
-  applyPlatformOverride(): void {
-    const typeValue = this.platformTypeOverride.trim();
-    if (!typeValue) {
-      return;
-    }
-    const parsed = Number(typeValue);
-    if (Number.isNaN(parsed)) {
-      return;
-    }
-    this.updatePlatform({
-      action: 'set',
-      platformType: parsed,
-      platformName: this.platformNameOverride.trim() || undefined
-    });
-  }
-
   refreshWifi(): void {
     this.updateWifi({ action: 'refresh' });
   }
@@ -146,21 +104,6 @@ export class HardwareComponent implements OnInit {
 
   clearHotspotOverrides(): void {
     this.updateHotspot({ action: 'clear' });
-  }
-
-  applyWifiOverride(card: WifiCardInfoDto, value: string): void {
-    this.updateWifi({
-      action: 'set',
-      interface: card.interfaceName,
-      overrideType: value
-    });
-  }
-
-  clearWifiOverride(card: WifiCardInfoDto): void {
-    this.updateWifi({
-      action: 'clear',
-      interface: card.interfaceName
-    });
   }
 
   private updatePlatform(request: PlatformUpdateRequest): void {
@@ -259,11 +202,6 @@ interface HotspotSettingsUpdateRequest {
   hotspotSsid?: string;
   hotspotPassword?: string;
   hotspotInterfaceOverride?: string;
-}
-
-interface OverrideOption {
-  value: string;
-  label: string;
 }
 
 interface HotspotModeOption {

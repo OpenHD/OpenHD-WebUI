@@ -272,6 +272,12 @@
   color: inherit;
 }
 
+:host-context(.dark-theme) .wifi-table th,
+:host-context(.dark-theme) .wifi-table td,
+:host-context(.dark-theme) .wifi-summary {
+  color: #fff;
+}
+
 @media (max-width: 900px) {
   .override-row {
     grid-template-columns: 1fr;
