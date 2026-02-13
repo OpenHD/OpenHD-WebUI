@@ -106,7 +106,11 @@ export class HardwareComponent implements OnInit {
       next: result => {
         this.wifiProfiles = result;
         this.loadingWifiProfiles = false;
-        this.selectFirstProfile();
+        if (this.selectedWifiCard) {
+          this.selectProfileForCard(this.selectedWifiCard);
+        } else {
+          this.selectFirstProfile();
+        }
       },
       error: error => {
         console.error(error);
@@ -159,6 +163,11 @@ export class HardwareComponent implements OnInit {
     this.txPowerSaving = false;
     this.txPowerError = undefined;
     this.txPowerLevelOptions = this.buildPowerLevelOptions(card);
+    if (!this.wifiProfiles) {
+      this.loadWifiProfiles();
+    } else {
+      this.selectProfileForCard(card);
+    }
     this.txPowerModalOpen = true;
   }
 
@@ -349,6 +358,10 @@ export class HardwareComponent implements OnInit {
     if (!this.wifiProfiles || this.wifiProfiles.cards.length === 0) {
       return;
     }
+    if (this.selectedWifiCard) {
+      this.selectProfileForCard(this.selectedWifiCard);
+      return;
+    }
     const first = this.wifiProfiles.cards[0];
     this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
   }
@@ -362,6 +375,24 @@ export class HardwareComponent implements OnInit {
       return undefined;
     }
     return this.wifiProfiles.cards.find(profile => this.buildProfileKey(profile.vendorId, profile.deviceId) === key);
+  }
+
+  private selectProfileForCard(card: WifiCardInfoDto): void {
+    if (!this.wifiProfiles) {
+      return;
+    }
+    const match = this.wifiProfiles.cards.find(profile =>
+      profile.vendorId.toLowerCase() === (card.vendorId || '').toLowerCase() &&
+      profile.deviceId.toLowerCase() === (card.deviceId || '').toLowerCase()
+    );
+    if (match) {
+      this.selectProfile(this.buildProfileKey(match.vendorId, match.deviceId));
+      return;
+    }
+    if (this.wifiProfiles.cards.length > 0) {
+      const first = this.wifiProfiles.cards[0];
+      this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
+    }
   }
 }
 
