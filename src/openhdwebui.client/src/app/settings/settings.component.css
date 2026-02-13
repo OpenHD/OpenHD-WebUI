@@ -141,6 +141,11 @@ td {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+:host-context(.dark-theme) .network-panel table th,
+:host-context(.dark-theme) .network-panel table td {
+  color: #fff;
+}
+
 .network-panel table tbody tr:last-child td {
   border-bottom: none;
 }
