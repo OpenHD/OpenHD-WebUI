@@ -183,8 +183,7 @@
         <div class="profile-summary" *ngIf="selectedWifiCard as card">
           <div>
             <div class="label">Card Profile</div>
-            <div class="value">{{ card.cardName || 'Unknown' }}</div>
-            <div class="muted" *ngIf="getSelectedProfileName()">{{ getSelectedProfileName() }}</div>
+            <div class="value">{{ getSelectedProfileName() || card.cardName || 'Unknown' }}</div>
           </div>
           <div>
             <div class="label">Vendor / Device</div>
