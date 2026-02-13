@@ -223,6 +223,20 @@
   color: color-mix(in srgb, var(--text-color) 65%, transparent);
 }
 
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-weight: 600;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
 .form-field {
   display: grid;
   gap: 0.4rem;

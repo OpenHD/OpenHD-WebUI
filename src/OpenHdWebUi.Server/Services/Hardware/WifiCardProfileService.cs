@@ -14,8 +14,8 @@ public class WifiCardProfileService
 
     private static readonly IReadOnlyCollection<WifiCardProfileDto> DefaultProfiles = new[]
     {
-        new WifiCardProfileDto("0x02D0", "0xA9A6", "Raspberry Internal", 25, 1000, 25, 100, 200, 500),
-        new WifiCardProfileDto("0x0BDA", "0xA81A", "LB-Link 8812eu", 0, 1000, 25, 100, 500, 1000)
+        new WifiCardProfileDto("0x02D0", "0xA9A6", "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
+        new WifiCardProfileDto("0x0BDA", "0xA81A", "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
     };
 
     public WifiCardProfilesDto GetProfiles()
@@ -28,6 +28,7 @@ public class WifiCardProfileService
     {
         var normalizedVendor = NormalizeId(request.VendorId);
         var normalizedDevice = NormalizeId(request.DeviceId);
+        var powerMode = NormalizePowerMode(request.PowerMode ?? current?.PowerMode);
 
         var profiles = LoadProfiles(out var exists).ToList();
         var current = profiles.FirstOrDefault(profile =>
@@ -36,17 +37,32 @@ public class WifiCardProfileService
 
         var minMw = current?.MinMw ?? (request.Lowest > 0 ? request.Lowest : 0);
         var maxMw = current?.MaxMw ?? (request.High > 0 ? request.High : 0);
+        var lowest = request.Lowest;
+        var low = request.Low;
+        var mid = request.Mid;
+        var high = request.High;
+
+        if (string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase))
+        {
+            minMw = 0;
+            maxMw = 0;
+            lowest = 0;
+            low = 0;
+            mid = 0;
+            high = 0;
+        }
 
         var updated = new WifiCardProfileDto(
             normalizedVendor,
             normalizedDevice,
             string.IsNullOrWhiteSpace(request.Name) ? current?.Name ?? string.Empty : request.Name.Trim(),
+            powerMode,
             minMw,
             maxMw,
-            request.Lowest,
-            request.Low,
-            request.Mid,
-            request.High);
+            lowest,
+            low,
+            mid,
+            high);
 
         if (current == null)
         {
@@ -96,6 +112,7 @@ public class WifiCardProfileService
                 }
 
                 var name = ReadString(card, "name") ?? string.Empty;
+                var powerMode = NormalizePowerMode(ReadString(card, "power_mode"));
                 var hasMin = TryReadInt(card, "min_mw", out var minMw);
                 var hasMax = TryReadInt(card, "max_mw", out var maxMw);
 
@@ -109,16 +126,23 @@ public class WifiCardProfileService
                 var mid = ReadInt(levels, "mid");
                 var high = ReadInt(levels, "high");
 
-                if (!hasMin && lowest > 0)
+                if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMin && lowest > 0)
                 {
                     minMw = lowest;
                 }
-                if (!hasMax && high > 0)
+                if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMax && high > 0)
                 {
                     maxMw = high;
                 }
 
-                profiles.Add(new WifiCardProfileDto(vendor, device, name, minMw, maxMw, lowest, low, mid, high));
+                if (string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase))
+                {
+                    profiles.Add(new WifiCardProfileDto(vendor, device, name, powerMode, 0, 0, 0, 0, 0, 0));
+                }
+                else
+                {
+                    profiles.Add(new WifiCardProfileDto(vendor, device, name, powerMode, minMw, maxMw, lowest, low, mid, high));
+                }
             }
 
             return profiles.Count == 0 ? DefaultProfiles : profiles;
@@ -142,22 +166,26 @@ public class WifiCardProfileService
             var array = new JsonArray();
             foreach (var profile in profiles)
             {
-                var levels = new JsonObject
-                {
-                    ["lowest"] = profile.Lowest,
-                    ["low"] = profile.Low,
-                    ["mid"] = profile.Mid,
-                    ["high"] = profile.High
-                };
                 var card = new JsonObject
                 {
                     ["vendor_id"] = profile.VendorId,
                     ["device_id"] = profile.DeviceId,
                     ["name"] = profile.Name,
-                    ["min_mw"] = profile.MinMw,
-                    ["max_mw"] = profile.MaxMw,
-                    ["levels_mw"] = levels
+                    ["power_mode"] = profile.PowerMode
                 };
+                if (!string.Equals(profile.PowerMode, "fixed", StringComparison.OrdinalIgnoreCase))
+                {
+                    var levels = new JsonObject
+                    {
+                        ["lowest"] = profile.Lowest,
+                        ["low"] = profile.Low,
+                        ["mid"] = profile.Mid,
+                        ["high"] = profile.High
+                    };
+                    card["min_mw"] = profile.MinMw;
+                    card["max_mw"] = profile.MaxMw;
+                    card["levels_mw"] = levels;
+                }
                 array.Add(card);
             }
 
@@ -188,6 +216,22 @@ public class WifiCardProfileService
             return "0x" + trimmed[2..].ToUpperInvariant();
         }
         return "0x" + trimmed.ToUpperInvariant();
+    }
+
+    private static string NormalizePowerMode(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "mw";
+        }
+        var normalized = value.Trim().ToLowerInvariant();
+        return normalized switch
+        {
+            "mw" => "mw",
+            "powerindex" => "powerindex",
+            "fixed" => "fixed",
+            _ => "mw"
+        };
     }
 
     private static string? ReadString(JsonElement element, string name)

@@ -24,12 +24,12 @@ export class HardwareComponent implements OnInit {
     vendorId: '',
     deviceId: '',
     name: '',
-    lowest: 25,
-    low: 100,
-    mid: 200,
-    high: 500
+    powerMode: 'mw',
+    lowest: '25',
+    low: '100',
+    mid: '200',
+    high: '500'
   };
-  public readonly powerMwOptions = [25, 100, 200, 500, 1000];
   public txPowerForm: WifiTxPowerForm = {
     interfaceName: '',
     powerLevel: ''
@@ -207,26 +207,35 @@ export class HardwareComponent implements OnInit {
       vendorId: profile.vendorId,
       deviceId: profile.deviceId,
       name: profile.name,
-      lowest: profile.lowest,
-      low: profile.low,
-      mid: profile.mid,
-      high: profile.high
+      powerMode: profile.powerMode ?? 'mw',
+      lowest: profile.lowest?.toString() ?? '',
+      low: profile.low?.toString() ?? '',
+      mid: profile.mid?.toString() ?? '',
+      high: profile.high?.toString() ?? ''
     };
   }
 
   saveWifiProfile(): void {
+    if (this.isFixedProfile()) {
+      return;
+    }
     if (!this.wifiProfileForm.vendorId || !this.wifiProfileForm.deviceId) {
       return;
     }
     this.loadingWifiProfiles = true;
+    const lowest = this.parsePowerValue(this.wifiProfileForm.lowest);
+    const low = this.parsePowerValue(this.wifiProfileForm.low);
+    const mid = this.parsePowerValue(this.wifiProfileForm.mid);
+    const high = this.parsePowerValue(this.wifiProfileForm.high);
     const payload: WifiCardProfileUpdateRequest = {
       vendorId: this.wifiProfileForm.vendorId,
       deviceId: this.wifiProfileForm.deviceId,
       name: this.wifiProfileForm.name,
-      lowest: this.wifiProfileForm.lowest,
-      low: this.wifiProfileForm.low,
-      mid: this.wifiProfileForm.mid,
-      high: this.wifiProfileForm.high
+      powerMode: this.wifiProfileForm.powerMode,
+      lowest,
+      low,
+      mid,
+      high
     };
     this.http.post<WifiCardProfilesDto>('/api/hardware/wifi-profiles', payload).subscribe({
       next: result => {
@@ -328,6 +337,9 @@ export class HardwareComponent implements OnInit {
   }
 
   public canSaveTxPower(): boolean {
+    if (this.isFixedProfile()) {
+      return false;
+    }
     if (this.hasPowerProfile(this.selectedWifiCard)) {
       return true;
     }
@@ -360,6 +372,21 @@ export class HardwareComponent implements OnInit {
   public getSelectedProfileName(): string {
     const profile = this.findProfileByKey(this.selectedProfileKey);
     return profile?.name ?? '';
+  }
+
+  public isFixedProfile(): boolean {
+    const profile = this.findProfileByKey(this.selectedProfileKey);
+    return (profile?.powerMode ?? '').toLowerCase() === 'fixed';
+  }
+
+  public getSelectedProfileMode(): string {
+    const profile = this.findProfileByKey(this.selectedProfileKey);
+    return profile?.powerMode ?? '';
+  }
+
+  private parsePowerValue(value: string): number {
+    const parsed = Number.parseInt((value ?? '').trim(), 10);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   private selectProfileForCard(card: WifiCardInfoDto): void {
@@ -445,6 +472,7 @@ interface WifiCardProfileDto {
   vendorId: string;
   deviceId: string;
   name: string;
+  powerMode: string;
   minMw: number;
   maxMw: number;
   lowest: number;
@@ -457,6 +485,7 @@ interface WifiCardProfileUpdateRequest {
   vendorId: string;
   deviceId: string;
   name: string;
+  powerMode: string;
   lowest: number;
   low: number;
   mid: number;
@@ -494,8 +523,9 @@ interface WifiCardProfileForm {
   vendorId: string;
   deviceId: string;
   name: string;
-  lowest: number;
-  low: number;
-  mid: number;
-  high: number;
+  powerMode: string;
+  lowest: string;
+  low: string;
+  mid: string;
+  high: string;
 }

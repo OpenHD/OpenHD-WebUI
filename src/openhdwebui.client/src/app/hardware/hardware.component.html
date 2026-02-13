@@ -193,7 +193,10 @@
             <div class="label">Range</div>
             <div class="value">
               <span *ngIf="selectedProfileKey && findProfileByKey(selectedProfileKey) as profile; else rangeUnknown">
-                {{ profile.minMw || profile.lowest || '-' }} - {{ profile.maxMw || profile.high || '-' }} mW
+                <ng-container *ngIf="profile.powerMode !== 'fixed'; else fixedRange">
+                  {{ profile.lowest || '-' }} - {{ profile.high || '-' }} {{ profile.powerMode === 'powerindex' ? 'idx' : 'mW' }}
+                </ng-container>
+                <ng-template #fixedRange>Fixed</ng-template>
               </span>
               <ng-template #rangeUnknown>Unknown</ng-template>
             </div>
@@ -219,29 +222,48 @@
             </div>
           </div>
           <label class="form-field">
-            <span>Lowest power</span>
-            <select [(ngModel)]="wifiProfileForm.lowest" [disabled]="loadingWifiProfiles">
-              <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
-            </select>
+            <span>Power mode</span>
+            <ng-container *ngIf="!isFixedProfile(); else fixedMode">
+              <div class="radio-group">
+                <label>
+                  <input type="radio" [(ngModel)]="wifiProfileForm.powerMode" value="mw" [disabled]="loadingWifiProfiles">
+                  mW
+                </label>
+                <label>
+                  <input type="radio" [(ngModel)]="wifiProfileForm.powerMode" value="powerindex" [disabled]="loadingWifiProfiles">
+                  Power index
+                </label>
+              </div>
+            </ng-container>
+            <ng-template #fixedMode>
+              <div class="muted">Fixed (not editable)</div>
+            </ng-template>
           </label>
-          <label class="form-field">
-            <span>Low power</span>
-            <select [(ngModel)]="wifiProfileForm.low" [disabled]="loadingWifiProfiles">
-              <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
-            </select>
-          </label>
-          <label class="form-field">
-            <span>Mid power</span>
-            <select [(ngModel)]="wifiProfileForm.mid" [disabled]="loadingWifiProfiles">
-              <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
-            </select>
-          </label>
-          <label class="form-field">
-            <span>High power</span>
-            <select [(ngModel)]="wifiProfileForm.high" [disabled]="loadingWifiProfiles">
-              <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
-            </select>
-          </label>
+          <ng-container *ngIf="!isFixedProfile(); else fixedLevels">
+            <label class="form-field">
+              <span>Lowest power</span>
+              <input type="text" inputmode="numeric" [(ngModel)]="wifiProfileForm.lowest"
+                     [disabled]="loadingWifiProfiles" placeholder="e.g. 25">
+            </label>
+            <label class="form-field">
+              <span>Low power</span>
+              <input type="text" inputmode="numeric" [(ngModel)]="wifiProfileForm.low"
+                     [disabled]="loadingWifiProfiles" placeholder="e.g. 100">
+            </label>
+            <label class="form-field">
+              <span>Mid power</span>
+              <input type="text" inputmode="numeric" [(ngModel)]="wifiProfileForm.mid"
+                     [disabled]="loadingWifiProfiles" placeholder="e.g. 200">
+            </label>
+            <label class="form-field">
+              <span>High power</span>
+              <input type="text" inputmode="numeric" [(ngModel)]="wifiProfileForm.high"
+                     [disabled]="loadingWifiProfiles" placeholder="e.g. 500">
+            </label>
+          </ng-container>
+          <ng-template #fixedLevels>
+            <div class="muted">Fixed power (no editable levels).</div>
+          </ng-template>
           <p class="muted" *ngIf="!profileData.isAvailable">
             Profile file missing. Saving will create /usr/local/share/OpenHD/SysUtils/wifi_cards.json.
           </p>
@@ -251,7 +273,7 @@
         </ng-template>
         <label class="form-field">
           <span>Power level</span>
-          <input type="text" [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi"
+          <input type="text" [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi || isFixedProfile()"
                  placeholder="lowest | low | mid | high | auto">
         </label>
         <p class="muted" *ngIf="!hasPowerProfile(selectedWifiCard)">
@@ -261,7 +283,7 @@
       </div>
       <div class="actions modal-actions">
         <button class="btn subtle" (click)="closeTxPowerModal()" [disabled]="txPowerSaving || loadingWifi">Cancel</button>
-        <button class="btn subtle" (click)="saveWifiProfile()" [disabled]="loadingWifiProfiles || !selectedProfileKey">Save profile</button>
+        <button class="btn subtle" (click)="saveWifiProfile()" [disabled]="loadingWifiProfiles || !selectedProfileKey || isFixedProfile()">Save profile</button>
         <button class="btn primary" (click)="saveTxPower()" [disabled]="txPowerSaving || loadingWifi || !canSaveTxPower()">Save</button>
       </div>
     </div>
