@@ -140,6 +140,7 @@
           <th>PHY</th>
           <th>MAC</th>
           <th>Detected</th>
+          <th>Power Level</th>
         </tr>
       </thead>
       <tbody>
@@ -151,8 +152,70 @@
           <td>{{ card.phyIndex }}</td>
           <td>{{ card.mac || '-' }}</td>
           <td>{{ card.detectedType || 'UNKNOWN' }}</td>
+          <td>
+            <div class="power-cell">
+              <div>
+                <div class="power-level">{{ card.powerLevel || 'Auto' }}</div>
+                <div class="muted" *ngIf="card.txPower">{{ card.txPower }} mW</div>
+              </div>
+              <button class="btn subtle small" (click)="openTxPowerModal(card)" [disabled]="loadingWifi">
+                Edit
+              </button>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="txPowerModalOpen" (click)="closeTxPowerModal()">
+    <div class="modal-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>TX Power Settings</h3>
+          <p class="muted">Interface: {{ selectedWifiCard?.interfaceName || '-' }}</p>
+        </div>
+        <button class="btn subtle small" (click)="closeTxPowerModal()" [disabled]="txPowerSaving || loadingWifi">
+          Close
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-summary" *ngIf="selectedWifiCard as card">
+          <div>
+            <div class="label">Card Profile</div>
+            <div class="value">{{ card.cardName || 'Unknown' }}</div>
+          </div>
+          <div>
+            <div class="label">Vendor / Device</div>
+            <div class="value">{{ card.vendorId || '-' }} / {{ card.deviceId || '-' }}</div>
+          </div>
+          <div>
+            <div class="label">Range</div>
+            <div class="value">
+              <span *ngIf="card.powerMin || card.powerMax; else rangeUnknown">
+                {{ card.powerMin || '-' }} - {{ card.powerMax || '-' }} mW
+              </span>
+              <ng-template #rangeUnknown>Unknown</ng-template>
+            </div>
+          </div>
+        </div>
+        <label class="form-field">
+          <span>Power level</span>
+          <select [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi">
+            <option *ngFor="let option of txPowerLevelOptions" [ngValue]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </label>
+        <p class="muted" *ngIf="!hasPowerProfile(selectedWifiCard)">
+          No power profile found for this card. Add it to /usr/local/share/OpenHD/SysUtils/wifi_cards.json to enable level selection.
+        </p>
+        <p class="muted" *ngIf="txPowerError">{{ txPowerError }}</p>
+      </div>
+      <div class="actions modal-actions">
+        <button class="btn subtle" (click)="closeTxPowerModal()" [disabled]="txPowerSaving || loadingWifi">Cancel</button>
+        <button class="btn primary" (click)="saveTxPower()" [disabled]="txPowerSaving || loadingWifi || !canSaveTxPower()">Save</button>
+      </div>
+    </div>
   </div>
 </section>

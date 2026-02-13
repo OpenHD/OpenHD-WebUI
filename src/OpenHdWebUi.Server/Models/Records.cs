@@ -58,7 +58,18 @@ public record WifiCardInfoDto(
     string DetectedType,
     string OverrideType,
     string EffectiveType,
-    bool Disabled);
+    bool Disabled,
+    string TxPower,
+    string TxPowerHigh,
+    string TxPowerLow,
+    string CardName,
+    string PowerLevel,
+    string PowerLowest,
+    string PowerLow,
+    string PowerMid,
+    string PowerHigh,
+    string PowerMin,
+    string PowerMax);
 
 public record WifiInfoDto(
     bool IsAvailable,
@@ -68,7 +79,15 @@ public record WifiInfoDto(
     public static WifiInfoDto Unavailable() => new(false, Array.Empty<WifiCardInfoDto>(), null);
 }
 
-public record WifiUpdateRequest(string Action, string? Interface, string? OverrideType);
+public record WifiUpdateRequest(
+    string Action,
+    string? Interface,
+    string? OverrideType,
+    string? TxPower,
+    string? TxPowerHigh,
+    string? TxPowerLow,
+    string? CardName,
+    string? PowerLevel);
 
 public record HotspotSettingsDto(
     bool IsAvailable,

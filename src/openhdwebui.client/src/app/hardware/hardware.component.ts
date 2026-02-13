@@ -13,6 +13,15 @@ export class HardwareComponent implements OnInit {
   public loadingPlatform = false;
   public loadingWifi = false;
   public loadingHotspot = false;
+  public txPowerModalOpen = false;
+  public txPowerSaving = false;
+  public txPowerError?: string;
+  public selectedWifiCard?: WifiCardInfoDto;
+  public txPowerLevelOptions: PowerLevelOption[] = [];
+  public txPowerForm: WifiTxPowerForm = {
+    interfaceName: '',
+    powerLevel: ''
+  };
 
   public readonly hotspotModeOptions: HotspotModeOption[] = [
     { value: 0, label: 'Automatic (disable when armed)' },
@@ -36,7 +45,7 @@ export class HardwareComponent implements OnInit {
     this.loadingPlatform = true;
     this.http.get<PlatformInfoDto>('/api/hardware/platform').subscribe({
       next: result => {
-        this.platform = result;
+        this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
         this.loadingPlatform = false;
       },
       error: error => {
@@ -106,11 +115,52 @@ export class HardwareComponent implements OnInit {
     this.updateHotspot({ action: 'clear' });
   }
 
+  openTxPowerModal(card: WifiCardInfoDto): void {
+    const level = (card.powerLevel ?? '').toLowerCase();
+    this.selectedWifiCard = card;
+    this.txPowerForm = {
+      interfaceName: card.interfaceName,
+      powerLevel: level === 'auto' ? '' : level
+    };
+    this.txPowerSaving = false;
+    this.txPowerError = undefined;
+    this.txPowerLevelOptions = this.buildPowerLevelOptions(card);
+    this.txPowerModalOpen = true;
+  }
+
+  closeTxPowerModal(): void {
+    this.txPowerModalOpen = false;
+    this.txPowerSaving = false;
+    this.txPowerError = undefined;
+  }
+
+  saveTxPower(): void {
+    if (!this.txPowerForm.interfaceName) {
+      return;
+    }
+    this.txPowerSaving = true;
+    this.updateWifi(
+      {
+        action: 'set',
+        interface: this.txPowerForm.interfaceName,
+        powerLevel: this.txPowerForm.powerLevel ?? ''
+      },
+      () => {
+        this.txPowerSaving = false;
+        this.txPowerModalOpen = false;
+      },
+      () => {
+        this.txPowerSaving = false;
+        this.txPowerError = 'Failed to save TX power settings.';
+      }
+    );
+  }
+
   private updatePlatform(request: PlatformUpdateRequest): void {
     this.loadingPlatform = true;
     this.http.post<PlatformInfoDto>('/api/hardware/platform', request).subscribe({
       next: result => {
-        this.platform = result;
+        this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
         this.loadingPlatform = false;
       },
       error: error => {
@@ -120,16 +170,22 @@ export class HardwareComponent implements OnInit {
     });
   }
 
-  private updateWifi(request: WifiUpdateRequest): void {
+  private updateWifi(request: WifiUpdateRequest, onSuccess?: () => void, onError?: () => void): void {
     this.loadingWifi = true;
     this.http.post<WifiInfoDto>('/api/hardware/wifi', request).subscribe({
       next: result => {
         this.wifi = result;
         this.loadingWifi = false;
+        if (onSuccess) {
+          onSuccess();
+        }
       },
       error: error => {
         console.error(error);
         this.loadingWifi = false;
+        if (onError) {
+          onError();
+        }
       }
     });
   }
@@ -146,6 +202,68 @@ export class HardwareComponent implements OnInit {
         this.loadingHotspot = false;
       }
     });
+  }
+
+  private normalizePlatform(raw?: Record<string, unknown>): PlatformInfoDto | undefined {
+    if (!raw) {
+      return undefined;
+    }
+    const isAvailable =
+      (raw['isAvailable'] as boolean | undefined) ??
+      (raw['IsAvailable'] as boolean | undefined) ??
+      false;
+    const platformType =
+      (raw['platformType'] as number | undefined) ??
+      (raw['PlatformType'] as number | undefined) ??
+      (raw['platform_type'] as number | undefined) ??
+      0;
+    const platformName =
+      (raw['platformName'] as string | undefined) ??
+      (raw['PlatformName'] as string | undefined) ??
+      (raw['platform_name'] as string | undefined) ??
+      'Unknown';
+    const action =
+      (raw['action'] as string | null | undefined) ??
+      (raw['Action'] as string | null | undefined) ??
+      null;
+    return {
+      isAvailable,
+      platformType,
+      platformName,
+      action
+    };
+  }
+
+  private buildPowerLevelOptions(card: WifiCardInfoDto): PowerLevelOption[] {
+    const options: PowerLevelOption[] = [{ value: '', label: 'Auto (use default)' }];
+    if (this.hasPowerProfile(card)) {
+      options.push(
+        { value: 'lowest', label: 'Lowest', mw: card.powerLowest },
+        { value: 'low', label: 'Low', mw: card.powerLow },
+        { value: 'mid', label: 'Mid', mw: card.powerMid },
+        { value: 'high', label: 'High', mw: card.powerHigh }
+      );
+    }
+    return options.map(option => {
+      if (!option.mw) {
+        return option;
+      }
+      return { ...option, label: `${option.label} (${option.mw} mW)` };
+    });
+  }
+
+  public hasPowerProfile(card?: WifiCardInfoDto): boolean {
+    if (!card) {
+      return false;
+    }
+    return Boolean(card.powerLowest || card.powerLow || card.powerMid || card.powerHigh);
+  }
+
+  public canSaveTxPower(): boolean {
+    if (this.hasPowerProfile(this.selectedWifiCard)) {
+      return true;
+    }
+    return (this.txPowerForm.powerLevel ?? '') === '';
   }
 }
 
@@ -173,6 +291,17 @@ interface WifiCardInfoDto {
   overrideType: string;
   effectiveType: string;
   disabled: boolean;
+  txPower?: string;
+  txPowerHigh?: string;
+  txPowerLow?: string;
+  cardName?: string;
+  powerLevel?: string;
+  powerLowest?: string;
+  powerLow?: string;
+  powerMid?: string;
+  powerHigh?: string;
+  powerMin?: string;
+  powerMax?: string;
 }
 
 interface WifiInfoDto {
@@ -185,6 +314,11 @@ interface WifiUpdateRequest {
   action: string;
   interface?: string;
   overrideType?: string;
+  txPower?: string;
+  txPowerHigh?: string;
+  txPowerLow?: string;
+  cardName?: string;
+  powerLevel?: string;
 }
 
 interface HotspotSettingsDto {
@@ -207,4 +341,15 @@ interface HotspotSettingsUpdateRequest {
 interface HotspotModeOption {
   value: number;
   label: string;
+}
+
+interface WifiTxPowerForm {
+  interfaceName: string;
+  powerLevel: string;
+}
+
+interface PowerLevelOption {
+  value: string;
+  label: string;
+  mw?: string;
 }

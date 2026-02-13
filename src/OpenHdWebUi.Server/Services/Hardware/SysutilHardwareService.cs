@@ -63,6 +63,26 @@ public class SysutilHardwareService
         {
             payload["override_type"] = request.OverrideType;
         }
+        if (request.TxPower is not null)
+        {
+            payload["tx_power"] = request.TxPower;
+        }
+        if (request.TxPowerHigh is not null)
+        {
+            payload["tx_power_high"] = request.TxPowerHigh;
+        }
+        if (request.TxPowerLow is not null)
+        {
+            payload["tx_power_low"] = request.TxPowerLow;
+        }
+        if (request.CardName is not null)
+        {
+            payload["card_name"] = request.CardName;
+        }
+        if (request.PowerLevel is not null)
+        {
+            payload["power_level"] = request.PowerLevel;
+        }
 
         var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
         {
@@ -132,7 +152,18 @@ public class SysutilHardwareService
                 card.DetectedType ?? string.Empty,
                 card.OverrideType ?? string.Empty,
                 card.Type ?? string.Empty,
-                card.Disabled))
+                card.Disabled,
+                card.TxPower ?? string.Empty,
+                card.TxPowerHigh ?? string.Empty,
+                card.TxPowerLow ?? string.Empty,
+                card.CardName ?? string.Empty,
+                card.PowerLevel ?? string.Empty,
+                card.PowerLowest ?? string.Empty,
+                card.PowerLow ?? string.Empty,
+                card.PowerMid ?? string.Empty,
+                card.PowerHigh ?? string.Empty,
+                card.PowerMin ?? string.Empty,
+                card.PowerMax ?? string.Empty))
                 .ToArray() ?? Array.Empty<WifiCardInfoDto>();
 
             return new WifiInfoDto(true, cards, payload.Action);
@@ -207,5 +238,16 @@ public class SysutilHardwareService
         [property: JsonPropertyName("detected_type")] string? DetectedType,
         [property: JsonPropertyName("override_type")] string? OverrideType,
         [property: JsonPropertyName("type")] string? Type,
-        [property: JsonPropertyName("disabled")] bool Disabled);
+        [property: JsonPropertyName("disabled")] bool Disabled,
+        [property: JsonPropertyName("tx_power")] string? TxPower,
+        [property: JsonPropertyName("tx_power_high")] string? TxPowerHigh,
+        [property: JsonPropertyName("tx_power_low")] string? TxPowerLow,
+        [property: JsonPropertyName("card_name")] string? CardName,
+        [property: JsonPropertyName("power_level")] string? PowerLevel,
+        [property: JsonPropertyName("power_lowest")] string? PowerLowest,
+        [property: JsonPropertyName("power_low")] string? PowerLow,
+        [property: JsonPropertyName("power_mid")] string? PowerMid,
+        [property: JsonPropertyName("power_high")] string? PowerHigh,
+        [property: JsonPropertyName("power_min")] string? PowerMin,
+        [property: JsonPropertyName("power_max")] string? PowerMax);
 }
