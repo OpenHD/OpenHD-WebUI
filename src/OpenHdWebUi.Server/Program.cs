@@ -39,7 +39,8 @@ public class Program
             .AddSingleton<SettingsService>()
             .AddSingleton<SysutilStatusService>()
             .AddSingleton<SysutilHardwareService>()
-            .AddSingleton<HotspotSettingsService>();
+            .AddSingleton<HotspotSettingsService>()
+            .AddSingleton<WifiCardProfileService>();
         builder.Services
             .AddDirectoryBrowser()
             .AddControllers();

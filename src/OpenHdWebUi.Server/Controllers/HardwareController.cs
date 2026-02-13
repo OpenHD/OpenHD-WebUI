@@ -10,12 +10,15 @@ public class HardwareController : ControllerBase
 {
     private readonly SysutilHardwareService _hardwareService;
     private readonly HotspotSettingsService _hotspotSettingsService;
+    private readonly WifiCardProfileService _wifiCardProfileService;
 
     public HardwareController(SysutilHardwareService hardwareService,
-        HotspotSettingsService hotspotSettingsService)
+        HotspotSettingsService hotspotSettingsService,
+        WifiCardProfileService wifiCardProfileService)
     {
         _hardwareService = hardwareService;
         _hotspotSettingsService = hotspotSettingsService;
+        _wifiCardProfileService = wifiCardProfileService;
     }
 
     [HttpGet("platform")]
@@ -54,5 +57,17 @@ public class HardwareController : ControllerBase
     public HotspotSettingsDto UpdateHotspot([FromBody] HotspotSettingsUpdateRequest request)
     {
         return _hotspotSettingsService.UpdateHotspotSettings(request);
+    }
+
+    [HttpGet("wifi-profiles")]
+    public WifiCardProfilesDto GetWifiProfiles()
+    {
+        return _wifiCardProfileService.GetProfiles();
+    }
+
+    [HttpPost("wifi-profiles")]
+    public WifiCardProfilesDto UpdateWifiProfiles([FromBody] WifiCardProfileUpdateRequest request)
+    {
+        return _wifiCardProfileService.UpdateProfile(request);
     }
 }

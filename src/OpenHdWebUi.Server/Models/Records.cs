@@ -89,6 +89,31 @@ public record WifiUpdateRequest(
     string? CardName,
     string? PowerLevel);
 
+public record WifiCardProfileDto(
+    string VendorId,
+    string DeviceId,
+    string Name,
+    int MinMw,
+    int MaxMw,
+    int Lowest,
+    int Low,
+    int Mid,
+    int High);
+
+public record WifiCardProfilesDto(
+    bool IsAvailable,
+    IReadOnlyCollection<WifiCardProfileDto> Cards,
+    string? Action);
+
+public record WifiCardProfileUpdateRequest(
+    string VendorId,
+    string DeviceId,
+    string Name,
+    int Lowest,
+    int Low,
+    int Mid,
+    int High);
+
 public record HotspotSettingsDto(
     bool IsAvailable,
     int HotspotMode,

@@ -78,6 +78,84 @@
       <div class="card-header">
         <div class="icon">
           <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16M4 12h10M4 17h8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Wi-Fi Card Profiles</h2>
+          <p class="muted">Edit known card power profiles (from wifi_cards.json).</p>
+        </div>
+      </div>
+
+      <div class="profile-form" *ngIf="wifiProfiles as profileData; else profilesUnavailable">
+        <label class="form-field">
+          <span>Card profile</span>
+          <select [(ngModel)]="selectedProfileKey" (ngModelChange)="selectProfile($event)" [disabled]="loadingWifiProfiles">
+            <option *ngFor="let profile of profileData.cards" [ngValue]="buildProfileKey(profile.vendorId, profile.deviceId)">
+              {{ profile.name || 'Unnamed' }} ({{ profile.vendorId }} / {{ profile.deviceId }})
+            </option>
+          </select>
+        </label>
+
+        <div class="profile-meta" *ngIf="selectedProfileKey">
+          <div>
+            <span class="label">Vendor / Device</span>
+            <span class="value">{{ wifiProfileForm.vendorId }} / {{ wifiProfileForm.deviceId }}</span>
+          </div>
+          <div>
+            <span class="label">Range</span>
+            <span class="value">{{ wifiProfileForm.lowest }} - {{ wifiProfileForm.high }} mW</span>
+          </div>
+        </div>
+
+        <label class="form-field">
+          <span>Profile name</span>
+          <input type="text" [(ngModel)]="wifiProfileForm.name" [disabled]="loadingWifiProfiles"
+                 placeholder="Display name">
+        </label>
+        <label class="form-field">
+          <span>Lowest power</span>
+          <select [(ngModel)]="wifiProfileForm.lowest" [disabled]="loadingWifiProfiles">
+            <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Low power</span>
+          <select [(ngModel)]="wifiProfileForm.low" [disabled]="loadingWifiProfiles">
+            <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>Mid power</span>
+          <select [(ngModel)]="wifiProfileForm.mid" [disabled]="loadingWifiProfiles">
+            <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
+          </select>
+        </label>
+        <label class="form-field">
+          <span>High power</span>
+          <select [(ngModel)]="wifiProfileForm.high" [disabled]="loadingWifiProfiles">
+            <option *ngFor="let value of powerMwOptions" [ngValue]="value">{{ value }} mW</option>
+          </select>
+        </label>
+        <p class="muted" *ngIf="!profileData.isAvailable">
+          Profile file missing. Saving will create /usr/local/share/OpenHD/SysUtils/wifi_cards.json.
+        </p>
+      </div>
+
+      <ng-template #profilesUnavailable>
+        <p class="muted">Profile data not available.</p>
+      </ng-template>
+
+      <div class="actions">
+        <button class="btn" (click)="refreshWifiProfiles()" [disabled]="loadingWifiProfiles">Refresh</button>
+        <button class="btn primary" (click)="saveWifiProfile()" [disabled]="loadingWifiProfiles || !selectedProfileKey">Save profile</button>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M6 7h12M4 12h16M7 17h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>

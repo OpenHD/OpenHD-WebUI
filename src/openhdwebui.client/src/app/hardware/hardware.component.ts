@@ -10,14 +10,27 @@ export class HardwareComponent implements OnInit {
   public platform?: PlatformInfoDto;
   public wifi?: WifiInfoDto;
   public hotspot?: HotspotSettingsDto;
+  public wifiProfiles?: WifiCardProfilesDto;
   public loadingPlatform = false;
   public loadingWifi = false;
   public loadingHotspot = false;
+  public loadingWifiProfiles = false;
   public txPowerModalOpen = false;
   public txPowerSaving = false;
   public txPowerError?: string;
   public selectedWifiCard?: WifiCardInfoDto;
   public txPowerLevelOptions: PowerLevelOption[] = [];
+  public selectedProfileKey = '';
+  public wifiProfileForm: WifiCardProfileForm = {
+    vendorId: '',
+    deviceId: '',
+    name: '',
+    lowest: 25,
+    low: 100,
+    mid: 200,
+    high: 500
+  };
+  public readonly powerMwOptions = [25, 100, 200, 500, 1000];
   public txPowerForm: WifiTxPowerForm = {
     interfaceName: '',
     powerLevel: ''
@@ -39,6 +52,7 @@ export class HardwareComponent implements OnInit {
     this.loadPlatform();
     this.loadWifi();
     this.loadHotspot();
+    this.loadWifiProfiles();
   }
 
   loadPlatform(): void {
@@ -86,6 +100,22 @@ export class HardwareComponent implements OnInit {
     });
   }
 
+  loadWifiProfiles(): void {
+    this.loadingWifiProfiles = true;
+    this.http.get<WifiCardProfilesDto>('/api/hardware/wifi-profiles').subscribe({
+      next: result => {
+        this.wifiProfiles = result;
+        this.loadingWifiProfiles = false;
+        this.selectFirstProfile();
+      },
+      error: error => {
+        console.error(error);
+        this.wifiProfiles = undefined;
+        this.loadingWifiProfiles = false;
+      }
+    });
+  }
+
   refreshPlatform(): void {
     this.updatePlatform({ action: 'refresh' });
   }
@@ -96,6 +126,10 @@ export class HardwareComponent implements OnInit {
 
   refreshHotspot(): void {
     this.updateHotspot({ action: 'refresh' });
+  }
+
+  refreshWifiProfiles(): void {
+    this.loadWifiProfiles();
   }
 
   saveHotspot(): void {
@@ -154,6 +188,51 @@ export class HardwareComponent implements OnInit {
         this.txPowerError = 'Failed to save TX power settings.';
       }
     );
+  }
+
+  selectProfile(key: string): void {
+    this.selectedProfileKey = key;
+    const profile = this.findProfileByKey(key);
+    if (!profile) {
+      return;
+    }
+    this.wifiProfileForm = {
+      vendorId: profile.vendorId,
+      deviceId: profile.deviceId,
+      name: profile.name,
+      lowest: profile.lowest,
+      low: profile.low,
+      mid: profile.mid,
+      high: profile.high
+    };
+  }
+
+  saveWifiProfile(): void {
+    if (!this.wifiProfileForm.vendorId || !this.wifiProfileForm.deviceId) {
+      return;
+    }
+    this.loadingWifiProfiles = true;
+    const payload: WifiCardProfileUpdateRequest = {
+      vendorId: this.wifiProfileForm.vendorId,
+      deviceId: this.wifiProfileForm.deviceId,
+      name: this.wifiProfileForm.name,
+      lowest: this.wifiProfileForm.lowest,
+      low: this.wifiProfileForm.low,
+      mid: this.wifiProfileForm.mid,
+      high: this.wifiProfileForm.high
+    };
+    this.http.post<WifiCardProfilesDto>('/api/hardware/wifi-profiles', payload).subscribe({
+      next: result => {
+        this.wifiProfiles = result;
+        this.loadingWifiProfiles = false;
+        this.selectProfile(this.buildProfileKey(payload.vendorId, payload.deviceId));
+        this.refreshWifi();
+      },
+      error: error => {
+        console.error(error);
+        this.loadingWifiProfiles = false;
+      }
+    });
   }
 
   private updatePlatform(request: PlatformUpdateRequest): void {
@@ -265,6 +344,25 @@ export class HardwareComponent implements OnInit {
     }
     return (this.txPowerForm.powerLevel ?? '') === '';
   }
+
+  private selectFirstProfile(): void {
+    if (!this.wifiProfiles || this.wifiProfiles.cards.length === 0) {
+      return;
+    }
+    const first = this.wifiProfiles.cards[0];
+    this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
+  }
+
+  public buildProfileKey(vendorId: string, deviceId: string): string {
+    return `${vendorId}|${deviceId}`;
+  }
+
+  public findProfileByKey(key: string): WifiCardProfileDto | undefined {
+    if (!this.wifiProfiles) {
+      return undefined;
+    }
+    return this.wifiProfiles.cards.find(profile => this.buildProfileKey(profile.vendorId, profile.deviceId) === key);
+  }
 }
 
 interface PlatformInfoDto {
@@ -321,6 +419,34 @@ interface WifiUpdateRequest {
   powerLevel?: string;
 }
 
+interface WifiCardProfilesDto {
+  isAvailable: boolean;
+  cards: WifiCardProfileDto[];
+  action?: string | null;
+}
+
+interface WifiCardProfileDto {
+  vendorId: string;
+  deviceId: string;
+  name: string;
+  minMw: number;
+  maxMw: number;
+  lowest: number;
+  low: number;
+  mid: number;
+  high: number;
+}
+
+interface WifiCardProfileUpdateRequest {
+  vendorId: string;
+  deviceId: string;
+  name: string;
+  lowest: number;
+  low: number;
+  mid: number;
+  high: number;
+}
+
 interface HotspotSettingsDto {
   isAvailable: boolean;
   hotspotMode: number;
@@ -352,4 +478,14 @@ interface PowerLevelOption {
   value: string;
   label: string;
   mw?: string;
+}
+
+interface WifiCardProfileForm {
+  vendorId: string;
+  deviceId: string;
+  name: string;
+  lowest: number;
+  low: number;
+  mid: number;
+  high: number;
 }
