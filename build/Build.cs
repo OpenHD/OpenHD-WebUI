@@ -60,7 +60,7 @@ partial class Build : NukeBuild
     [MinVer]
     readonly MinVer MinVer;
 
-    string CurrentVersion => MinVer.Version;
+    string CurrentVersion => BuildVersion();
 
     readonly AbsolutePath OutputPath;
     readonly AbsolutePath PublishPath;
@@ -162,6 +162,33 @@ partial class Build : NukeBuild
                 Cloudsmith($"push deb openhd/{repoName}/any-distro/any-version {debFile.Name}", DebBuildPath);
             }
         });
+
+    string BuildVersion()
+    {
+        var baseVersion = MinVer.Version?.Split('-', 2)[0] ?? "0.0.0";
+        if (!string.IsNullOrWhiteSpace(MinVer.MinVerPreRelease))
+        {
+            var preRelease = MinVer.MinVerPreRelease;
+            var prefix = preRelease.Split('.', 2)[0];
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                prefix = "alpha";
+            }
+            var runNumber = Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
+            if (!string.IsNullOrWhiteSpace(runNumber))
+            {
+                return $"{baseVersion}-{prefix}.{runNumber}";
+            }
+            if (IsLocalBuild)
+            {
+                return MinVer.Version;
+            }
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmm");
+            return $"{baseVersion}-{prefix}.{timestamp}";
+        }
+
+        return MinVer.Version;
+    }
 
     AbsolutePath GetPublishPathForRim(string rid)
     {

@@ -19,7 +19,6 @@ export class HardwareComponent implements OnInit {
   public txPowerSaving = false;
   public txPowerError?: string;
   public selectedWifiCard?: WifiCardInfoDto;
-  public txPowerLevelOptions: PowerLevelOption[] = [];
   public selectedProfileKey = '';
   public wifiProfileForm: WifiCardProfileForm = {
     vendorId: '',
@@ -162,7 +161,6 @@ export class HardwareComponent implements OnInit {
     };
     this.txPowerSaving = false;
     this.txPowerError = undefined;
-    this.txPowerLevelOptions = this.buildPowerLevelOptions(card);
     if (!this.wifiProfiles) {
       this.loadWifiProfiles();
     } else {
@@ -322,24 +320,6 @@ export class HardwareComponent implements OnInit {
     };
   }
 
-  private buildPowerLevelOptions(card: WifiCardInfoDto): PowerLevelOption[] {
-    const options: PowerLevelOption[] = [{ value: '', label: 'Auto (use default)' }];
-    if (this.hasPowerProfile(card)) {
-      options.push(
-        { value: 'lowest', label: 'Lowest', mw: card.powerLowest },
-        { value: 'low', label: 'Low', mw: card.powerLow },
-        { value: 'mid', label: 'Mid', mw: card.powerMid },
-        { value: 'high', label: 'High', mw: card.powerHigh }
-      );
-    }
-    return options.map(option => {
-      if (!option.mw) {
-        return option;
-      }
-      return { ...option, label: `${option.label} (${option.mw} mW)` };
-    });
-  }
-
   public hasPowerProfile(card?: WifiCardInfoDto): boolean {
     if (!card) {
       return false;
@@ -375,6 +355,11 @@ export class HardwareComponent implements OnInit {
       return undefined;
     }
     return this.wifiProfiles.cards.find(profile => this.buildProfileKey(profile.vendorId, profile.deviceId) === key);
+  }
+
+  public getSelectedProfileName(): string {
+    const profile = this.findProfileByKey(this.selectedProfileKey);
+    return profile?.name ?? '';
   }
 
   private selectProfileForCard(card: WifiCardInfoDto): void {
@@ -503,12 +488,6 @@ interface HotspotModeOption {
 interface WifiTxPowerForm {
   interfaceName: string;
   powerLevel: string;
-}
-
-interface PowerLevelOption {
-  value: string;
-  label: string;
-  mw?: string;
 }
 
 interface WifiCardProfileForm {

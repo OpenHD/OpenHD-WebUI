@@ -184,6 +184,7 @@
           <div>
             <div class="label">Card Profile</div>
             <div class="value">{{ card.cardName || 'Unknown' }}</div>
+            <div class="muted" *ngIf="getSelectedProfileName()">{{ getSelectedProfileName() }}</div>
           </div>
           <div>
             <div class="label">Vendor / Device</div>
@@ -192,8 +193,8 @@
           <div>
             <div class="label">Range</div>
             <div class="value">
-              <span *ngIf="card.powerMin || card.powerMax; else rangeUnknown">
-                {{ card.powerMin || '-' }} - {{ card.powerMax || '-' }} mW
+              <span *ngIf="selectedProfileKey && findProfileByKey(selectedProfileKey) as profile; else rangeUnknown">
+                {{ profile.minMw || profile.lowest || '-' }} - {{ profile.maxMw || profile.high || '-' }} mW
               </span>
               <ng-template #rangeUnknown>Unknown</ng-template>
             </div>
@@ -251,11 +252,8 @@
         </ng-template>
         <label class="form-field">
           <span>Power level</span>
-          <select [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi">
-            <option *ngFor="let option of txPowerLevelOptions" [ngValue]="option.value">
-              {{ option.label }}
-            </option>
-          </select>
+          <input type="text" [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi"
+                 placeholder="lowest | low | mid | high | auto">
         </label>
         <p class="muted" *ngIf="!hasPowerProfile(selectedWifiCard)">
           No power profile found for this card. Add it to /usr/local/share/OpenHD/SysUtils/wifi_cards.json to enable level selection.

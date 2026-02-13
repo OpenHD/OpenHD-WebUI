@@ -15,7 +15,7 @@ public class WifiCardProfileService
     private static readonly IReadOnlyCollection<WifiCardProfileDto> DefaultProfiles = new[]
     {
         new WifiCardProfileDto("0x02D0", "0xA9A6", "Raspberry Internal", 25, 1000, 25, 100, 200, 500),
-        new WifiCardProfileDto("0x0BDA", "0xA81A", "LB-Link 8812eu", 25, 1000, 25, 100, 500, 1000)
+        new WifiCardProfileDto("0x0BDA", "0xA81A", "LB-Link 8812eu", 0, 1000, 25, 100, 500, 1000)
     };
 
     public WifiCardProfilesDto GetProfiles()
@@ -34,12 +34,15 @@ public class WifiCardProfileService
             string.Equals(profile.VendorId, normalizedVendor, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(profile.DeviceId, normalizedDevice, StringComparison.OrdinalIgnoreCase));
 
+        var minMw = current?.MinMw ?? (request.Lowest > 0 ? request.Lowest : 0);
+        var maxMw = current?.MaxMw ?? (request.High > 0 ? request.High : 0);
+
         var updated = new WifiCardProfileDto(
             normalizedVendor,
             normalizedDevice,
             string.IsNullOrWhiteSpace(request.Name) ? current?.Name ?? string.Empty : request.Name.Trim(),
-            request.Lowest > 0 ? request.Lowest : current?.MinMw ?? 0,
-            request.High > 0 ? request.High : current?.MaxMw ?? 0,
+            minMw,
+            maxMw,
             request.Lowest,
             request.Low,
             request.Mid,
@@ -93,8 +96,8 @@ public class WifiCardProfileService
                 }
 
                 var name = ReadString(card, "name") ?? string.Empty;
-                var minMw = ReadInt(card, "min_mw");
-                var maxMw = ReadInt(card, "max_mw");
+                var hasMin = TryReadInt(card, "min_mw", out var minMw);
+                var hasMax = TryReadInt(card, "max_mw", out var maxMw);
 
                 var levels = card.TryGetProperty("levels_mw", out var levelsNode) &&
                              levelsNode.ValueKind == JsonValueKind.Object
@@ -106,11 +109,11 @@ public class WifiCardProfileService
                 var mid = ReadInt(levels, "mid");
                 var high = ReadInt(levels, "high");
 
-                if (minMw <= 0 && lowest > 0)
+                if (!hasMin && lowest > 0)
                 {
                     minMw = lowest;
                 }
-                if (maxMw <= 0 && high > 0)
+                if (!hasMax && high > 0)
                 {
                     maxMw = high;
                 }
@@ -192,8 +195,18 @@ public class WifiCardProfileService
         return element.TryGetProperty(name, out var value) ? value.GetString() : null;
     }
 
+    private static bool TryReadInt(JsonElement element, string name, out int result)
+    {
+        if (element.TryGetProperty(name, out var value) && value.TryGetInt32(out result))
+        {
+            return true;
+        }
+        result = 0;
+        return false;
+    }
+
     private static int ReadInt(JsonElement element, string name)
     {
-        return element.TryGetProperty(name, out var value) && value.TryGetInt32(out var result) ? result : 0;
+        return TryReadInt(element, name, out var result) ? result : 0;
     }
 }
