@@ -119,19 +119,31 @@
       <div class="control-form">
         <label class="form-field">
           <span>Interface (optional)</span>
-          <input type="text" [(ngModel)]="rfControlForm.interfaceName" placeholder="wlan1">
+          <select [(ngModel)]="rfControlForm.interfaceName">
+            <option value="">Keep current</option>
+            <option *ngFor="let iface of rfInterfaceOptions" [value]="iface">{{ iface }}</option>
+          </select>
         </label>
         <label class="form-field">
           <span>Channel (MHz)</span>
-          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.frequencyMhz" placeholder="e.g. 5180">
+          <select [(ngModel)]="rfControlForm.frequencyMhz">
+            <option value="">Keep current</option>
+            <option *ngFor="let freq of rfChannelOptions" [value]="freq">{{ freq }}</option>
+          </select>
         </label>
         <label class="form-field">
           <span>Bandwidth (MHz)</span>
-          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.channelWidthMhz" placeholder="10 | 20 | 40">
+          <select [(ngModel)]="rfControlForm.channelWidthMhz">
+            <option value="">Keep current</option>
+            <option *ngFor="let width of rfBandwidthOptions" [value]="width">{{ width }}</option>
+          </select>
         </label>
         <label class="form-field">
           <span>MCS index</span>
-          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.mcsIndex" placeholder="0 - 9">
+          <select [(ngModel)]="rfControlForm.mcsIndex">
+            <option value="">Keep current</option>
+            <option *ngFor="let mcs of rfMcsOptions" [value]="mcs">{{ mcs }}</option>
+          </select>
         </label>
         <label class="form-field">
           <span>Power</span>

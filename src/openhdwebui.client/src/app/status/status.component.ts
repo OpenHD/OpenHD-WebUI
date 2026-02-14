@@ -21,6 +21,18 @@ export class StatusComponent implements OnInit, OnDestroy {
     mcsIndex: '',
     powerLevel: ''
   };
+  rfInterfaceOptions: string[] = [];
+  readonly rfChannelOptions: number[] = [
+    2312, 2332, 2352, 2372, 2392, 2412, 2432, 2452, 2472, 2484, 2492, 2512,
+    2612, 2692, 2712,
+    5080, 5100, 5120, 5140, 5160, 5180, 5200, 5220, 5240, 5260, 5280, 5300,
+    5320, 5340, 5360, 5380, 5400, 5420, 5440, 5460, 5480, 5500, 5520, 5540,
+    5560, 5580, 5600, 5620, 5640, 5660, 5680, 5700, 5720, 5745, 5765, 5785,
+    5805, 5825, 5845, 5865, 5885, 5905, 5925, 5945, 5965, 5985, 6005, 6025,
+    6045, 6065, 6085
+  ];
+  readonly rfBandwidthOptions: number[] = [10, 20, 40];
+  readonly rfMcsOptions: number[] = Array.from({ length: 10 }, (_, index) => index);
   private isDestroyed = false;
   private isStreaming = false;
 
@@ -30,6 +42,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.refreshStatus();
     this.startStream();
+    this.loadWifiInterfaces();
   }
 
   ngOnDestroy(): void {
@@ -149,6 +162,22 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
   }
 
+  private loadWifiInterfaces(): void {
+    this.http.get<WifiInfoDto>('/api/hardware/wifi')
+      .subscribe({
+        next: response => {
+          const names = (response.cards ?? [])
+            .map(card => card.interfaceName)
+            .filter(name => Boolean(name && name.trim()))
+            .map(name => name.trim());
+          this.rfInterfaceOptions = Array.from(new Set(names)).sort();
+        },
+        error: () => {
+          this.rfInterfaceOptions = [];
+        }
+      });
+  }
+
   applyRfControl(): void {
     if (this.rfControlSaving) {
       return;
@@ -255,4 +284,12 @@ interface RfControlRequest {
 interface RfControlResponse {
   ok: boolean;
   message?: string;
+}
+
+interface WifiCardInfoDto {
+  interfaceName: string;
+}
+
+interface WifiInfoDto {
+  cards: WifiCardInfoDto[];
 }
