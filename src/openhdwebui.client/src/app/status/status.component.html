@@ -120,35 +120,35 @@
         <label class="form-field">
           <span>Interface (optional)</span>
           <select [(ngModel)]="rfControlForm.interfaceName">
-            <option value="">Keep current</option>
-            <option *ngFor="let iface of rfInterfaceOptions" [value]="iface">{{ iface }}</option>
+            <option value="">{{ rfCurrentInterfaceLabel }}</option>
+            <option *ngFor="let iface of rfInterfaceOptions" [value]="iface.value">{{ iface.label }}</option>
           </select>
         </label>
         <label class="form-field">
           <span>Channel (MHz)</span>
           <select [(ngModel)]="rfControlForm.frequencyMhz">
-            <option value="">Keep current</option>
+            <option value="">{{ rfCurrentChannelLabel }}</option>
             <option *ngFor="let freq of rfChannelOptions" [value]="freq">{{ freq }}</option>
           </select>
         </label>
         <label class="form-field">
           <span>Bandwidth (MHz)</span>
           <select [(ngModel)]="rfControlForm.channelWidthMhz">
-            <option value="">Keep current</option>
+            <option value="">{{ rfCurrentBandwidthLabel }}</option>
             <option *ngFor="let width of rfBandwidthOptions" [value]="width">{{ width }}</option>
           </select>
         </label>
         <label class="form-field">
           <span>MCS index</span>
           <select [(ngModel)]="rfControlForm.mcsIndex">
-            <option value="">Keep current</option>
+            <option value="">{{ rfCurrentMcsLabel }}</option>
             <option *ngFor="let mcs of rfMcsOptions" [value]="mcs">{{ mcs }}</option>
           </select>
         </label>
         <label class="form-field">
           <span>Power</span>
           <select [(ngModel)]="rfControlForm.powerLevel">
-            <option value="">Keep current</option>
+            <option value="">{{ rfCurrentPowerLabel }}</option>
             <option value="lowest">Lowest</option>
             <option value="low">Low</option>
             <option value="mid">Mid</option>

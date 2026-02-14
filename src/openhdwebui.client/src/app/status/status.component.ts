@@ -21,7 +21,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     mcsIndex: '',
     powerLevel: ''
   };
-  rfInterfaceOptions: string[] = [];
+  rfInterfaceOptions: RfInterfaceOption[] = [];
   readonly rfChannelOptions: number[] = [
     2312, 2332, 2352, 2372, 2392, 2412, 2432, 2452, 2472, 2484, 2492, 2512,
     2612, 2692, 2712,
@@ -33,6 +33,7 @@ export class StatusComponent implements OnInit, OnDestroy {
   ];
   readonly rfBandwidthOptions: number[] = [10, 20, 40];
   readonly rfMcsOptions: number[] = Array.from({ length: 10 }, (_, index) => index);
+  rfCurrent: RfCurrentValues = {};
   private isDestroyed = false;
   private isStreaming = false;
 
@@ -43,6 +44,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.refreshStatus();
     this.startStream();
     this.loadWifiInterfaces();
+    this.loadRfCurrentSettings();
   }
 
   ngOnDestroy(): void {
@@ -166,16 +168,117 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.http.get<WifiInfoDto>('/api/hardware/wifi')
       .subscribe({
         next: response => {
-          const names = (response.cards ?? [])
-            .map(card => card.interfaceName)
-            .filter(name => Boolean(name && name.trim()))
-            .map(name => name.trim());
-          this.rfInterfaceOptions = Array.from(new Set(names)).sort();
+          const options = (response.cards ?? [])
+            .map(card => {
+              const iface = (card.interfaceName ?? '').trim();
+              if (!iface) {
+                return null;
+              }
+              const cardName = (card.cardName ?? '').trim();
+              const label = cardName ? `${iface} — ${cardName}` : iface;
+              return { value: iface, label };
+            })
+            .filter((option): option is RfInterfaceOption => option !== null);
+          const unique = new Map<string, RfInterfaceOption>();
+          options.forEach(option => {
+            if (!unique.has(option.value)) {
+              unique.set(option.value, option);
+            }
+          });
+          this.rfInterfaceOptions = Array.from(unique.values()).sort((a, b) => a.label.localeCompare(b.label));
         },
         error: () => {
           this.rfInterfaceOptions = [];
         }
       });
+  }
+
+  private loadRfCurrentSettings(): void {
+    this.http.get<SettingFileSummary[]>('/api/settings')
+      .subscribe({
+        next: summaries => {
+          const target = summaries.find(item =>
+            item.name === 'wifibroadcast_settings.json' &&
+            (item.relativePath?.replace(/\\/g, '/').includes('interface') ?? false));
+          if (!target) {
+            return;
+          }
+          this.http.get<SettingFileDetail>(`/api/settings/${target.id}`)
+            .subscribe({
+              next: file => {
+                if (!file?.content) {
+                  return;
+                }
+                try {
+                  const parsed = JSON.parse(file.content) as Record<string, unknown>;
+                  this.applyRfCurrentSettings(parsed);
+                } catch {
+                  // Ignore invalid JSON.
+                }
+              }
+            });
+        }
+      });
+  }
+
+  private applyRfCurrentSettings(parsed: Record<string, unknown>): void {
+    const frequency = this.parseUnknownInt(parsed['wb_frequency']);
+    if (frequency !== null) {
+      this.rfCurrent.frequencyMhz = frequency;
+    }
+    const channelWidth = this.parseUnknownInt(parsed['wb_air_tx_channel_width']);
+    if (channelWidth !== null) {
+      this.rfCurrent.channelWidthMhz = channelWidth;
+    }
+    const mcsIndex = this.parseUnknownInt(parsed['wb_air_mcs_index']);
+    if (mcsIndex !== null) {
+      this.rfCurrent.mcsIndex = mcsIndex;
+    }
+    const powerLevelRaw = this.parseUnknownInt(parsed['wb_tx_power_level']);
+    if (powerLevelRaw !== null) {
+      this.rfCurrent.powerLevel = this.mapPowerLevel(powerLevelRaw);
+    }
+  }
+
+  get rfCurrentInterfaceLabel(): string {
+    const iface = (this.rfCurrent.interfaceName ?? '').trim();
+    if (!iface) {
+      return 'Current: Auto';
+    }
+    const match = this.rfInterfaceOptions.find(option => option.value === iface);
+    return `Current: ${match?.label ?? iface}`;
+  }
+
+  get rfCurrentChannelLabel(): string {
+    if (this.rfCurrent.frequencyMhz) {
+      return `Current: ${this.rfCurrent.frequencyMhz} MHz`;
+    }
+    return 'Current: Unknown';
+  }
+
+  get rfCurrentBandwidthLabel(): string {
+    if (this.rfCurrent.channelWidthMhz) {
+      return `Current: ${this.rfCurrent.channelWidthMhz} MHz`;
+    }
+    return 'Current: Unknown';
+  }
+
+  get rfCurrentMcsLabel(): string {
+    if (this.rfCurrent.mcsIndex !== undefined && this.rfCurrent.mcsIndex !== null) {
+      return `Current: ${this.rfCurrent.mcsIndex}`;
+    }
+    return 'Current: Unknown';
+  }
+
+  get rfCurrentPowerLabel(): string {
+    const level = (this.rfCurrent.powerLevel ?? '').toLowerCase();
+    if (!level) {
+      return 'Current: Unknown';
+    }
+    if (level === 'disabled' || level === 'auto') {
+      return 'Current: Disabled';
+    }
+    return `Current: ${level.charAt(0).toUpperCase()}${level.slice(1)}`;
   }
 
   applyRfControl(): void {
@@ -224,6 +327,21 @@ export class StatusComponent implements OnInit, OnDestroy {
           this.rfControlSaving = false;
           if (response.ok) {
             this.rfControlSuccess = response.message || 'RF settings applied.';
+            if (payload.interfaceName) {
+              this.rfCurrent.interfaceName = payload.interfaceName;
+            }
+            if (payload.frequencyMhz !== undefined) {
+              this.rfCurrent.frequencyMhz = payload.frequencyMhz;
+            }
+            if (payload.channelWidthMhz !== undefined) {
+              this.rfCurrent.channelWidthMhz = payload.channelWidthMhz;
+            }
+            if (payload.mcsIndex !== undefined) {
+              this.rfCurrent.mcsIndex = payload.mcsIndex;
+            }
+            if (payload.powerLevel) {
+              this.rfCurrent.powerLevel = payload.powerLevel.toLowerCase();
+            }
           } else {
             this.rfControlError = response.message || 'Unable to apply RF settings.';
           }
@@ -242,6 +360,38 @@ export class StatusComponent implements OnInit, OnDestroy {
     }
     const parsed = Number.parseInt(trimmed, 10);
     return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  private parseUnknownInt(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.trunc(value);
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return null;
+      }
+      const parsed = Number.parseInt(trimmed, 10);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
+  private mapPowerLevel(value: number): string {
+    switch (value) {
+      case 0:
+        return 'lowest';
+      case 1:
+        return 'low';
+      case 2:
+        return 'mid';
+      case 3:
+        return 'high';
+      case -1:
+        return 'disabled';
+      default:
+        return '';
+    }
   }
 }
 
@@ -288,8 +438,35 @@ interface RfControlResponse {
 
 interface WifiCardInfoDto {
   interfaceName: string;
+  cardName?: string;
 }
 
 interface WifiInfoDto {
   cards: WifiCardInfoDto[];
+}
+
+interface SettingFileSummary {
+  id: string;
+  name: string;
+  relativePath?: string;
+}
+
+interface SettingFileDetail {
+  id: string;
+  name: string;
+  relativePath?: string;
+  content: string;
+}
+
+interface RfInterfaceOption {
+  value: string;
+  label: string;
+}
+
+interface RfCurrentValues {
+  interfaceName?: string;
+  frequencyMhz?: number;
+  channelWidthMhz?: number;
+  mcsIndex?: number;
+  powerLevel?: string;
 }
