@@ -125,6 +125,241 @@
     </article>
   </div>
 
+  <article class="card config-card">
+    <div class="card-header">
+      <div class="icon soft">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3v3m0 12v3M3 12h3m12 0h3M6 6l2 2m8 8 2 2M6 18l2-2m8-8 2-2"
+                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Hardware Configuration</h2>
+        <p class="muted">Settings supplied by sysutils (formerly hardware.config).</p>
+      </div>
+    </div>
+
+    <div class="config-body" *ngIf="hardwareConfig?.isAvailable && hardwareConfig as configData; else hardwareConfigUnavailable">
+      <div class="config-section">
+        <h3>Wi-Fi</h3>
+        <div class="config-grid">
+          <label class="form-field">
+            <span>Autodetect</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.wifiEnableAutodetect" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>WB link cards</span>
+            <input type="text" [(ngModel)]="configData.wifiWbLinkCards" [disabled]="loadingHardwareConfig"
+                   placeholder="wlan1,wlan2">
+          </label>
+          <label class="form-field">
+            <span>Hotspot card</span>
+            <input type="text" [(ngModel)]="configData.wifiHotspotCard" [disabled]="loadingHardwareConfig"
+                   placeholder="wlan0">
+          </label>
+          <label class="form-field">
+            <span>Monitor emulation</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.wifiMonitorCardEmulate" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Force hotspot only</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.wifiForceNoLinkButHotspot" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Local network</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.wifiLocalNetworkEnable" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Local SSID</span>
+            <input type="text" [(ngModel)]="configData.wifiLocalNetworkSsid" [disabled]="loadingHardwareConfig">
+          </label>
+          <label class="form-field">
+            <span>Local password</span>
+            <input type="password" [(ngModel)]="configData.wifiLocalNetworkPassword" [disabled]="loadingHardwareConfig">
+          </label>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Networking</h3>
+        <div class="config-grid">
+          <label class="form-field">
+            <span>Ethernet card</span>
+            <input type="text" [(ngModel)]="configData.nwEthernetCard" [disabled]="loadingHardwareConfig">
+          </label>
+          <label class="form-field">
+            <span>Manual forwarding IPs</span>
+            <input type="text" [(ngModel)]="configData.nwManualForwardingIps" [disabled]="loadingHardwareConfig"
+                   placeholder="192.168.1.10,192.168.1.11">
+            <div class="field-warning" *ngIf="isInvalidIpList(configData.nwManualForwardingIps)">
+              Invalid IP list. Use comma-separated IPv4 addresses.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Forward to localhost 58xx</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.nwForwardToLocalhost58xx" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Generic</h3>
+        <div class="config-grid">
+          <label class="form-field">
+            <span>Store last known position</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.genEnableLastKnownPosition" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>RF metrics level</span>
+            <input type="number" [(ngModel)]="configData.genRfMetricsLevel" [disabled]="loadingHardwareConfig" min="0">
+          </label>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Ethernet Link</h3>
+        <div class="config-grid">
+          <label class="form-field">
+            <span>Ground unit IP</span>
+            <input type="text" [(ngModel)]="configData.groundUnitIp" [disabled]="loadingHardwareConfig">
+            <div class="field-warning" *ngIf="isInvalidIp(configData.groundUnitIp)">
+              Invalid IPv4 address.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Air unit IP</span>
+            <input type="text" [(ngModel)]="configData.airUnitIp" [disabled]="loadingHardwareConfig">
+            <div class="field-warning" *ngIf="isInvalidIp(configData.airUnitIp)">
+              Invalid IPv4 address.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Video port</span>
+            <input type="number" [(ngModel)]="configData.videoPort" [disabled]="loadingHardwareConfig" min="0">
+            <div class="field-warning" *ngIf="isInvalidPort(configData.videoPort)">
+              Port must be between 1 and 65535.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Telemetry port</span>
+            <input type="number" [(ngModel)]="configData.telemetryPort" [disabled]="loadingHardwareConfig" min="0">
+            <div class="field-warning" *ngIf="isInvalidPort(configData.telemetryPort)">
+              Port must be between 1 and 65535.
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Microhard</h3>
+        <div class="config-grid">
+          <label class="form-field">
+            <span>Disable detection</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.disableMicrohardDetection" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Force microhard</span>
+            <div class="toggle-row">
+              <input type="checkbox" [(ngModel)]="configData.forceMicrohard" [disabled]="loadingHardwareConfig">
+              <span>Enabled</span>
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Username</span>
+            <input type="text" [(ngModel)]="configData.microhardUsername" [disabled]="loadingHardwareConfig">
+          </label>
+          <label class="form-field">
+            <span>Password</span>
+            <input type="password" [(ngModel)]="configData.microhardPassword" [disabled]="loadingHardwareConfig">
+          </label>
+          <label class="form-field">
+            <span>IP Air</span>
+            <input type="text" [(ngModel)]="configData.microhardIpAir" [disabled]="loadingHardwareConfig">
+            <div class="field-warning" *ngIf="isInvalidIp(configData.microhardIpAir)">
+              Invalid IPv4 address.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>IP Ground</span>
+            <input type="text" [(ngModel)]="configData.microhardIpGround" [disabled]="loadingHardwareConfig">
+            <div class="field-warning" *ngIf="isInvalidIp(configData.microhardIpGround)">
+              Invalid IPv4 address.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>IP Range</span>
+            <input type="text" [(ngModel)]="configData.microhardIpRange" [disabled]="loadingHardwareConfig">
+            <div class="field-warning" *ngIf="isInvalidIpRange(configData.microhardIpRange)">
+              Invalid range. Use a 1-3 octet IPv4 prefix (e.g. 192.168.168).
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Video port</span>
+            <input type="number" [(ngModel)]="configData.microhardVideoPort" [disabled]="loadingHardwareConfig" min="0">
+            <div class="field-warning" *ngIf="isInvalidPort(configData.microhardVideoPort)">
+              Port must be between 1 and 65535.
+            </div>
+          </label>
+          <label class="form-field">
+            <span>Telemetry port</span>
+            <input type="number" [(ngModel)]="configData.microhardTelemetryPort" [disabled]="loadingHardwareConfig" min="0">
+            <div class="field-warning" *ngIf="isInvalidPort(configData.microhardTelemetryPort)">
+              Port must be between 1 and 65535.
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #hardwareConfigUnavailable>
+      <p class="muted">Sysutils socket not reachable.</p>
+    </ng-template>
+
+    <p class="muted" *ngIf="hardwareConfigError">{{ hardwareConfigError }}</p>
+
+    <div class="actions">
+      <button class="btn" (click)="refreshHardwareConfig()" [disabled]="loadingHardwareConfig">Refresh</button>
+      <button class="btn subtle" (click)="resetHardwareConfigToDefaults()" [disabled]="loadingHardwareConfig || !hardwareConfig?.isAvailable">Reset to defaults</button>
+      <button class="btn primary" (click)="saveHardwareConfig()"
+              [disabled]="loadingHardwareConfig || !hardwareConfig?.isAvailable || hardwareConfigHasErrors()">Save settings</button>
+    </div>
+
+    <div class="restart-banner" *ngIf="showRestartPrompt">
+      <div>
+        <div class="restart-title">Restart required</div>
+        <div class="muted">Restart OpenHD to apply hardware configuration changes.</div>
+      </div>
+      <button class="btn primary"
+              *ngIf="restartCommand"
+              (click)="runRestartCommand()"
+              [disabled]="restartRunning">
+        Restart OpenHD
+      </button>
+      <div class="muted" *ngIf="!restartCommand">Use the System page to restart OpenHD.</div>
+    </div>
+  </article>
+
   <div class="table-wrap" *ngIf="wifi?.isAvailable">
     <table class="wifi-table">
       <thead>

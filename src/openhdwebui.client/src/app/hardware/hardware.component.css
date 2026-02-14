@@ -78,6 +78,44 @@
   gap: 1.2rem;
 }
 
+.config-card {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+.config-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.config-section h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+}
+
+.config-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid #FFFFFF26;
+  background: #00000040;
+}
+
+.toggle-row input {
+  accent-color: var(--primary-color);
+}
+
 .card-header {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -258,6 +296,11 @@
   color: inherit;
 }
 
+.field-warning {
+  font-size: 0.78rem;
+  color: #ffb347;
+}
+
 :host-context(.dark-theme) .form-field input::placeholder {
   color: #FFFFFF;
   opacity: 0.9;
@@ -380,6 +423,24 @@
   justify-content: flex-end;
 }
 
+.restart-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid #FFFFFF26;
+  background: #00000033;
+}
+
+.restart-title {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+  font-size: 0.75rem;
+}
+
 :host-context(.dark-theme) .wifi-table th,
 :host-context(.dark-theme) .wifi-table td,
 :host-context(.dark-theme) .wifi-summary {
@@ -399,5 +460,10 @@
 
   .hint-row {
     flex-direction: column;
+  }
+
+  .restart-banner {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

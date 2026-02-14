@@ -47,6 +47,19 @@ public class HardwareController : ControllerBase
         return _hardwareService.UpdateWifiAsync(request, cancellationToken);
     }
 
+    [HttpGet("config")]
+    public Task<HardwareConfigDto> GetHardwareConfig(CancellationToken cancellationToken)
+    {
+        return _hardwareService.GetHardwareConfigAsync(cancellationToken);
+    }
+
+    [HttpPost("config")]
+    public Task<HardwareConfigDto> UpdateHardwareConfig([FromBody] HardwareConfigUpdateRequest request,
+        CancellationToken cancellationToken)
+    {
+        return _hardwareService.UpdateHardwareConfigAsync(request, cancellationToken);
+    }
+
     [HttpGet("hotspot")]
     public HotspotSettingsDto GetHotspot()
     {

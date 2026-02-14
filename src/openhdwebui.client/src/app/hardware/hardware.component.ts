@@ -11,10 +11,17 @@ export class HardwareComponent implements OnInit {
   public wifi?: WifiInfoDto;
   public hotspot?: HotspotSettingsDto;
   public wifiProfiles?: WifiCardProfilesDto;
+  public hardwareConfig?: HardwareConfigDto;
+  private hardwareConfigSnapshot?: HardwareConfigDto;
   public loadingPlatform = false;
   public loadingWifi = false;
   public loadingHotspot = false;
   public loadingWifiProfiles = false;
+  public loadingHardwareConfig = false;
+  public hardwareConfigError?: string;
+  public showRestartPrompt = false;
+  public restartCommand?: SystemCommandDto;
+  public restartRunning = false;
   public txPowerModalOpen = false;
   public txPowerSaving = false;
   public txPowerError?: string;
@@ -45,6 +52,7 @@ export class HardwareComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshAll();
+    this.loadSystemCommands();
   }
 
   refreshAll(): void {
@@ -52,6 +60,7 @@ export class HardwareComponent implements OnInit {
     this.loadWifi();
     this.loadHotspot();
     this.loadWifiProfiles();
+    this.loadHardwareConfig();
   }
 
   loadPlatform(): void {
@@ -121,6 +130,24 @@ export class HardwareComponent implements OnInit {
     });
   }
 
+  loadHardwareConfig(): void {
+    this.loadingHardwareConfig = true;
+    this.http.get<HardwareConfigDto>('/api/hardware/config').subscribe({
+      next: result => {
+        this.hardwareConfig = result;
+        this.hardwareConfigSnapshot = this.cloneHardwareConfig(result);
+        this.loadingHardwareConfig = false;
+        this.showRestartPrompt = false;
+      },
+      error: error => {
+        console.error(error);
+        this.hardwareConfig = undefined;
+        this.hardwareConfigSnapshot = undefined;
+        this.loadingHardwareConfig = false;
+      }
+    });
+  }
+
   refreshPlatform(): void {
     this.updatePlatform({ action: 'detect' }, () => this.loadPlatform());
   }
@@ -137,6 +164,20 @@ export class HardwareComponent implements OnInit {
     this.loadWifiProfiles();
   }
 
+  refreshHardwareConfig(): void {
+    this.loadHardwareConfig();
+  }
+
+  resetHardwareConfigToDefaults(): void {
+    if (!this.hardwareConfig) {
+      return;
+    }
+    if (!confirm('Reset hardware configuration to defaults?')) {
+      return;
+    }
+    this.hardwareConfig = this.buildDefaultHardwareConfig();
+  }
+
   saveHotspot(): void {
     if (!this.hotspot) {
       return;
@@ -148,6 +189,137 @@ export class HardwareComponent implements OnInit {
       hotspotPassword: this.hotspot.hotspotPassword ?? '',
       hotspotInterfaceOverride: this.hotspot.hotspotInterfaceOverride ?? ''
     });
+  }
+
+  saveHardwareConfig(): void {
+    if (!this.hardwareConfig) {
+      return;
+    }
+    if (this.hardwareConfigHasErrors()) {
+      this.hardwareConfigError = 'Fix validation errors before saving.';
+      return;
+    }
+    const hasChanges = this.hasHardwareConfigChanges();
+    this.loadingHardwareConfig = true;
+    this.hardwareConfigError = undefined;
+    const payload: HardwareConfigUpdateRequest = {
+      wifiEnableAutodetect: this.hardwareConfig.wifiEnableAutodetect,
+      wifiWbLinkCards: this.hardwareConfig.wifiWbLinkCards,
+      wifiHotspotCard: this.hardwareConfig.wifiHotspotCard,
+      wifiMonitorCardEmulate: this.hardwareConfig.wifiMonitorCardEmulate,
+      wifiForceNoLinkButHotspot: this.hardwareConfig.wifiForceNoLinkButHotspot,
+      wifiLocalNetworkEnable: this.hardwareConfig.wifiLocalNetworkEnable,
+      wifiLocalNetworkSsid: this.hardwareConfig.wifiLocalNetworkSsid,
+      wifiLocalNetworkPassword: this.hardwareConfig.wifiLocalNetworkPassword,
+      nwEthernetCard: this.hardwareConfig.nwEthernetCard,
+      nwManualForwardingIps: this.hardwareConfig.nwManualForwardingIps,
+      nwForwardToLocalhost58xx: this.hardwareConfig.nwForwardToLocalhost58xx,
+      genEnableLastKnownPosition: this.hardwareConfig.genEnableLastKnownPosition,
+      genRfMetricsLevel: this.hardwareConfig.genRfMetricsLevel,
+      groundUnitIp: this.hardwareConfig.groundUnitIp,
+      airUnitIp: this.hardwareConfig.airUnitIp,
+      videoPort: this.hardwareConfig.videoPort,
+      telemetryPort: this.hardwareConfig.telemetryPort,
+      disableMicrohardDetection: this.hardwareConfig.disableMicrohardDetection,
+      forceMicrohard: this.hardwareConfig.forceMicrohard,
+      microhardUsername: this.hardwareConfig.microhardUsername,
+      microhardPassword: this.hardwareConfig.microhardPassword,
+      microhardIpAir: this.hardwareConfig.microhardIpAir,
+      microhardIpGround: this.hardwareConfig.microhardIpGround,
+      microhardIpRange: this.hardwareConfig.microhardIpRange,
+      microhardVideoPort: this.hardwareConfig.microhardVideoPort,
+      microhardTelemetryPort: this.hardwareConfig.microhardTelemetryPort
+    };
+    this.http.post<HardwareConfigDto>('/api/hardware/config', payload).subscribe({
+      next: result => {
+        this.hardwareConfig = result;
+        this.hardwareConfigSnapshot = this.cloneHardwareConfig(result);
+        this.loadingHardwareConfig = false;
+        this.showRestartPrompt = hasChanges;
+      },
+      error: error => {
+        console.error(error);
+        this.loadingHardwareConfig = false;
+        this.hardwareConfigError = 'Failed to save hardware configuration.';
+      }
+    });
+  }
+
+  runRestartCommand(): void {
+    if (!this.restartCommand) {
+      return;
+    }
+    this.restartRunning = true;
+    this.http.post('/api/system/run-command', { id: this.restartCommand.id }).subscribe({
+      next: () => {
+        this.restartRunning = false;
+      },
+      error: error => {
+        console.error(error);
+        this.restartRunning = false;
+      }
+    });
+  }
+
+  isInvalidIp(value?: string): boolean {
+    const trimmed = (value ?? '').trim();
+    if (!trimmed) {
+      return false;
+    }
+    return !this.isValidIp(trimmed);
+  }
+
+  isInvalidIpList(value?: string): boolean {
+    const trimmed = (value ?? '').trim();
+    if (!trimmed) {
+      return false;
+    }
+    const parts = trimmed.split(/[,\s;]+/).map(part => part.trim()).filter(Boolean);
+    if (parts.length === 0) {
+      return false;
+    }
+    return parts.some(part => !this.isValidIp(part));
+  }
+
+  isInvalidIpRange(value?: string): boolean {
+    const trimmed = (value ?? '').trim();
+    if (!trimmed) {
+      return false;
+    }
+    const parts = trimmed.split('.').filter(Boolean);
+    if (parts.length < 1 || parts.length > 3) {
+      return !this.isValidIp(trimmed);
+    }
+    return parts.some(part => {
+      const num = Number(part);
+      return !Number.isInteger(num) || num < 0 || num > 255;
+    });
+  }
+
+  isInvalidPort(value?: number): boolean {
+    if (value === null || value === undefined) {
+      return false;
+    }
+    if (!Number.isFinite(value)) {
+      return true;
+    }
+    return value <= 0 || value > 65535;
+  }
+
+  hardwareConfigHasErrors(): boolean {
+    if (!this.hardwareConfig) {
+      return false;
+    }
+    return this.isInvalidIp(this.hardwareConfig.groundUnitIp) ||
+      this.isInvalidIp(this.hardwareConfig.airUnitIp) ||
+      this.isInvalidIpList(this.hardwareConfig.nwManualForwardingIps) ||
+      this.isInvalidIp(this.hardwareConfig.microhardIpAir) ||
+      this.isInvalidIp(this.hardwareConfig.microhardIpGround) ||
+      this.isInvalidIpRange(this.hardwareConfig.microhardIpRange) ||
+      this.isInvalidPort(this.hardwareConfig.videoPort) ||
+      this.isInvalidPort(this.hardwareConfig.telemetryPort) ||
+      this.isInvalidPort(this.hardwareConfig.microhardVideoPort) ||
+      this.isInvalidPort(this.hardwareConfig.microhardTelemetryPort);
   }
 
   clearHotspotOverrides(): void {
@@ -499,6 +671,104 @@ export class HardwareComponent implements OnInit {
       this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
     }
   }
+
+  private loadSystemCommands(): void {
+    this.http.get<SystemCommandDto[]>('/api/system/get-commands').subscribe({
+      next: result => {
+        const match = result.find(command =>
+          command.displayName.toLowerCase().includes('restart openhd') ||
+          command.id.toLowerCase().includes('openhd'));
+        this.restartCommand = match;
+      },
+      error: error => {
+        console.error(error);
+      }
+    });
+  }
+
+  private hasHardwareConfigChanges(): boolean {
+    if (!this.hardwareConfig || !this.hardwareConfigSnapshot) {
+      return false;
+    }
+    const current = this.hardwareConfig;
+    const saved = this.hardwareConfigSnapshot;
+    return current.wifiEnableAutodetect !== saved.wifiEnableAutodetect ||
+      current.wifiWbLinkCards !== saved.wifiWbLinkCards ||
+      current.wifiHotspotCard !== saved.wifiHotspotCard ||
+      current.wifiMonitorCardEmulate !== saved.wifiMonitorCardEmulate ||
+      current.wifiForceNoLinkButHotspot !== saved.wifiForceNoLinkButHotspot ||
+      current.wifiLocalNetworkEnable !== saved.wifiLocalNetworkEnable ||
+      current.wifiLocalNetworkSsid !== saved.wifiLocalNetworkSsid ||
+      current.wifiLocalNetworkPassword !== saved.wifiLocalNetworkPassword ||
+      current.nwEthernetCard !== saved.nwEthernetCard ||
+      current.nwManualForwardingIps !== saved.nwManualForwardingIps ||
+      current.nwForwardToLocalhost58xx !== saved.nwForwardToLocalhost58xx ||
+      current.genEnableLastKnownPosition !== saved.genEnableLastKnownPosition ||
+      current.genRfMetricsLevel !== saved.genRfMetricsLevel ||
+      current.groundUnitIp !== saved.groundUnitIp ||
+      current.airUnitIp !== saved.airUnitIp ||
+      current.videoPort !== saved.videoPort ||
+      current.telemetryPort !== saved.telemetryPort ||
+      current.disableMicrohardDetection !== saved.disableMicrohardDetection ||
+      current.forceMicrohard !== saved.forceMicrohard ||
+      current.microhardUsername !== saved.microhardUsername ||
+      current.microhardPassword !== saved.microhardPassword ||
+      current.microhardIpAir !== saved.microhardIpAir ||
+      current.microhardIpGround !== saved.microhardIpGround ||
+      current.microhardIpRange !== saved.microhardIpRange ||
+      current.microhardVideoPort !== saved.microhardVideoPort ||
+      current.microhardTelemetryPort !== saved.microhardTelemetryPort;
+  }
+
+  private buildDefaultHardwareConfig(): HardwareConfigDto {
+    return {
+      isAvailable: true,
+      wifiEnableAutodetect: true,
+      wifiWbLinkCards: '',
+      wifiHotspotCard: '',
+      wifiMonitorCardEmulate: false,
+      wifiForceNoLinkButHotspot: false,
+      wifiLocalNetworkEnable: false,
+      wifiLocalNetworkSsid: '',
+      wifiLocalNetworkPassword: '',
+      nwEthernetCard: 'RPI_ETHERNET_ONLY',
+      nwManualForwardingIps: '',
+      nwForwardToLocalhost58xx: false,
+      genEnableLastKnownPosition: false,
+      genRfMetricsLevel: 0,
+      groundUnitIp: '',
+      airUnitIp: '',
+      videoPort: 5000,
+      telemetryPort: 5600,
+      disableMicrohardDetection: false,
+      forceMicrohard: false,
+      microhardUsername: 'admin',
+      microhardPassword: 'qwertz1',
+      microhardIpAir: '',
+      microhardIpGround: '',
+      microhardIpRange: '',
+      microhardVideoPort: 5910,
+      microhardTelemetryPort: 5920
+    };
+  }
+
+  private cloneHardwareConfig(source: HardwareConfigDto): HardwareConfigDto {
+    return { ...source };
+  }
+
+  private isValidIp(value: string): boolean {
+    const parts = value.split('.');
+    if (parts.length !== 4) {
+      return false;
+    }
+    return parts.every(part => {
+      if (!/^\d+$/.test(part)) {
+        return false;
+      }
+      const num = Number(part);
+      return num >= 0 && num <= 255;
+    });
+  }
 }
 
 interface PlatformInfoDto {
@@ -605,6 +875,70 @@ interface HotspotSettingsUpdateRequest {
 interface HotspotModeOption {
   value: number;
   label: string;
+}
+
+interface HardwareConfigDto {
+  isAvailable: boolean;
+  wifiEnableAutodetect: boolean;
+  wifiWbLinkCards: string;
+  wifiHotspotCard: string;
+  wifiMonitorCardEmulate: boolean;
+  wifiForceNoLinkButHotspot: boolean;
+  wifiLocalNetworkEnable: boolean;
+  wifiLocalNetworkSsid: string;
+  wifiLocalNetworkPassword: string;
+  nwEthernetCard: string;
+  nwManualForwardingIps: string;
+  nwForwardToLocalhost58xx: boolean;
+  genEnableLastKnownPosition: boolean;
+  genRfMetricsLevel: number;
+  groundUnitIp: string;
+  airUnitIp: string;
+  videoPort: number;
+  telemetryPort: number;
+  disableMicrohardDetection: boolean;
+  forceMicrohard: boolean;
+  microhardUsername: string;
+  microhardPassword: string;
+  microhardIpAir: string;
+  microhardIpGround: string;
+  microhardIpRange: string;
+  microhardVideoPort: number;
+  microhardTelemetryPort: number;
+}
+
+interface HardwareConfigUpdateRequest {
+  wifiEnableAutodetect?: boolean;
+  wifiWbLinkCards?: string;
+  wifiHotspotCard?: string;
+  wifiMonitorCardEmulate?: boolean;
+  wifiForceNoLinkButHotspot?: boolean;
+  wifiLocalNetworkEnable?: boolean;
+  wifiLocalNetworkSsid?: string;
+  wifiLocalNetworkPassword?: string;
+  nwEthernetCard?: string;
+  nwManualForwardingIps?: string;
+  nwForwardToLocalhost58xx?: boolean;
+  genEnableLastKnownPosition?: boolean;
+  genRfMetricsLevel?: number;
+  groundUnitIp?: string;
+  airUnitIp?: string;
+  videoPort?: number;
+  telemetryPort?: number;
+  disableMicrohardDetection?: boolean;
+  forceMicrohard?: boolean;
+  microhardUsername?: string;
+  microhardPassword?: string;
+  microhardIpAir?: string;
+  microhardIpGround?: string;
+  microhardIpRange?: string;
+  microhardVideoPort?: number;
+  microhardTelemetryPort?: number;
+}
+
+interface SystemCommandDto {
+  id: string;
+  displayName: string;
 }
 
 interface SettingFileSummary {

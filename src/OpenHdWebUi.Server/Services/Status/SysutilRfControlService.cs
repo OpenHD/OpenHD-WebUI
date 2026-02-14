@@ -10,7 +10,7 @@ public class SysutilRfControlService
 {
     private const string SocketPath = "/run/openhd/openhd_sys.sock";
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromMilliseconds(400);
-    private static readonly TimeSpan ReadTimeout = TimeSpan.FromMilliseconds(1000);
+    private static readonly TimeSpan ReadTimeout = TimeSpan.FromMilliseconds(5000);
 
     public async Task<RfControlResponse> ApplyAsync(RfControlRequest request, CancellationToken cancellationToken)
     {
@@ -66,7 +66,11 @@ public class SysutilRfControlService
         var response = await SendRequestAsync($"{json}\n", cancellationToken);
         if (string.IsNullOrWhiteSpace(response))
         {
-            return new RfControlResponse { Ok = false, Message = "No response from sysutils." };
+            return new RfControlResponse
+            {
+                Ok = false,
+                Message = "No response from sysutils. Ensure openhd_sys_utils is updated and running."
+            };
         }
 
         try
