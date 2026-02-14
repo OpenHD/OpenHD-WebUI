@@ -120,7 +120,7 @@ export class HardwareComponent implements OnInit {
   }
 
   refreshPlatform(): void {
-    this.updatePlatform({ action: 'refresh' });
+    this.updatePlatform({ action: 'detect' }, () => this.loadPlatform());
   }
 
   refreshWifi(): void {
@@ -251,12 +251,15 @@ export class HardwareComponent implements OnInit {
     });
   }
 
-  private updatePlatform(request: PlatformUpdateRequest): void {
+  private updatePlatform(request: PlatformUpdateRequest, onSuccess?: () => void): void {
     this.loadingPlatform = true;
     this.http.post<PlatformInfoDto>('/api/hardware/platform', request).subscribe({
       next: result => {
         this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
         this.loadingPlatform = false;
+        if (onSuccess) {
+          onSuccess();
+        }
       },
       error: error => {
         console.error(error);

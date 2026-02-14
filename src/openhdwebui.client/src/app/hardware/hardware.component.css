@@ -258,6 +258,16 @@
   color: inherit;
 }
 
+:host-context(.dark-theme) .form-field input::placeholder {
+  color: #FFFFFF;
+  opacity: 0.9;
+}
+
+:host-context(.dark-theme) .override-row input::placeholder {
+  color: #FFFFFF;
+  opacity: 0.9;
+}
+
 .hint-row {
   display: flex;
   justify-content: space-between;
