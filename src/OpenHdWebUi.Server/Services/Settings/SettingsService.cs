@@ -18,6 +18,10 @@ public class SettingsService
     {
         "web-ui"
     };
+    private static readonly string[] ExcludedFileNames =
+    {
+        "platform.json"
+    };
 
     private readonly ILogger<SettingsService> _logger;
     private readonly string[] _settingsRoots;
@@ -67,6 +71,10 @@ public class SettingsService
                     {
                         continue;
                     }
+                    if (IsExcludedFileName(fullPath))
+                    {
+                        continue;
+                    }
 
                     var normalizedRelativePath = NormalizeSeparators(relativePath);
                     var category = ExtractCategory(normalizedRelativePath);
@@ -101,6 +109,10 @@ public class SettingsService
         var root = ResolveRoot(fullPath);
         var relativePath = root != null ? Path.GetRelativePath(root, fullPath) : Path.GetFileName(fullPath);
         if (root != null && IsExcluded(relativePath))
+        {
+            return null;
+        }
+        if (IsExcludedFileName(fullPath))
         {
             return null;
         }
@@ -139,6 +151,11 @@ public class SettingsService
         var root = ResolveRoot(fullPath);
         var relativePath = root != null ? Path.GetRelativePath(root, fullPath) : null;
         if (relativePath != null && IsExcluded(relativePath))
+        {
+            notFound = true;
+            return false;
+        }
+        if (IsExcludedFileName(fullPath))
         {
             notFound = true;
             return false;
@@ -223,6 +240,12 @@ public class SettingsService
     {
         var segments = NormalizeSeparators(relativePath).Split('/', StringSplitOptions.RemoveEmptyEntries);
         return segments.Any(segment => ExcludedDirectories.Contains(segment, StringComparer.OrdinalIgnoreCase));
+    }
+
+    private static bool IsExcludedFileName(string fullPath)
+    {
+        var fileName = Path.GetFileName(fullPath);
+        return ExcludedFileNames.Contains(fileName, StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool IsPathUnderRoot(string fullPath, string root)

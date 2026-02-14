@@ -60,11 +60,13 @@ export class HardwareComponent implements OnInit {
       next: result => {
         this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
         this.loadingPlatform = false;
+        this.loadPlatformFallbackIfNeeded();
       },
       error: error => {
         console.error(error);
         this.platform = undefined;
         this.loadingPlatform = false;
+        this.loadPlatformFallbackIfNeeded();
       }
     });
   }
@@ -257,6 +259,7 @@ export class HardwareComponent implements OnInit {
       next: result => {
         this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
         this.loadingPlatform = false;
+        this.loadPlatformFallbackIfNeeded();
         if (onSuccess) {
           onSuccess();
         }
@@ -264,6 +267,7 @@ export class HardwareComponent implements OnInit {
       error: error => {
         console.error(error);
         this.loadingPlatform = false;
+        this.loadPlatformFallbackIfNeeded();
       }
     });
   }
@@ -330,6 +334,92 @@ export class HardwareComponent implements OnInit {
       platformName,
       action
     };
+  }
+
+  private loadPlatformFallbackIfNeeded(): void {
+    const current = this.platform;
+    const needsFallback =
+      !current ||
+      !current.isAvailable ||
+      !current.platformName ||
+      current.platformName.toLowerCase() === 'unknown' ||
+      current.platformType === 0;
+    if (!needsFallback) {
+      return;
+    }
+
+    this.http.get<SettingFileSummary[]>('/api/settings').subscribe({
+      next: summaries => {
+        const platformFile = summaries.find(item =>
+          item.name === 'platform.json' ||
+          (item.relativePath?.replace(/\\/g, '/').endsWith('/platform.json') ?? false));
+        if (!platformFile) {
+          return;
+        }
+        this.http.get<SettingFileDetail>(`/api/settings/${platformFile.id}`).subscribe({
+          next: file => {
+            if (!file?.content) {
+              return;
+            }
+            try {
+              const parsed = JSON.parse(file.content) as Record<string, unknown>;
+              const fallbackType =
+                this.parseUnknownInt(parsed['platform_type']) ??
+                this.parseUnknownInt(parsed['platformType']);
+              const fallbackName =
+                this.parseUnknownString(parsed['platform_name']) ??
+                this.parseUnknownString(parsed['platformName']);
+
+              if (!this.platform) {
+                this.platform = {
+                  isAvailable: true,
+                  platformType: fallbackType ?? 0,
+                  platformName: fallbackName ?? 'Unknown',
+                  action: 'config'
+                };
+                return;
+              }
+
+              if (this.platform.platformType === 0 && fallbackType !== null) {
+                this.platform.platformType = fallbackType;
+              }
+              if (!this.platform.platformName ||
+                  this.platform.platformName.toLowerCase() === 'unknown') {
+                this.platform.platformName = fallbackName ?? this.platform.platformName;
+              }
+              if (!this.platform.action) {
+                this.platform.action = 'config';
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  private parseUnknownInt(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.trunc(value);
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return null;
+      }
+      const parsed = Number.parseInt(trimmed, 10);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  }
+
+  private parseUnknownString(value: unknown): string | null {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      return trimmed ? trimmed : null;
+    }
+    return null;
   }
 
   public hasPowerProfile(card?: WifiCardInfoDto): boolean {
@@ -515,6 +605,19 @@ interface HotspotSettingsUpdateRequest {
 interface HotspotModeOption {
   value: number;
   label: string;
+}
+
+interface SettingFileSummary {
+  id: string;
+  name: string;
+  relativePath?: string;
+}
+
+interface SettingFileDetail {
+  id: string;
+  name: string;
+  relativePath?: string;
+  content: string;
 }
 
 interface WifiTxPowerForm {
