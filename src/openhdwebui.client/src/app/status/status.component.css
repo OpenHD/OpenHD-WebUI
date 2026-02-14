@@ -268,6 +268,34 @@
   margin-bottom: 0.5rem;
 }
 
+.debug-panel {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #FFFFFF26;
+  background: #00000033;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.debug-block pre {
+  margin: 0.35rem 0 0;
+  padding: 0.5rem;
+  border-radius: 0.6rem;
+  border: 1px solid #FFFFFF1A;
+  background: #00000040;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .hint {
   color: color-mix(in srgb, var(--text-color) 60%, transparent);
   font-size: 0.9rem;

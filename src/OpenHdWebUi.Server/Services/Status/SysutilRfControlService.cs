@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -8,20 +9,54 @@ namespace OpenHdWebUi.Server.Services.Status;
 
 public class SysutilRfControlService
 {
+    private readonly ILogger<SysutilRfControlService> _logger;
     private const string SocketPath = "/run/openhd/openhd_sys.sock";
     private static readonly TimeSpan ConnectTimeout = TimeSpan.FromMilliseconds(400);
     private static readonly TimeSpan ReadTimeout = TimeSpan.FromMilliseconds(5000);
 
+    public SysutilRfControlService(ILogger<SysutilRfControlService> logger)
+    {
+        _logger = logger;
+    }
+
     public async Task<RfControlResponse> ApplyAsync(RfControlRequest request, CancellationToken cancellationToken)
     {
+        var debug = new RfControlDebugInfo
+        {
+            SocketAvailable = File.Exists(SocketPath)
+        };
+        var stopwatch = Stopwatch.StartNew();
+        _logger.LogInformation("RF control request: interface={Interface} freq={Frequency} width={Width} mcs={Mcs} powerLevel={PowerLevel} txMw={TxMw} txIndex={TxIndex}",
+            request.InterfaceName ?? string.Empty,
+            request.FrequencyMhz,
+            request.ChannelWidthMhz,
+            request.McsIndex,
+            request.PowerLevel ?? string.Empty,
+            request.TxPowerMw,
+            request.TxPowerIndex);
+
         if (!OperatingSystem.IsLinux() && !OperatingSystem.IsMacOS())
         {
-            return new RfControlResponse { Ok = false, Message = "RF control is only available on Linux targets." };
+            _logger.LogWarning("RF control blocked: unsupported OS.");
+            debug.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            return new RfControlResponse
+            {
+                Ok = false,
+                Message = "RF control is only available on Linux targets.",
+                Debug = debug
+            };
         }
 
         if (!File.Exists(SocketPath))
         {
-            return new RfControlResponse { Ok = false, Message = "Sysutils socket is not available." };
+            _logger.LogWarning("RF control blocked: sysutils socket not found at {SocketPath}.", SocketPath);
+            debug.ElapsedMs = stopwatch.ElapsedMilliseconds;
+            return new RfControlResponse
+            {
+                Ok = false,
+                Message = "Sysutils socket is not available.",
+                Debug = debug
+            };
         }
 
         var payload = new Dictionary<string, object?>
@@ -63,35 +98,59 @@ public class SysutilRfControlService
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         });
 
+        debug.RequestPayload = json;
+        var attempts = 0;
         var response = await SendRequestAsync($"{json}\n", cancellationToken);
+        attempts++;
         if (string.IsNullOrWhiteSpace(response))
         {
+            // Retry once in case sysutils was busy.
+            await Task.Delay(200, cancellationToken);
+            response = await SendRequestAsync($"{json}\n", cancellationToken);
+            attempts++;
+        }
+        debug.Attempts = attempts;
+        debug.ResponsePayload = response;
+        debug.ElapsedMs = stopwatch.ElapsedMilliseconds;
+        if (string.IsNullOrWhiteSpace(response))
+        {
+            _logger.LogWarning("RF control timeout: no response from sysutils.");
             return new RfControlResponse
             {
                 Ok = false,
-                Message = "No response from sysutils. Ensure openhd_sys_utils is updated and running."
+                Message = "No response from sysutils. Ensure openhd_sys_utils is updated and running.",
+                Debug = debug
             };
         }
 
         try
         {
+            _logger.LogDebug("RF control sysutils response: {Response}", response);
             var payloadData = JsonSerializer.Deserialize<SysutilRfControlPayload>(response,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (payloadData == null)
             {
+                _logger.LogWarning("RF control failed: unable to deserialize response.");
                 return new RfControlResponse { Ok = false, Message = "Invalid sysutils response." };
             }
 
             return new RfControlResponse
             {
                 Ok = payloadData.Ok,
-                Message = payloadData.Message
+                Message = payloadData.Message,
+                Debug = debug
             };
         }
         catch
         {
-            return new RfControlResponse { Ok = false, Message = "Unable to parse sysutils response." };
+            _logger.LogWarning("RF control failed: exception while parsing response.");
+            return new RfControlResponse
+            {
+                Ok = false,
+                Message = "Unable to parse sysutils response.",
+                Debug = debug
+            };
         }
     }
 

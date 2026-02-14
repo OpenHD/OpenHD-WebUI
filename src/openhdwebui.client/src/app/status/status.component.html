@@ -161,6 +161,32 @@
       <p class="success-text" *ngIf="rfControlSuccess">{{ rfControlSuccess }}</p>
       <p class="error-text" *ngIf="rfControlError">{{ rfControlError }}</p>
 
+      <button class="btn subtle small" (click)="showRfDebug = !showRfDebug" *ngIf="rfControlDebug">
+        {{ showRfDebug ? 'Hide debug' : 'Show debug' }}
+      </button>
+      <div class="debug-panel" *ngIf="showRfDebug && rfControlDebug">
+        <div class="debug-row">
+          <span class="label">Socket available</span>
+          <span class="value">{{ rfControlDebug.socketAvailable ? 'Yes' : 'No' }}</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Attempts</span>
+          <span class="value">{{ rfControlDebug.attempts ?? 0 }}</span>
+        </div>
+        <div class="debug-row">
+          <span class="label">Elapsed</span>
+          <span class="value">{{ rfControlDebug.elapsedMs ?? 0 }} ms</span>
+        </div>
+        <div class="debug-block" *ngIf="rfControlDebug.requestPayload">
+          <div class="label">Request payload</div>
+          <pre>{{ rfControlDebug.requestPayload }}</pre>
+        </div>
+        <div class="debug-block" *ngIf="rfControlDebug.responsePayload">
+          <div class="label">Response payload</div>
+          <pre>{{ rfControlDebug.responsePayload }}</pre>
+        </div>
+      </div>
+
       <div class="actions">
         <button class="btn" (click)="applyRfControl()" [disabled]="rfControlSaving">
           {{ rfControlSaving ? 'Applying...' : 'Apply' }}

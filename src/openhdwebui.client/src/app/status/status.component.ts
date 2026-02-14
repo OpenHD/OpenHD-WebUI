@@ -14,6 +14,8 @@ export class StatusComponent implements OnInit, OnDestroy {
   rfControlSaving = false;
   rfControlError = '';
   rfControlSuccess = '';
+  rfControlDebug?: RfControlDebugInfo;
+  showRfDebug = false;
   rfControlForm: RfControlForm = {
     interfaceName: '',
     frequencyMhz: '',
@@ -324,10 +326,13 @@ export class StatusComponent implements OnInit, OnDestroy {
     this.rfControlSaving = true;
     this.rfControlError = '';
     this.rfControlSuccess = '';
+    this.rfControlDebug = undefined;
     this.http.post<RfControlResponse>('/api/status/rf-control', payload)
       .subscribe({
         next: response => {
           this.rfControlSaving = false;
+          this.rfControlDebug = response.debug;
+          this.showRfDebug = !response.ok;
           if (response.ok) {
             this.rfControlSuccess = response.message || 'RF settings applied.';
             if (payload.interfaceName) {
@@ -352,6 +357,8 @@ export class StatusComponent implements OnInit, OnDestroy {
         error: () => {
           this.rfControlSaving = false;
           this.rfControlError = 'Unable to reach the RF control endpoint.';
+          this.rfControlDebug = undefined;
+          this.showRfDebug = true;
         }
       });
   }
@@ -437,6 +444,15 @@ interface RfControlRequest {
 interface RfControlResponse {
   ok: boolean;
   message?: string;
+  debug?: RfControlDebugInfo;
+}
+
+interface RfControlDebugInfo {
+  requestPayload?: string;
+  responsePayload?: string;
+  attempts?: number;
+  elapsedMs?: number;
+  socketAvailable?: boolean;
 }
 
 interface WifiCardInfoDto {
