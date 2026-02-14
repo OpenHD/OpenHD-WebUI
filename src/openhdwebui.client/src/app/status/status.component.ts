@@ -175,7 +175,10 @@ export class StatusComponent implements OnInit, OnDestroy {
                 return null;
               }
               const cardName = (card.cardName ?? '').trim();
-              const label = cardName ? `${iface} — ${cardName}` : iface;
+              const detectedType = (card.detectedType ?? '').trim();
+              const driverName = (card.driverName ?? '').trim();
+              const descriptor = cardName || detectedType || driverName;
+              const label = descriptor ? `${iface} — ${descriptor}` : iface;
               return { value: iface, label };
             })
             .filter((option): option is RfInterfaceOption => option !== null);
@@ -439,6 +442,8 @@ interface RfControlResponse {
 interface WifiCardInfoDto {
   interfaceName: string;
   cardName?: string;
+  detectedType?: string;
+  driverName?: string;
 }
 
 interface WifiInfoDto {
