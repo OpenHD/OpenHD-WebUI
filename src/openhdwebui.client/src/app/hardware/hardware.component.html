@@ -83,7 +83,7 @@
         </div>
         <div>
           <h2>Hotspot Settings</h2>
-          <p class="muted">Override the default hotspot strings and mode used by OpenHD.</p>
+          <p class="muted">Current hotspot strings and mode used by OpenHD.</p>
         </div>
       </div>
 
@@ -97,23 +97,19 @@
           </select>
         </label>
         <label class="form-field">
-          <span>SSID override</span>
-          <input type="text" [(ngModel)]="hotspotData.hotspotSsid" [disabled]="loadingHotspot"
-                 placeholder="Leave blank for OpenHD default">
+          <span>SSID</span>
+          <input type="text" [(ngModel)]="hotspotData.hotspotSsid" [disabled]="loadingHotspot">
         </label>
         <label class="form-field">
-          <span>Password override</span>
-          <input type="password" [(ngModel)]="hotspotData.hotspotPassword" [disabled]="loadingHotspot"
-                 placeholder="Leave blank for OpenHD default">
+          <span>Password</span>
+          <input type="password" [(ngModel)]="hotspotData.hotspotPassword" [disabled]="loadingHotspot">
         </label>
         <label class="form-field">
-          <span>Interface override</span>
-          <input type="text" [(ngModel)]="hotspotData.hotspotInterfaceOverride" [disabled]="loadingHotspot"
-                 placeholder="Optional interface name">
+          <span>Interface</span>
+          <input type="text" [(ngModel)]="hotspotData.hotspotInterfaceOverride" [disabled]="loadingHotspot">
         </label>
         <div class="hint-row">
           <span>Last action: {{ hotspot?.action || 'load' }}</span>
-          <span>Blank values keep OpenHD defaults.</span>
         </div>
       </div>
 
