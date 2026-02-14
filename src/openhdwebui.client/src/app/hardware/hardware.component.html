@@ -249,6 +249,11 @@
         <ng-template #profilesUnavailable>
           <p class="muted">Profile list not available.</p>
         </ng-template>
+        <label class="form-field">
+          <span>Power level</span>
+          <input type="text" [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi || isFixedProfile()"
+                 placeholder="lowest | low | mid | high | auto">
+        </label>
         <p class="muted" *ngIf="!hasPowerProfile(selectedWifiCard)">
           No power profile found for this card. Add it to /usr/local/share/OpenHD/SysUtils/wifi_cards.json to enable level selection.
         </p>
