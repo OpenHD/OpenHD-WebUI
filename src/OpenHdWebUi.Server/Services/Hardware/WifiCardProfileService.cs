@@ -28,12 +28,11 @@ public class WifiCardProfileService
     {
         var normalizedVendor = NormalizeId(request.VendorId);
         var normalizedDevice = NormalizeId(request.DeviceId);
-        var powerMode = NormalizePowerMode(request.PowerMode ?? current?.PowerMode);
-
         var profiles = LoadProfiles(out var exists).ToList();
         var current = profiles.FirstOrDefault(profile =>
             string.Equals(profile.VendorId, normalizedVendor, StringComparison.OrdinalIgnoreCase) &&
             string.Equals(profile.DeviceId, normalizedDevice, StringComparison.OrdinalIgnoreCase));
+        var powerMode = NormalizePowerMode(request.PowerMode ?? current?.PowerMode);
 
         var minMw = current?.MinMw ?? (request.Lowest > 0 ? request.Lowest : 0);
         var maxMw = current?.MaxMw ?? (request.High > 0 ? request.High : 0);
