@@ -243,42 +243,42 @@ export class StatusComponent implements OnInit, OnDestroy {
   get rfCurrentInterfaceLabel(): string {
     const iface = (this.rfCurrent.interfaceName ?? '').trim();
     if (!iface) {
-      return 'Current: Auto';
+      return 'Auto';
     }
     const match = this.rfInterfaceOptions.find(option => option.value === iface);
-    return `Current: ${match?.label ?? iface}`;
+    return match?.label ?? iface;
   }
 
   get rfCurrentChannelLabel(): string {
     if (this.rfCurrent.frequencyMhz) {
-      return `Current: ${this.rfCurrent.frequencyMhz} MHz`;
+      return `${this.rfCurrent.frequencyMhz} MHz`;
     }
-    return 'Current: Unknown';
+    return 'Unknown';
   }
 
   get rfCurrentBandwidthLabel(): string {
     if (this.rfCurrent.channelWidthMhz) {
-      return `Current: ${this.rfCurrent.channelWidthMhz} MHz`;
+      return `${this.rfCurrent.channelWidthMhz} MHz`;
     }
-    return 'Current: Unknown';
+    return 'Unknown';
   }
 
   get rfCurrentMcsLabel(): string {
     if (this.rfCurrent.mcsIndex !== undefined && this.rfCurrent.mcsIndex !== null) {
-      return `Current: ${this.rfCurrent.mcsIndex}`;
+      return `${this.rfCurrent.mcsIndex}`;
     }
-    return 'Current: Unknown';
+    return 'Unknown';
   }
 
   get rfCurrentPowerLabel(): string {
     const level = (this.rfCurrent.powerLevel ?? '').toLowerCase();
     if (!level) {
-      return 'Current: Unknown';
+      return 'Unknown';
     }
     if (level === 'disabled' || level === 'auto') {
-      return 'Current: Disabled';
+      return 'Disabled';
     }
-    return `Current: ${level.charAt(0).toUpperCase()}${level.slice(1)}`;
+    return `${level.charAt(0).toUpperCase()}${level.slice(1)}`;
   }
 
   applyRfControl(): void {

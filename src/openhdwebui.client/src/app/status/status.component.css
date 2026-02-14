@@ -238,6 +238,15 @@
   color: inherit;
 }
 
+.form-field select {
+  color-scheme: dark;
+}
+
+.form-field select option {
+  background-color: var(--hero-bg);
+  color: var(--text-color);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
