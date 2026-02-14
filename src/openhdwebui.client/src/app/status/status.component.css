@@ -7,8 +7,8 @@
   padding: 3.5rem 1.5rem 4rem;
   color: var(--text-color);
   background:
-    radial-gradient(1000px 400px at 10% -10%, rgba(0, 166, 242, 0.15), transparent 60%),
-    radial-gradient(900px 500px at 90% 0%, rgba(0, 166, 242, 0.08), transparent 60%);
+    radial-gradient(1000px 400px at 10% -10%, #00A6F226, transparent 60%),
+    radial-gradient(900px 500px at 90% 0%, #00A6F214, transparent 60%);
 }
 
 .status-hero {
@@ -33,21 +33,21 @@
   gap: 0.5rem;
   padding: 0.35rem 0.85rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 166, 242, 0.4);
-  background: rgba(0, 166, 242, 0.08);
+  border: 1px solid #00A6F266;
+  background: #00A6F214;
   font-size: 0.85rem;
   letter-spacing: 0.08rem;
   text-transform: uppercase;
 }
 
 .status-chip.ok {
-  border-color: rgba(0, 186, 120, 0.45);
-  background: rgba(0, 186, 120, 0.12);
+  border-color: #00BA7873;
+  background: #00BA781F;
 }
 
 .status-chip.error {
-  border-color: rgba(255, 76, 76, 0.45);
-  background: rgba(255, 76, 76, 0.12);
+  border-color: #FF4C4C73;
+  background: #FF4C4C1F;
 }
 
 .dot {
@@ -69,21 +69,21 @@
 
 .status-card {
   background: var(--hero-bg);
-  border: 1px solid rgba(0, 166, 242, 0.25);
+  border: 1px solid #00A6F240;
   border-radius: 1.25rem;
   padding: 1.5rem;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 30px #0000001F;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 .status-card.ok {
-  border-color: rgba(0, 186, 120, 0.35);
+  border-color: #00BA7859;
 }
 
 .status-card.error {
-  border-color: rgba(255, 76, 76, 0.4);
+  border-color: #FF4C4C66;
 }
 
 .status-card.secondary {
@@ -113,12 +113,12 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: rgba(0, 166, 242, 0.15);
+  background: #00A6F226;
   color: var(--primary-color);
 }
 
 .icon.soft {
-  background: rgba(255, 255, 255, 0.08);
+  background: #FFFFFF14;
 }
 
 .icon svg {
@@ -136,7 +136,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding-bottom: 0.55rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #FFFFFF14;
 }
 
 .status-row:last-child {
@@ -178,8 +178,8 @@
   gap: 1rem;
   padding: 0.7rem 0.9rem;
   border-radius: 0.8rem;
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #00000026;
+  border: 1px solid #FFFFFF14;
 }
 
 .history-title {
@@ -201,8 +201,8 @@
 
 .status-error {
   border-radius: 0.9rem;
-  border: 1px solid rgba(255, 76, 76, 0.45);
-  background: rgba(255, 76, 76, 0.12);
+  border: 1px solid #FF4C4C73;
+  background: #FF4C4C1F;
   padding: 1rem;
 }
 
@@ -229,34 +229,12 @@
   color: color-mix(in srgb, var(--text-color) 65%, transparent);
 }
 
-.form-field input,
-.form-field select {
+.form-field input {
   padding: 0.55rem 0.75rem;
   border-radius: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(8, 12, 16, 0.7);
+  border: 1px solid #FFFFFF1F;
+  background: #080C10B3;
   color: inherit;
-}
-
-.form-field select {
-  color-scheme: dark;
-  border-color: rgba(255, 255, 255, 0.08);
-  background: #151e27e6;
-}
-
-.form-field select:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.form-field select option {
-  background-color: rgba(14, 20, 28, 0.95);
-  color: var(--text-color);
-}
-
-.form-field select option:checked,
-.form-field select option:hover {
-  background-color: rgba(0, 0, 0, 0.35);
 }
 
 .actions {
@@ -266,8 +244,8 @@
 }
 
 .btn {
-  border: 1px solid rgba(0, 166, 242, 0.4);
-  background: rgba(0, 166, 242, 0.1);
+  border: 1px solid #00A6F266;
+  background: #00A6F21A;
   color: var(--text-color);
   padding: 0.5rem 1rem;
   border-radius: 999px;

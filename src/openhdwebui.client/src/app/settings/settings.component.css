@@ -546,6 +546,12 @@ td {
   color: #fff;
 }
 
+select.structured-input {
+  border: 1px solid var(--select-border);
+  background: var(--select-bg);
+  color: var(--text-color);
+}
+
 .structured-toggle {
   align-items: center;
   gap: 0.65rem;

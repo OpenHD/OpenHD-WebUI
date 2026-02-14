@@ -250,12 +250,11 @@
   color: color-mix(in srgb, var(--text-color) 65%, transparent);
 }
 
-.form-field input,
-.form-field select {
+.form-field input {
   padding: 0.55rem 0.75rem;
   border-radius: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid #FFFFFF26;
+  background: #00000040;
   color: inherit;
 }
 
@@ -309,9 +308,9 @@
 
 .wifi-table select {
   padding: 0.4rem 0.5rem;
-  border-radius: 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.25);
+  border-radius: 0.7rem;
+  border: 1px solid var(--select-border);
+  background: var(--select-bg);
   color: inherit;
 }
 
@@ -376,6 +375,7 @@
 :host-context(.dark-theme) .wifi-summary {
   color: #fff;
 }
+
 
 @media (max-width: 900px) {
   .override-row {

@@ -178,7 +178,7 @@ export class StatusComponent implements OnInit, OnDestroy {
               const detectedType = (card.detectedType ?? '').trim();
               const driverName = (card.driverName ?? '').trim();
               const descriptor = cardName || detectedType || driverName;
-              const label = descriptor ? `${iface} — ${descriptor}` : iface;
+              const label = descriptor ? `${descriptor} (${iface})` : iface;
               return { value: iface, label };
             })
             .filter((option): option is RfInterfaceOption => option !== null);

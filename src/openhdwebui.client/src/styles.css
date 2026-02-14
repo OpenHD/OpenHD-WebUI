@@ -11,6 +11,10 @@
   --nav-background-color: var(--background-color);
   --nav-text-color: var(--text-color);
   --nav-highlight-color: #00a6f2;
+  --select-bg: #f5f7fb;
+  --select-border: #0f172a33;
+  --select-option-bg: #ffffff;
+  --select-option-hover: #00000014;
 }
 
 body {
@@ -60,6 +64,10 @@ code {
   --hero-bg: #1c262f;
   --nav-background-color: #1c262f;
   --nav-text-color: #f8f9fa;
+  --select-bg: #151e27e6;
+  --select-border: #ffffff14;
+  --select-option-bg: #151e27e6;
+  --select-option-hover: #00000059;
 }
 
 body.dark-theme {
@@ -87,5 +95,32 @@ main {
 
 main > * {
   width: 100%;
+}
+
+select {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--select-border);
+  background: var(--select-bg);
+  color: var(--text-color);
+}
+
+.dark-theme select {
+  color-scheme: dark;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--select-border);
+}
+
+select option {
+  background-color: var(--select-option-bg);
+  color: var(--text-color);
+}
+
+select option:checked,
+select option:hover {
+  background-color: var(--select-option-hover);
 }
 
