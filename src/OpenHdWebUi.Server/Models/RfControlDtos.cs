@@ -8,6 +8,7 @@ public sealed class RfControlRequest
     public int? McsIndex { get; set; }
     public int? TxPowerMw { get; set; }
     public int? TxPowerIndex { get; set; }
+    public string? PowerLevel { get; set; }
 }
 
 public sealed class RfControlResponse

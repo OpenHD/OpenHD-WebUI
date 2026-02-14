@@ -134,21 +134,14 @@
           <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.mcsIndex" placeholder="0 - 9">
         </label>
         <label class="form-field">
-          <span>Power mode</span>
-          <div class="radio-group">
-            <label>
-              <input type="radio" [(ngModel)]="rfControlForm.powerMode" value="mw">
-              Power in mW
-            </label>
-            <label>
-              <input type="radio" [(ngModel)]="rfControlForm.powerMode" value="index">
-              TX power index
-            </label>
-          </div>
-        </label>
-        <label class="form-field">
           <span>Power</span>
-          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.powerValue" placeholder="mW or index">
+          <select [(ngModel)]="rfControlForm.powerLevel">
+            <option value="">Keep current</option>
+            <option value="lowest">Lowest</option>
+            <option value="low">Low</option>
+            <option value="mid">Mid</option>
+            <option value="high">High</option>
+          </select>
         </label>
       </div>
 

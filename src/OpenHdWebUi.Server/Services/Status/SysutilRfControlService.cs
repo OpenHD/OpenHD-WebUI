@@ -53,6 +53,10 @@ public class SysutilRfControlService
         {
             payload["tx_power_index"] = request.TxPowerIndex.Value;
         }
+        if (!string.IsNullOrWhiteSpace(request.PowerLevel))
+        {
+            payload["power_level"] = request.PowerLevel;
+        }
 
         var json = JsonSerializer.Serialize(payload, new JsonSerializerOptions
         {

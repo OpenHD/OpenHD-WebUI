@@ -19,8 +19,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     frequencyMhz: '',
     channelWidthMhz: '',
     mcsIndex: '',
-    powerValue: '',
-    powerMode: 'mw'
+    powerLevel: ''
   };
   private isDestroyed = false;
   private isStreaming = false;
@@ -176,13 +175,9 @@ export class StatusComponent implements OnInit, OnDestroy {
       payload.mcsIndex = mcs;
     }
 
-    const power = this.parseOptionalInt(this.rfControlForm.powerValue);
-    if (power !== null) {
-      if (this.rfControlForm.powerMode === 'index') {
-        payload.txPowerIndex = power;
-      } else {
-        payload.txPowerMw = power;
-      }
+    const powerLevel = this.rfControlForm.powerLevel.trim();
+    if (powerLevel.length > 0) {
+      payload.powerLevel = powerLevel;
     }
 
     if (Object.keys(payload).length === 0) {
@@ -246,8 +241,7 @@ interface RfControlForm {
   frequencyMhz: string;
   channelWidthMhz: string;
   mcsIndex: string;
-  powerValue: string;
-  powerMode: 'mw' | 'index';
+  powerLevel: string;
 }
 
 interface RfControlRequest {
@@ -255,8 +249,7 @@ interface RfControlRequest {
   frequencyMhz?: number;
   channelWidthMhz?: number;
   mcsIndex?: number;
-  txPowerMw?: number;
-  txPowerIndex?: number;
+  powerLevel?: string;
 }
 
 interface RfControlResponse {
