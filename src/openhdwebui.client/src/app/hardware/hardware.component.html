@@ -242,26 +242,14 @@
           <ng-template #fixedLevels>
             <div class="muted">Fixed power (no editable levels).</div>
           </ng-template>
-          <p class="muted" *ngIf="!profileData.isAvailable">
-            Profile file missing. Saving will create /usr/local/share/OpenHD/SysUtils/wifi_cards.json.
-          </p>
         </div>
         <ng-template #profilesUnavailable>
           <p class="muted">Profile list not available.</p>
         </ng-template>
-        <label class="form-field">
-          <span>Power level</span>
-          <input type="text" [(ngModel)]="txPowerForm.powerLevel" [disabled]="txPowerSaving || loadingWifi || isFixedProfile()"
-                 placeholder="lowest | low | mid | high | auto">
-        </label>
-        <p class="muted" *ngIf="!hasPowerProfile(selectedWifiCard)">
-          No power profile found for this card. Add it to /usr/local/share/OpenHD/SysUtils/wifi_cards.json to enable level selection.
-        </p>
         <p class="muted" *ngIf="txPowerError">{{ txPowerError }}</p>
       </div>
       <div class="actions modal-actions">
         <button class="btn subtle" (click)="closeTxPowerModal()" [disabled]="txPowerSaving || loadingWifi">Cancel</button>
-        <button class="btn subtle" (click)="saveWifiProfile()" [disabled]="loadingWifiProfiles || !selectedProfileKey || isFixedProfile()">Save profile</button>
         <button class="btn primary" (click)="saveTxPower()" [disabled]="txPowerSaving || loadingWifi || !canSaveTxPower()">Save</button>
       </div>
     </div>
