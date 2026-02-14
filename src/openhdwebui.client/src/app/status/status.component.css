@@ -241,7 +241,7 @@
 .form-field select {
   color-scheme: dark;
   border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(8, 12, 16, 0.8);
+  background: #151e27e6;
 }
 
 .form-field select:focus {
