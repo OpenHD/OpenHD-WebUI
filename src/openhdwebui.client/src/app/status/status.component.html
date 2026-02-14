@@ -96,6 +96,72 @@
         </div>
       </div>
     </article>
+
+    <article class="status-card secondary">
+      <div class="card-header">
+        <div class="icon soft">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 8h16M7 12h10M9 16h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="6" cy="8" r="1.5" fill="currentColor"/>
+            <circle cx="18" cy="8" r="1.5" fill="currentColor"/>
+            <circle cx="9" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="15" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="11" cy="16" r="1.5" fill="currentColor"/>
+            <circle cx="13" cy="16" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Live RF Control</h2>
+          <p class="muted">Apply channel, bandwidth, MCS, and power on the fly.</p>
+        </div>
+      </div>
+
+      <div class="control-form">
+        <label class="form-field">
+          <span>Interface (optional)</span>
+          <input type="text" [(ngModel)]="rfControlForm.interfaceName" placeholder="wlan1">
+        </label>
+        <label class="form-field">
+          <span>Channel (MHz)</span>
+          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.frequencyMhz" placeholder="e.g. 5180">
+        </label>
+        <label class="form-field">
+          <span>Bandwidth (MHz)</span>
+          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.channelWidthMhz" placeholder="10 | 20 | 40">
+        </label>
+        <label class="form-field">
+          <span>MCS index</span>
+          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.mcsIndex" placeholder="0 - 9">
+        </label>
+        <label class="form-field">
+          <span>Power mode</span>
+          <div class="radio-group">
+            <label>
+              <input type="radio" [(ngModel)]="rfControlForm.powerMode" value="mw">
+              Power in mW
+            </label>
+            <label>
+              <input type="radio" [(ngModel)]="rfControlForm.powerMode" value="index">
+              TX power index
+            </label>
+          </div>
+        </label>
+        <label class="form-field">
+          <span>Power</span>
+          <input type="text" inputmode="numeric" [(ngModel)]="rfControlForm.powerValue" placeholder="mW or index">
+        </label>
+      </div>
+
+      <p class="muted">Leave a field blank to keep the current value.</p>
+      <p class="success-text" *ngIf="rfControlSuccess">{{ rfControlSuccess }}</p>
+      <p class="error-text" *ngIf="rfControlError">{{ rfControlError }}</p>
+
+      <div class="actions">
+        <button class="btn" (click)="applyRfControl()" [disabled]="rfControlSaving">
+          {{ rfControlSaving ? 'Applying...' : 'Apply' }}
+        </button>
+      </div>
+    </article>
   </div>
 
   <div class="status-footer">

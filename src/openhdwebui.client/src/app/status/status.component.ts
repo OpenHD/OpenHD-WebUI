@@ -11,6 +11,17 @@ export class StatusComponent implements OnInit, OnDestroy {
   isLoading = true;
   lastError = '';
   errorHistory: StatusEntry[] = [];
+  rfControlSaving = false;
+  rfControlError = '';
+  rfControlSuccess = '';
+  rfControlForm: RfControlForm = {
+    interfaceName: '',
+    frequencyMhz: '',
+    channelWidthMhz: '',
+    mcsIndex: '',
+    powerValue: '',
+    powerMode: 'mw'
+  };
   private isDestroyed = false;
   private isStreaming = false;
 
@@ -138,6 +149,76 @@ export class StatusComponent implements OnInit, OnDestroy {
     const withKey = { ...entry, key };
     this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
   }
+
+  applyRfControl(): void {
+    if (this.rfControlSaving) {
+      return;
+    }
+
+    const payload: RfControlRequest = {};
+    const iface = this.rfControlForm.interfaceName.trim();
+    if (iface.length > 0) {
+      payload.interfaceName = iface;
+    }
+
+    const frequency = this.parseOptionalInt(this.rfControlForm.frequencyMhz);
+    if (frequency !== null) {
+      payload.frequencyMhz = frequency;
+    }
+
+    const width = this.parseOptionalInt(this.rfControlForm.channelWidthMhz);
+    if (width !== null) {
+      payload.channelWidthMhz = width;
+    }
+
+    const mcs = this.parseOptionalInt(this.rfControlForm.mcsIndex);
+    if (mcs !== null) {
+      payload.mcsIndex = mcs;
+    }
+
+    const power = this.parseOptionalInt(this.rfControlForm.powerValue);
+    if (power !== null) {
+      if (this.rfControlForm.powerMode === 'index') {
+        payload.txPowerIndex = power;
+      } else {
+        payload.txPowerMw = power;
+      }
+    }
+
+    if (Object.keys(payload).length === 0) {
+      this.rfControlError = 'Enter at least one value to apply.';
+      this.rfControlSuccess = '';
+      return;
+    }
+
+    this.rfControlSaving = true;
+    this.rfControlError = '';
+    this.rfControlSuccess = '';
+    this.http.post<RfControlResponse>('/api/status/rf-control', payload)
+      .subscribe({
+        next: response => {
+          this.rfControlSaving = false;
+          if (response.ok) {
+            this.rfControlSuccess = response.message || 'RF settings applied.';
+          } else {
+            this.rfControlError = response.message || 'Unable to apply RF settings.';
+          }
+        },
+        error: () => {
+          this.rfControlSaving = false;
+          this.rfControlError = 'Unable to reach the RF control endpoint.';
+        }
+      });
+  }
+
+  private parseOptionalInt(value: string): number | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+    const parsed = Number.parseInt(trimmed, 10);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
 }
 
 interface IOpenHdStatus {
@@ -158,4 +239,27 @@ interface StatusEntry {
   message: string;
   severity: number;
   updatedMs: number;
+}
+
+interface RfControlForm {
+  interfaceName: string;
+  frequencyMhz: string;
+  channelWidthMhz: string;
+  mcsIndex: string;
+  powerValue: string;
+  powerMode: 'mw' | 'index';
+}
+
+interface RfControlRequest {
+  interfaceName?: string;
+  frequencyMhz?: number;
+  channelWidthMhz?: number;
+  mcsIndex?: number;
+  txPowerMw?: number;
+  txPowerIndex?: number;
+}
+
+interface RfControlResponse {
+  ok: boolean;
+  message?: string;
 }

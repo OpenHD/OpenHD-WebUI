@@ -9,10 +9,12 @@ namespace OpenHdWebUi.Server.Controllers;
 public class StatusController : ControllerBase
 {
     private readonly SysutilStatusService _statusService;
+    private readonly SysutilRfControlService _rfControlService;
 
-    public StatusController(SysutilStatusService statusService)
+    public StatusController(SysutilStatusService statusService, SysutilRfControlService rfControlService)
     {
         _statusService = statusService;
+        _rfControlService = rfControlService;
     }
 
     [HttpGet]
@@ -25,5 +27,17 @@ public class StatusController : ControllerBase
     public Task<OpenHdStatusDto> GetStatusStream([FromQuery] long since, CancellationToken cancellationToken)
     {
         return _statusService.WaitForStatusChangeAsync(since, cancellationToken);
+    }
+
+    [HttpPost("rf-control")]
+    public async Task<ActionResult<RfControlResponse>> ApplyRfControl([FromBody] RfControlRequest request, CancellationToken cancellationToken)
+    {
+        if (request == null)
+        {
+            return BadRequest();
+        }
+
+        var response = await _rfControlService.ApplyAsync(request, cancellationToken);
+        return Ok(response);
     }
 }

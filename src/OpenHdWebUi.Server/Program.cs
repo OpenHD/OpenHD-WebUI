@@ -38,6 +38,7 @@ public class Program
             .AddSingleton<AirGroundService>()
             .AddSingleton<SettingsService>()
             .AddSingleton<SysutilStatusService>()
+            .AddSingleton<SysutilRfControlService>()
             .AddSingleton<SysutilHardwareService>()
             .AddSingleton<HotspotSettingsService>()
             .AddSingleton<WifiCardProfileService>();
