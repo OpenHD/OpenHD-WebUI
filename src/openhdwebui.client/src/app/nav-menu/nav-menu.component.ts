@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { ThemeService } from '../theme.service';
 
@@ -15,9 +15,9 @@ export class NavMenuComponent {
   version = "";
 
   constructor(
-    http: HttpClient,
+    private http: HttpClient,
     public themeService: ThemeService) {
-    http.get<IAirGroundStatus>('/api/info/ag-state')
+    this.http.get<IAirGroundStatus>('/api/info/ag-state')
       .subscribe({
         next: obj => {
           this.isAir = obj.isAir;
@@ -26,7 +26,7 @@ export class NavMenuComponent {
         error: err => console.error(err)
       });
 
-    http.get<IPartitionReport>('/api/partitions')
+    this.http.get<IPartitionReport>('/api/partitions')
       .subscribe({
         next: report => {
           this.hasRecordings = (report.recordings?.files?.length ?? 0) > 0;
@@ -37,7 +37,7 @@ export class NavMenuComponent {
 
     const responseType = 'text';
 
-    http.get('api/info/web-ui-version', { responseType })
+    this.http.get('api/info/web-ui-version', { responseType })
       .subscribe({
         next: obj => {
           this.version = obj;

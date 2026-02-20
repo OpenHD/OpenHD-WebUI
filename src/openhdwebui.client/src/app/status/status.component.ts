@@ -36,7 +36,7 @@ export class StatusComponent implements OnInit, OnDestroy {
     5805, 5825, 5845, 5865, 5885, 5905, 5925, 5945, 5965, 5985, 6005, 6025,
     6045, 6065, 6085
   ];
-  readonly rfBandwidthOptions: number[] = [10, 20, 40];
+  readonly rfBandwidthOptions: number[] = [10, 20];
   readonly rfMcsOptions: number[] = Array.from({ length: 10 }, (_, index) => index);
   rfCurrent: RfCurrentValues = {};
   resizeChoice: 'yes' | 'no' | null = null;

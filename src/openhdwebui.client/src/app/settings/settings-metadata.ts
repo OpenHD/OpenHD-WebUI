@@ -318,13 +318,12 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
       },
       wb_air_tx_channel_width: {
         label: 'Channel width (MHz)',
-        description: 'Valid channel widths are 10, 20 or 40 MHz.',
+        description: 'Valid channel widths are 10 or 20 MHz.',
         control: 'select',
         valueType: 'number',
         options: [
           { value: 10, label: '10 MHz' },
-          { value: 20, label: '20 MHz' },
-          { value: 40, label: '40 MHz' }
+          { value: 20, label: '20 MHz' }
         ],
         group: 'Radio link'
       },
