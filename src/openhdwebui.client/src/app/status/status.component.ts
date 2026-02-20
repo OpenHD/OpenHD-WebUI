@@ -254,6 +254,11 @@ export class StatusComponent implements OnInit, OnDestroy {
     if (this.isUpdatingRunMode) {
       return;
     }
+    const current = (this.runMode?.mode ?? '').toLowerCase();
+    if (current === mode) {
+      this.showModeMenu = false;
+      return;
+    }
     this.showModeMenu = false;
     this.isUpdatingRunMode = true;
     this.runModeError = '';

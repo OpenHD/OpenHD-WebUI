@@ -15,39 +15,21 @@
         <div class="mode-menu" *ngIf="showModeMenu && runMode?.isAvailable">
           <button type="button"
                   class="mode-option"
-                  *ngIf="runMode?.mode === 'air'"
-                  (click)="setRunMode('ground')">
-            Ground
-          </button>
-          <button type="button"
-                  class="mode-option"
-                  *ngIf="runMode?.mode === 'air'"
-                  (click)="setRunMode('record')">
-            Record
-          </button>
-          <button type="button"
-                  class="mode-option"
-                  *ngIf="runMode?.mode === 'ground'"
+                  [disabled]="runMode?.mode === 'air'"
                   (click)="setRunMode('air')">
             Air
           </button>
           <button type="button"
                   class="mode-option"
-                  *ngIf="runMode?.mode === 'ground'"
-                  (click)="setRunMode('record')">
-            Record
-          </button>
-          <button type="button"
-                  class="mode-option"
-                  *ngIf="runMode?.mode === 'record'"
-                  (click)="setRunMode('air')">
-            Air
-          </button>
-          <button type="button"
-                  class="mode-option"
-                  *ngIf="runMode?.mode === 'record'"
+                  [disabled]="runMode?.mode === 'ground'"
                   (click)="setRunMode('ground')">
             Ground
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  [disabled]="runMode?.mode === 'record'"
+                  (click)="setRunMode('record')">
+            Record
           </button>
         </div>
       </div>
