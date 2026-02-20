@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { ThemeService } from '../theme.service';
 import {
+  CAMERA_TYPE_OPTIONS,
   SETTINGS_METADATA,
   SettingFieldMeta,
   SettingFieldOption,
@@ -25,6 +27,18 @@ interface NetworkInfo {
   ethernet: EthernetInterface[];
 }
 
+interface SysutilCameraInfo {
+  isAvailable: boolean;
+  hasCameraType: boolean;
+  cameraType: number;
+}
+
+interface CameraSetupResponse {
+  ok: boolean;
+  applied: boolean;
+  message?: string | null;
+}
+
 interface SettingFileSummary {
   id: string;
   name: string;
@@ -34,6 +48,41 @@ interface SettingFileSummary {
 
 interface SettingFileDetail extends SettingFileSummary {
   content: string;
+}
+
+interface RunModeInfo {
+  isAvailable: boolean;
+  mode: string;
+}
+
+interface SysutilDebugInfo {
+  isAvailable: boolean;
+  debug: boolean;
+}
+
+interface SysutilDebugUpdateResponse {
+  ok: boolean;
+  debug: boolean;
+  message?: string | null;
+}
+
+interface SysutilPlatformInfo {
+  isAvailable: boolean;
+  platformType: number;
+  platformName: string;
+}
+
+interface SysutilPlatformUpdateResponse {
+  ok: boolean;
+  platformType: number;
+  platformName: string;
+  message?: string | null;
+}
+
+interface SysutilVideoResponse {
+  ok: boolean;
+  pipeline?: string | null;
+  message?: string | null;
 }
 
 interface StructuredSettingField {
@@ -79,14 +128,59 @@ export class SettingsComponent implements OnInit {
   structuredUnknownEntries: { key: string; value: unknown }[] = [];
   hasStructuredView = false;
 
+  cameraSetupOptions = CAMERA_TYPE_OPTIONS;
+  selectedCameraType: number = CAMERA_TYPE_OPTIONS[0].value;
+  cameraSetupStatus?: string;
+  cameraSetupError?: string;
+  isApplyingCameraSetup = false;
+  isCameraInfoAvailable = false;
+
+  runMode?: RunModeInfo;
+  runModeError?: string;
+
+  sysutilDebug?: SysutilDebugInfo;
+  sysutilDebugStatus?: string;
+  sysutilDebugError?: string;
+  isUpdatingSysutilDebug = false;
+
+  platformInfo?: SysutilPlatformInfo;
+  platformStatus?: string;
+  platformError?: string;
+  isRefreshingPlatform = false;
+  isUpdatingPlatform = false;
+  platformOverrideType = '';
+  platformOverrideName = '';
+
+  videoRestartStatus?: string;
+  videoRestartError?: string;
+  isRestartingVideo = false;
+
+  recordSettingsError?: string;
+  recordSettingsStatus?: string;
+  isRecordSettingsLoading = false;
+  isRecordSettingsSaving = false;
+  recordCameraType: number = CAMERA_TYPE_OPTIONS[0].value;
+  recordBitrateMbps = 8;
+  recordWidth = 1280;
+  recordHeight = 720;
+  recordFramerate = 30;
+
   private selectedSettingData: Record<string, unknown> | null = null;
   private suppressRawChange = false;
+  private recordSettingsLoaded = false;
+  private recordGenericFile?: SettingFileDetail;
+  private recordCameraFile?: SettingFileDetail;
+  private lastRunMode?: string;
 
   constructor(public themeService: ThemeService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.loadNetworkInformation();
     this.loadSettingFiles();
+    this.loadCameraSetupInfo();
+    this.loadRunMode();
+    this.loadSysutilDebug();
+    this.loadPlatformInfo();
   }
 
   onThemeToggle(): void {
@@ -114,6 +208,10 @@ export class SettingsComponent implements OnInit {
 
   get ethernetInterfaces(): EthernetInterface[] {
     return this.network?.ethernet ?? [];
+  }
+
+  get isRecordMode(): boolean {
+    return this.runMode?.mode === 'record';
   }
 
   trackBySetting(_index: number, item: SettingFileSummary): string {
@@ -166,10 +264,300 @@ export class SettingsComponent implements OnInit {
     }).subscribe({ error: err => console.error(err) });
   }
 
+  applyCameraSetup(): void {
+    if (this.isApplyingCameraSetup) {
+      return;
+    }
+
+    this.isApplyingCameraSetup = true;
+    this.cameraSetupStatus = undefined;
+    this.cameraSetupError = undefined;
+
+    this.http.post<CameraSetupResponse>('/api/camera-setup', {
+      cameraType: this.selectedCameraType
+    }).subscribe({
+      next: result => {
+        this.isApplyingCameraSetup = false;
+        if (result.ok) {
+          if (result.message) {
+            this.cameraSetupStatus = result.message;
+          } else if (result.applied) {
+            this.cameraSetupStatus = 'Camera setup applied. Rebooting now.';
+          } else {
+            this.cameraSetupStatus = 'Camera setup requested. Rebooting soon.';
+          }
+          return;
+        }
+        this.cameraSetupError = result.message ?? 'Camera setup failed.';
+      },
+      error: err => {
+        this.isApplyingCameraSetup = false;
+        this.cameraSetupError = err?.error?.message ?? 'Camera setup failed.';
+        console.error(err);
+      }
+    });
+  }
+
+  toggleSysutilDebug(): void {
+    if (this.isUpdatingSysutilDebug || !this.sysutilDebug?.isAvailable) {
+      return;
+    }
+
+    this.isUpdatingSysutilDebug = true;
+    this.sysutilDebugStatus = undefined;
+    this.sysutilDebugError = undefined;
+
+    const nextValue = !this.sysutilDebug.debug;
+    this.http.post<SysutilDebugUpdateResponse>('/api/sysutil/debug', { debug: nextValue })
+      .subscribe({
+        next: response => {
+          this.isUpdatingSysutilDebug = false;
+          if (response.ok) {
+            this.sysutilDebug = { isAvailable: true, debug: response.debug };
+            this.sysutilDebugStatus = response.debug ? 'Debug mode enabled.' : 'Debug mode disabled.';
+            return;
+          }
+          this.sysutilDebugError = response.message ?? 'Unable to update sysutils debug mode.';
+        },
+        error: err => {
+          this.isUpdatingSysutilDebug = false;
+          this.sysutilDebugError = err?.error?.message ?? 'Unable to update sysutils debug mode.';
+        }
+      });
+  }
+
+  refreshPlatformDetection(): void {
+    if (this.isRefreshingPlatform) {
+      return;
+    }
+    this.isRefreshingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/refresh', {})
+      .subscribe({
+        next: response => {
+          this.isRefreshingPlatform = false;
+          if (response.ok) {
+            this.platformInfo = {
+              isAvailable: true,
+              platformType: response.platformType,
+              platformName: response.platformName ?? 'unknown'
+            };
+            this.platformOverrideType = String(response.platformType);
+            this.platformOverrideName = response.platformName ?? '';
+            this.platformStatus = 'Platform detection refreshed.';
+            return;
+          }
+          this.platformError = response.message ?? 'Unable to refresh platform detection.';
+        },
+        error: err => {
+          this.isRefreshingPlatform = false;
+          this.platformError = err?.error?.message ?? 'Unable to refresh platform detection.';
+        }
+      });
+  }
+
+  applyPlatformOverride(): void {
+    if (this.isUpdatingPlatform) {
+      return;
+    }
+    const parsedType = Number(this.platformOverrideType);
+    if (!Number.isFinite(parsedType) || parsedType <= 0) {
+      this.platformError = 'Enter a valid numeric platform type.';
+      return;
+    }
+
+    this.isUpdatingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/override', {
+      action: 'set',
+      platformType: parsedType,
+      platformName: this.platformOverrideName || null
+    }).subscribe({
+      next: response => {
+        this.isUpdatingPlatform = false;
+        if (response.ok) {
+          this.platformInfo = {
+            isAvailable: true,
+            platformType: response.platformType,
+            platformName: response.platformName ?? 'unknown'
+          };
+          this.platformOverrideType = String(response.platformType);
+          this.platformOverrideName = response.platformName ?? '';
+          this.platformStatus = 'Platform override saved.';
+          return;
+        }
+        this.platformError = response.message ?? 'Unable to update platform override.';
+      },
+      error: err => {
+        this.isUpdatingPlatform = false;
+        this.platformError = err?.error?.message ?? 'Unable to update platform override.';
+      }
+    });
+  }
+
+  clearPlatformOverride(): void {
+    if (this.isUpdatingPlatform) {
+      return;
+    }
+    this.isUpdatingPlatform = true;
+    this.platformStatus = undefined;
+    this.platformError = undefined;
+
+    this.http.post<SysutilPlatformUpdateResponse>('/api/sysutil/platform/clear', {})
+      .subscribe({
+        next: response => {
+          this.isUpdatingPlatform = false;
+          if (response.ok) {
+            this.platformInfo = {
+              isAvailable: true,
+              platformType: response.platformType,
+              platformName: response.platformName ?? 'unknown'
+            };
+            this.platformOverrideType = String(response.platformType);
+            this.platformOverrideName = response.platformName ?? '';
+            this.platformStatus = 'Platform override cleared.';
+            return;
+          }
+          this.platformError = response.message ?? 'Unable to clear platform override.';
+        },
+        error: err => {
+          this.isUpdatingPlatform = false;
+          this.platformError = err?.error?.message ?? 'Unable to clear platform override.';
+        }
+      });
+  }
+
+  restartVideo(): void {
+    if (this.isRestartingVideo) {
+      return;
+    }
+    this.isRestartingVideo = true;
+    this.videoRestartStatus = undefined;
+    this.videoRestartError = undefined;
+
+    this.http.post<SysutilVideoResponse>('/api/sysutil/video/restart', {})
+      .subscribe({
+        next: response => {
+          this.isRestartingVideo = false;
+          if (response.ok) {
+            const pipeline = response.pipeline ? ` (${response.pipeline})` : '';
+            this.videoRestartStatus = `Video restart requested${pipeline}.`;
+            return;
+          }
+          this.videoRestartError = response.message ?? 'Video restart failed.';
+        },
+        error: err => {
+          this.isRestartingVideo = false;
+          this.videoRestartError = err?.error?.message ?? 'Video restart failed.';
+        }
+      });
+  }
+
+  saveRecordSettings(): void {
+    if (this.isRecordSettingsSaving || !this.recordGenericFile || !this.recordCameraFile) {
+      return;
+    }
+
+    this.isRecordSettingsSaving = true;
+    this.recordSettingsError = undefined;
+    this.recordSettingsStatus = undefined;
+
+    let genericData: Record<string, unknown>;
+    let cameraData: Record<string, unknown>;
+    try {
+      genericData = JSON.parse(this.recordGenericFile.content) as Record<string, unknown>;
+      cameraData = JSON.parse(this.recordCameraFile.content) as Record<string, unknown>;
+    } catch (err) {
+      this.isRecordSettingsSaving = false;
+      this.recordSettingsError = 'Unable to parse the record settings files.';
+      console.error(err);
+      return;
+    }
+
+    genericData['primary_camera_type'] = Number(this.recordCameraType);
+
+    const streamed = (cameraData['streamed_video_format'] ?? {}) as Record<string, unknown>;
+    streamed['width'] = Math.max(1, Math.round(Number(this.recordWidth)));
+    streamed['height'] = Math.max(1, Math.round(Number(this.recordHeight)));
+    streamed['framerate'] = Math.max(1, Math.round(Number(this.recordFramerate)));
+    cameraData['streamed_video_format'] = streamed;
+
+    const bitrateKbits = Math.max(1, Math.round(Number(this.recordBitrateMbps) * 1000));
+    cameraData['h26x_bitrate_kbits'] = bitrateKbits;
+
+    const genericContent = JSON.stringify(genericData, null, 2);
+    const cameraContent = JSON.stringify(cameraData, null, 2);
+
+    forkJoin([
+      this.http.put<SettingFileDetail>(`/api/settings/${this.recordGenericFile.id}`, { content: genericContent }),
+      this.http.put<SettingFileDetail>(`/api/settings/${this.recordCameraFile.id}`, { content: cameraContent })
+    ]).subscribe({
+      next: ([genericUpdated, cameraUpdated]) => {
+        this.recordGenericFile = genericUpdated;
+        this.recordCameraFile = cameraUpdated;
+        this.recordSettingsStatus = 'Record settings saved. Restart OpenHD to apply changes.';
+        this.isRecordSettingsSaving = false;
+        this.recordSettingsLoaded = true;
+      },
+      error: err => {
+        this.isRecordSettingsSaving = false;
+        this.recordSettingsError = err?.error?.title ?? 'Unable to save record settings.';
+        console.error(err);
+      }
+    });
+  }
+
   private loadNetworkInformation(): void {
     this.http.get<NetworkInfo>('/api/network/info').subscribe(result => {
       this.network = result;
     }, error => console.error(error));
+  }
+
+  private loadCameraSetupInfo(): void {
+    this.http.get<SysutilCameraInfo>('/api/camera-setup').subscribe({
+      next: info => {
+        this.isCameraInfoAvailable = info.isAvailable;
+        if (info.hasCameraType) {
+          this.selectedCameraType = info.cameraType;
+        }
+      },
+      error: err => {
+        this.isCameraInfoAvailable = false;
+        console.error(err);
+      }
+    });
+  }
+
+  private loadSysutilDebug(): void {
+    this.http.get<SysutilDebugInfo>('/api/sysutil/debug').subscribe({
+      next: info => {
+        this.sysutilDebug = info;
+      },
+      error: err => {
+        this.sysutilDebug = { isAvailable: false, debug: false };
+        console.error(err);
+      }
+    });
+  }
+
+  private loadPlatformInfo(): void {
+    this.http.get<SysutilPlatformInfo>('/api/sysutil/platform').subscribe({
+      next: info => {
+        this.platformInfo = info;
+        if (info.isAvailable) {
+          this.platformOverrideType = String(info.platformType);
+          this.platformOverrideName = info.platformName ?? '';
+        }
+      },
+      error: err => {
+        this.platformInfo = { isAvailable: false, platformType: 0, platformName: 'unknown' };
+        console.error(err);
+      }
+    });
   }
 
   private loadSettingFiles(): void {
@@ -179,11 +567,14 @@ export class SettingsComponent implements OnInit {
       next: files => {
         this.settingFiles = files;
         this.isLoadingSettings = false;
-        if (files.length > 0) {
+        if (this.isRecordMode) {
+          this.selectedSetting = undefined;
+        } else if (files.length > 0) {
           this.fetchSettingFile(files[0].id);
         } else {
           this.selectedSetting = undefined;
         }
+        this.tryLoadRecordSettings();
       },
       error: err => {
         this.isLoadingSettings = false;
@@ -211,6 +602,119 @@ export class SettingsComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  private loadRunMode(): void {
+    this.http.get<RunModeInfo>('/api/air-ground').subscribe({
+      next: info => {
+        this.runMode = info;
+        if (this.lastRunMode !== info.mode) {
+          this.resetRecordSettings();
+          this.lastRunMode = info.mode;
+        }
+        if (!this.isRecordMode && this.settingFiles.length > 0 && !this.selectedSetting && !this.isLoadingSettings) {
+          this.fetchSettingFile(this.settingFiles[0].id);
+        }
+        this.tryLoadRecordSettings();
+      },
+      error: err => {
+        this.runModeError = err?.error?.message ?? 'Unable to read run mode.';
+        console.error(err);
+      }
+    });
+  }
+
+  private tryLoadRecordSettings(): void {
+    if (!this.isRecordMode || this.isRecordSettingsLoading || this.recordSettingsLoaded) {
+      return;
+    }
+    if (this.settingFiles.length === 0) {
+      return;
+    }
+
+    const normalizePath = (path: string | undefined): string =>
+      (path ?? '').replace(/\\/g, '/').toLowerCase();
+
+    const genericFile = this.settingFiles.find(file => {
+      const normalized = normalizePath(file.relativePath);
+      return normalized.startsWith('video/') && normalized.endsWith('air_camera_generic.json');
+    });
+    const cameraFile = this.settingFiles.find(file => {
+      const normalized = normalizePath(file.relativePath);
+      return normalized.startsWith('video/') && normalized.endsWith('_0.json');
+    });
+
+    if (!genericFile || !cameraFile) {
+      this.recordSettingsError = 'Unable to locate the record settings files.';
+      return;
+    }
+
+    this.isRecordSettingsLoading = true;
+    this.recordSettingsError = undefined;
+
+    forkJoin([
+      this.http.get<SettingFileDetail>(`/api/settings/${genericFile.id}`),
+      this.http.get<SettingFileDetail>(`/api/settings/${cameraFile.id}`)
+    ]).subscribe({
+      next: ([genericDetail, cameraDetail]) => {
+        this.recordGenericFile = genericDetail;
+        this.recordCameraFile = cameraDetail;
+        this.parseRecordSettings(genericDetail, cameraDetail);
+        this.isRecordSettingsLoading = false;
+        this.recordSettingsLoaded = true;
+      },
+      error: err => {
+        this.isRecordSettingsLoading = false;
+        this.recordSettingsError = err?.error?.title ?? 'Unable to load record settings.';
+        console.error(err);
+      }
+    });
+  }
+
+  private parseRecordSettings(genericDetail: SettingFileDetail, cameraDetail: SettingFileDetail): void {
+    try {
+      const genericData = JSON.parse(genericDetail.content) as Record<string, unknown>;
+      const cameraData = JSON.parse(cameraDetail.content) as Record<string, unknown>;
+
+      const cameraType = genericData['primary_camera_type'];
+      if (typeof cameraType === 'number') {
+        this.recordCameraType = cameraType;
+      }
+
+      const bitrate = cameraData['h26x_bitrate_kbits'];
+      if (typeof bitrate === 'number' && bitrate > 0) {
+        this.recordBitrateMbps = Math.max(1, Math.round((bitrate / 1000) * 10) / 10);
+      }
+
+      const streamed = cameraData['streamed_video_format'] as Record<string, unknown> | undefined;
+      if (streamed) {
+        const width = streamed['width'];
+        const height = streamed['height'];
+        const framerate = streamed['framerate'];
+        if (typeof width === 'number') {
+          this.recordWidth = width;
+        }
+        if (typeof height === 'number') {
+          this.recordHeight = height;
+        }
+        if (typeof framerate === 'number') {
+          this.recordFramerate = framerate;
+        }
+      }
+    } catch (err) {
+      this.recordSettingsError = 'Unable to parse the record settings files.';
+      console.error(err);
+    }
+  }
+
+  private resetRecordSettings(): void {
+    this.recordSettingsLoaded = false;
+    this.recordSettingsError = undefined;
+    this.recordSettingsStatus = undefined;
+    this.isRecordSettingsLoading = false;
+    this.isRecordSettingsSaving = false;
+    this.recordGenericFile = undefined;
+    this.recordCameraFile = undefined;
   }
 
   private updateSummary(updated: SettingFileSummary): void {

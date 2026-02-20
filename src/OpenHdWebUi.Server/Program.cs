@@ -5,13 +5,16 @@ using Microsoft.Extensions.Options;
 using OpenHdWebUi.FileSystem;
 using OpenHdWebUi.Server.Configuration;
 using OpenHdWebUi.Server.Services.AirGround;
+using OpenHdWebUi.Server.Services.Camera;
 using OpenHdWebUi.Server.Services.Commands;
 using OpenHdWebUi.Server.Services.Files;
 using OpenHdWebUi.Server.Services.Hardware;
 using OpenHdWebUi.Server.Services.Media;
 using OpenHdWebUi.Server.Services.Network;
+using OpenHdWebUi.Server.Services.Partitions;
 using OpenHdWebUi.Server.Services.Settings;
 using OpenHdWebUi.Server.Services.Status;
+using OpenHdWebUi.Server.Services.Sysutil;
 
 namespace OpenHdWebUi.Server;
 
@@ -31,13 +34,17 @@ public class Program
         builder.Services
             .AddScoped<SystemCommandsService>()
             .AddScoped<SystemFilesService>()
-            .AddScoped<NetworkInfoService>();
+            .AddScoped<NetworkInfoService>()
+            .AddScoped<SysutilPartitionService>();
         builder.Services
             .AddHttpClient()
             .AddSingleton<MediaService>()
             .AddSingleton<AirGroundService>()
+            .AddSingleton<SysutilRunModeService>()
             .AddSingleton<SettingsService>()
+            .AddSingleton<SysutilCameraService>()
             .AddSingleton<SysutilStatusService>()
+            .AddSingleton<SysutilControlService>()
             .AddSingleton<SysutilRfControlService>()
             .AddSingleton<SysutilHardwareService>()
             .AddSingleton<HotspotSettingsService>()
@@ -68,6 +75,7 @@ public class Program
                 ContentTypeProvider = new FileExtensionContentTypeProvider(new Dictionary<string, string> { { ".mkv", "video/x-matroska" } })
             });
         }
+
 
         //app.UseRouting();
         app.MapControllers();

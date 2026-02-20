@@ -1,7 +1,7 @@
 <div class="settings">
   <h2>Settings</h2>
 
-  <section class="card">
+  <section class="card" *ngIf="!isRecordMode">
     <h3>Theme</h3>
     <label class="toggle">
       <input type="checkbox" (change)="onThemeToggle()" [checked]="themeService.isDark">
@@ -9,7 +9,7 @@
     </label>
   </section>
 
-  <section class="card network-card" *ngIf="network">
+  <section class="card network-card" *ngIf="network && !isRecordMode">
     <div class="network-header">
       <div>
         <h3>Network</h3>
@@ -80,7 +80,206 @@
     </ng-template>
   </section>
 
-  <section class="card settings-card">
+  <section class="card camera-setup-card" *ngIf="!isRecordMode">
+    <div class="camera-setup-header">
+      <div>
+        <h3>Camera setup (sysutils)</h3>
+        <p class="description">
+          Apply the camera type to the boot configuration. This triggers a reboot when complete.
+        </p>
+      </div>
+      <div class="status error" *ngIf="cameraSetupError">{{ cameraSetupError }}</div>
+      <div class="status" *ngIf="cameraSetupStatus">{{ cameraSetupStatus }}</div>
+      <div class="status error" *ngIf="!isCameraInfoAvailable">Sysutils not available.</div>
+    </div>
+    <div class="camera-setup-body">
+      <label>
+        <span>Camera type</span>
+        <select class="structured-input"
+                [(ngModel)]="selectedCameraType"
+                [ngModelOptions]="{ standalone: true }"
+                [disabled]="isApplyingCameraSetup || !isCameraInfoAvailable">
+          <option *ngFor="let option of cameraSetupOptions" [ngValue]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+      <button type="button"
+              (click)="applyCameraSetup()"
+              [disabled]="isApplyingCameraSetup || !isCameraInfoAvailable">
+        {{ isApplyingCameraSetup ? 'Applying...' : 'Apply & reboot' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="card sysutil-card" *ngIf="!isRecordMode">
+    <div class="sysutil-header">
+      <div>
+        <h3>Sysutils controls</h3>
+        <p class="description">
+          Manage sysutils features directly over the Unix socket (platform detection, debug mode, and video restart).
+        </p>
+      </div>
+    </div>
+
+    <div class="sysutil-grid">
+      <div class="sysutil-panel">
+        <h4>Debug mode</h4>
+        <p class="panel-subtitle">Toggle sysutils debug mode for extra logging.</p>
+        <label class="toggle">
+          <input type="checkbox"
+                 (change)="toggleSysutilDebug()"
+                 [checked]="sysutilDebug?.debug"
+                 [disabled]="isUpdatingSysutilDebug || !sysutilDebug?.isAvailable">
+          <span>{{ sysutilDebug?.debug ? 'Enabled' : 'Disabled' }}</span>
+        </label>
+        <div class="status error" *ngIf="sysutilDebugError">{{ sysutilDebugError }}</div>
+        <div class="status" *ngIf="sysutilDebugStatus">{{ sysutilDebugStatus }}</div>
+        <div class="status error" *ngIf="sysutilDebug && !sysutilDebug.isAvailable">Sysutils not available.</div>
+      </div>
+
+      <div class="sysutil-panel">
+        <h4>Platform detection</h4>
+        <p class="panel-subtitle">Refresh or override the detected platform profile.</p>
+        <div class="platform-current" *ngIf="platformInfo?.isAvailable">
+          <span class="platform-pill">Type {{ platformInfo?.platformType }}</span>
+          <span class="platform-name">{{ platformInfo?.platformName }}</span>
+        </div>
+        <div class="status error" *ngIf="platformInfo && !platformInfo.isAvailable">Sysutils not available.</div>
+        <div class="platform-actions">
+          <button type="button"
+                  (click)="refreshPlatformDetection()"
+                  [disabled]="isRefreshingPlatform || !platformInfo?.isAvailable">
+            {{ isRefreshingPlatform ? 'Refreshing...' : 'Refresh detection' }}
+          </button>
+        </div>
+        <div class="platform-override">
+          <label>
+            <span>Platform type override</span>
+            <input type="number"
+                   class="structured-input"
+                   [(ngModel)]="platformOverrideType"
+                   [ngModelOptions]="{ standalone: true }"
+                   [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+          </label>
+          <label>
+            <span>Platform name override</span>
+            <input type="text"
+                   class="structured-input"
+                   [(ngModel)]="platformOverrideName"
+                   [ngModelOptions]="{ standalone: true }"
+                   [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+          </label>
+          <div class="platform-override-actions">
+            <button type="button"
+                    (click)="applyPlatformOverride()"
+                    [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+              {{ isUpdatingPlatform ? 'Saving...' : 'Save override' }}
+            </button>
+            <button type="button"
+                    class="secondary"
+                    (click)="clearPlatformOverride()"
+                    [disabled]="isUpdatingPlatform || !platformInfo?.isAvailable">
+              Clear override
+            </button>
+          </div>
+        </div>
+        <div class="status error" *ngIf="platformError">{{ platformError }}</div>
+        <div class="status" *ngIf="platformStatus">{{ platformStatus }}</div>
+      </div>
+
+      <div class="sysutil-panel">
+        <h4>Video</h4>
+        <p class="panel-subtitle">Restart the ground video pipeline from sysutils.</p>
+        <button type="button"
+                (click)="restartVideo()"
+                [disabled]="isRestartingVideo">
+          {{ isRestartingVideo ? 'Restarting...' : 'Restart video' }}
+        </button>
+        <div class="status error" *ngIf="videoRestartError">{{ videoRestartError }}</div>
+        <div class="status" *ngIf="videoRestartStatus">{{ videoRestartStatus }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card record-settings-card" *ngIf="isRecordMode">
+    <div class="record-settings-header">
+      <div>
+        <h3>Record mode settings</h3>
+        <p class="description">Adjust the capture defaults used for record-only runs.</p>
+      </div>
+      <div class="status" *ngIf="isRecordSettingsLoading">Loading record settings...</div>
+      <div class="status error" *ngIf="recordSettingsError">{{ recordSettingsError }}</div>
+      <div class="status" *ngIf="recordSettingsStatus">{{ recordSettingsStatus }}</div>
+    </div>
+
+    <div class="record-settings-body" *ngIf="!recordSettingsError">
+      <label>
+        <span>Camera type (primary)</span>
+        <select class="structured-input"
+                [(ngModel)]="recordCameraType"
+                [ngModelOptions]="{ standalone: true }"
+                [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+          <option *ngFor="let option of cameraSetupOptions" [ngValue]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
+
+      <div class="record-grid">
+        <label>
+          <span>Bitrate (Mbit/s)</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordBitrateMbps"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="1"
+                 [step]="0.5"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Width</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordWidth"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="320"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Height</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordHeight"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="240"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+        <label>
+          <span>Framerate (fps)</span>
+          <input type="number"
+                 class="structured-input"
+                 [(ngModel)]="recordFramerate"
+                 [ngModelOptions]="{ standalone: true }"
+                 [min]="1"
+                 [step]="1"
+                 [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+        </label>
+      </div>
+
+      <div class="record-actions">
+        <button type="button"
+                (click)="saveRecordSettings()"
+                [disabled]="isRecordSettingsLoading || isRecordSettingsSaving">
+          {{ isRecordSettingsSaving ? 'Saving...' : 'Save settings' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card settings-card" *ngIf="!isRecordMode">
     <div class="settings-header">
       <div>
         <h3>OpenHD configuration</h3>

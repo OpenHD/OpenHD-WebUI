@@ -27,6 +27,32 @@ public record SettingFileDto(string Id, string Name, string RelativePath, string
 
 public record UpdateSettingFileRequest(string Content);
 
+public record SysutilCameraInfoDto(bool IsAvailable, bool HasCameraType, int CameraType);
+
+public record CameraSetupRequestDto(int CameraType);
+
+public record CameraSetupResponseDto(bool Ok, bool Applied, string? Message);
+
+public record RunModeInfoDto(bool IsAvailable, string Mode);
+
+public record RunModeUpdateRequestDto(string Mode);
+
+public record RunModeUpdateResponseDto(bool Ok, string? Message, string? Mode);
+
+public record SysutilDebugDto(bool IsAvailable, bool Debug);
+
+public record SysutilDebugUpdateRequestDto(bool Debug);
+
+public record SysutilDebugUpdateResponseDto(bool Ok, bool Debug, string? Message);
+
+public record SysutilPlatformInfoDto(bool IsAvailable, int PlatformType, string PlatformName);
+
+public record SysutilPlatformUpdateRequestDto(string Action, int? PlatformType, string? PlatformName);
+
+public record SysutilPlatformUpdateResponseDto(bool Ok, int PlatformType, string PlatformName, string? Message);
+
+public record SysutilVideoResponseDto(bool Ok, string? Pipeline, string? Message);
+
 public record OpenHdStatusDto(
     bool IsAvailable,
     bool HasData,
@@ -36,7 +62,6 @@ public record OpenHdStatusDto(
     string? Message,
     int Severity,
     long UpdatedMs);
-
 public record PlatformInfoDto(
     bool IsAvailable,
     int PlatformType,
@@ -220,3 +245,42 @@ public record HardwareConfigUpdateRequest(
     string? MicrohardIpRange,
     int? MicrohardVideoPort,
     int? MicrohardTelemetryPort);
+
+public record PartitionEntryDto(
+    string Device,
+    string? Mountpoint,
+    string? Fstype,
+    string? Label,
+    long? FreeBytes,
+    long SizeBytes,
+    long StartBytes);
+
+public record PartitionSegmentDto(
+    string Kind,
+    string? Device,
+    string? Mountpoint,
+    string? Fstype,
+    string? Label,
+    long StartBytes,
+    long SizeBytes);
+
+public record PartitionDiskDto(
+    string Name,
+    long SizeBytes,
+    IReadOnlyCollection<PartitionSegmentDto> Segments,
+    IReadOnlyCollection<PartitionEntryDto> Partitions);
+
+public record PartitionResizableDto(
+    string Device,
+    string? Label,
+    string? Fstype,
+    long FreeBytes);
+
+public record PartitionReportDto(
+    IReadOnlyCollection<PartitionDiskDto> Disks,
+    RecordingInfoDto? Recordings,
+    PartitionResizableDto? Resizable);
+
+public record RecordingInfoDto(long FreeBytes, IReadOnlyCollection<string> Files);
+
+public record PartitionResizeRequestDto(bool Resize);

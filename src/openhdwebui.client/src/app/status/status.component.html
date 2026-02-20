@@ -1,10 +1,56 @@
 <section class="status-page">
   <div class="status-hero">
-    <div class="status-chip"
-         [class.ok]="status?.hasData && !status?.hasError"
-         [class.error]="status?.hasError">
-      <span class="dot"></span>
-      {{ statusBadge }}
+    <div class="status-chip-group">
+      <div class="status-chip"
+           [class.ok]="status?.hasData && !status?.hasError"
+           [class.error]="status?.hasError">
+        <span class="dot"></span>
+        {{ statusBadge }}
+      </div>
+      <div class="mode-chip"
+           [class.disabled]="!runMode?.isAvailable"
+           (click)="toggleModeMenu()">
+        <span class="mode-label">{{ runModeLabel }}</span>
+        <span class="mode-chevron">▾</span>
+        <div class="mode-menu" *ngIf="showModeMenu && runMode?.isAvailable">
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'air'"
+                  (click)="setRunMode('ground')">
+            Ground
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'air'"
+                  (click)="setRunMode('record')">
+            Record
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'ground'"
+                  (click)="setRunMode('air')">
+            Air
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'ground'"
+                  (click)="setRunMode('record')">
+            Record
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'record'"
+                  (click)="setRunMode('air')">
+            Air
+          </button>
+          <button type="button"
+                  class="mode-option"
+                  *ngIf="runMode?.mode === 'record'"
+                  (click)="setRunMode('ground')">
+            Ground
+          </button>
+        </div>
+      </div>
     </div>
 
     <h1>OpenHD Status</h1>
@@ -49,6 +95,13 @@
         <div class="status-row">
           <span class="label">Last update</span>
           <span class="value">{{ formatTimestamp(status?.updatedMs) }}</span>
+        </div>
+      </div>
+
+      <div class="partition-progress" *ngIf="isPartitioning">
+        <div class="progress-label">Partitioning in progress</div>
+        <div class="progress-track" role="progressbar" aria-label="Partitioning progress">
+          <span class="progress-fill"></span>
         </div>
       </div>
     </article>
@@ -193,10 +246,105 @@
         </button>
       </div>
     </article>
+
+    <article class="status-card storage">
+      <div class="card-header">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3.5" y="4" width="17" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3.5" y="14" width="17" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="7" cy="7" r="0.9" fill="currentColor"/>
+            <circle cx="7" cy="17" r="0.9" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h2>Storage</h2>
+          <p class="muted">Review partitions and free space before resizing.</p>
+        </div>
+      </div>
+
+      <div class="resize-prompt" *ngIf="showResizePrompt; else noResize">
+        <div class="prompt-title">{{ resizableLabel() }}</div>
+        <p class="muted">Only the last FAT32 partition next to free space can be expanded.</p>
+        <div class="prompt-actions">
+          <button type="button"
+                  class="prompt-button"
+                  [class.active]="resizeChoice === 'yes'"
+                  (click)="setResizeChoice('yes')">Yes</button>
+          <button type="button"
+                  class="prompt-button"
+                  [class.active]="resizeChoice === 'no'"
+                  (click)="setResizeChoice('no')">No</button>
+        </div>
+        <div class="prompt-status">{{ resizeChoiceLabel }}</div>
+        <p class="error-text" *ngIf="resizeError">{{ resizeError }}</p>
+      </div>
+
+      <ng-template #noResize>
+        <div class="resize-summary">
+          <div class="resize-summary-card">
+            <div class="prompt-title">Recordings free space</div>
+            <p class="muted">{{ recordingsFreeLabel }}</p>
+          </div>
+          <div class="resize-summary-card" *ngIf="partitionReport?.recordings">
+            <div class="prompt-title">Recordings</div>
+            <div class="file-list" *ngIf="partitionReport?.recordings?.files?.length; else noRecordings">
+              <div class="file-row" *ngFor="let file of partitionReport?.recordings?.files">{{ file }}</div>
+            </div>
+            <ng-template #noRecordings>
+              <p class="muted">No recordings saved.</p>
+            </ng-template>
+          </div>
+        </div>
+      </ng-template>
+
+      <p class="error-text" *ngIf="partitionError">{{ partitionError }}</p>
+
+      <ng-container *ngIf="showResizePrompt && partitionReport?.disks?.length; else noDisks">
+        <div class="disk-block" *ngFor="let disk of partitionReport?.disks">
+          <div class="disk-header">
+            <span class="disk-name">{{ disk.name }}</span>
+            <span class="disk-size">{{ formatBytes(disk.sizeBytes) }}</span>
+          </div>
+          <div class="disk-bar">
+            <div class="segment"
+                 *ngFor="let segment of disk.segments"
+                 [class.free]="segment.kind === 'free'"
+                 [ngStyle]="segmentStyle(segment, disk)"
+                 [style.width.%]="segmentPercent(segment, disk)">
+            </div>
+          </div>
+          <div class="partition-list">
+            <div class="partition-row"
+                 *ngFor="let part of disk.partitions"
+                 [style.--partition-color]="partitionColor(part.device, disk)">
+              <div class="partition-name">
+                <span class="partition-swatch"
+                      [style.backgroundColor]="partitionColor(part.device, disk)"></span>
+                <span class="partition-label">
+                  {{ partitionTypeLabel(part) }}
+                  <span class="partition-sub" *ngIf="partitionLabel(part)">{{ partitionLabel(part) }}</span>
+                </span>
+              </div>
+              <div class="partition-size">
+                {{ formatBytes(part.sizeBytes) }}
+                <span class="partition-size-sub"
+                      *ngIf="isRecordings(part) && part.freeBytes">
+                  {{ formatBytes(part.freeBytes) }} free
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #noDisks>
+        <p class="muted" *ngIf="showResizePrompt">No partitions detected yet.</p>
+      </ng-template>
+    </article>
   </div>
 
   <div class="status-footer">
     <p *ngIf="lastError" class="error-text">{{ lastError }}</p>
-    <p class="hint">Auto-refreshes every 3 seconds.</p>
   </div>
 </section>
