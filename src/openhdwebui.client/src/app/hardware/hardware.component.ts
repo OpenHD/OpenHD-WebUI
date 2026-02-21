@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -6,14 +6,14 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './hardware.component.html',
   styleUrls: ['./hardware.component.css']
 })
-export class HardwareComponent implements OnInit {
-  public platform?: PlatformInfoDto;
+export class HardwareComponent implements OnInit, OnDestroy {
+  public status?: IOpenHdStatus;
+  public errorHistory: StatusEntry[] = [];
   public wifi?: WifiInfoDto;
   public hotspot?: HotspotSettingsDto;
   public wifiProfiles?: WifiCardProfilesDto;
   public hardwareConfig?: HardwareConfigDto;
   private hardwareConfigSnapshot?: HardwareConfigDto;
-  public loadingPlatform = false;
   public loadingWifi = false;
   public loadingHotspot = false;
   public loadingWifiProfiles = false;
@@ -27,6 +27,8 @@ export class HardwareComponent implements OnInit {
   public txPowerError?: string;
   public selectedWifiCard?: WifiCardInfoDto;
   public selectedProfileKey = '';
+  private isDestroyed = false;
+  private isStatusStreaming = false;
   public wifiProfileForm: WifiCardProfileForm = {
     vendorId: '',
     deviceId: '',
@@ -53,31 +55,19 @@ export class HardwareComponent implements OnInit {
   ngOnInit(): void {
     this.refreshAll();
     this.loadSystemCommands();
+    this.refreshStatus();
+    this.startStatusStream();
+  }
+
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
   }
 
   refreshAll(): void {
-    this.loadPlatform();
     this.loadWifi();
     this.loadHotspot();
     this.loadWifiProfiles();
     this.loadHardwareConfig();
-  }
-
-  loadPlatform(): void {
-    this.loadingPlatform = true;
-    this.http.get<PlatformInfoDto>('/api/hardware/platform').subscribe({
-      next: result => {
-        this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
-        this.loadingPlatform = false;
-        this.loadPlatformFallbackIfNeeded();
-      },
-      error: error => {
-        console.error(error);
-        this.platform = undefined;
-        this.loadingPlatform = false;
-        this.loadPlatformFallbackIfNeeded();
-      }
-    });
   }
 
   loadWifi(): void {
@@ -148,8 +138,69 @@ export class HardwareComponent implements OnInit {
     });
   }
 
-  refreshPlatform(): void {
-    this.updatePlatform({ action: 'detect' }, () => this.loadPlatform());
+  private refreshStatus(): void {
+    this.http.get<IOpenHdStatus>('/api/status')
+      .subscribe({
+        next: response => {
+          this.applyStatus(response);
+        },
+        error: () => {
+          // Ignore status fetch errors; connection card will show unavailable.
+        }
+      });
+  }
+
+  private startStatusStream(): void {
+    if (this.isStatusStreaming || this.isDestroyed) {
+      return;
+    }
+    this.isStatusStreaming = true;
+    const since = this.status?.updatedMs ?? 0;
+
+    this.http.get<IOpenHdStatus>(`/api/status/stream?since=${since}`)
+      .subscribe({
+        next: response => {
+          this.applyStatus(response);
+          this.isStatusStreaming = false;
+          this.startStatusStream();
+        },
+        error: () => {
+          this.isStatusStreaming = false;
+          if (!this.isDestroyed) {
+            window.setTimeout(() => this.startStatusStream(), 2000);
+          }
+        }
+      });
+  }
+
+  private applyStatus(response: IOpenHdStatus): void {
+    this.status = response;
+    if (response.hasError) {
+      const entry: StatusEntry = {
+        state: response.state ?? '',
+        description: response.description ?? '',
+        message: response.message ?? '',
+        severity: response.severity,
+        updatedMs: response.updatedMs
+      };
+      this.addErrorEntry(entry);
+    }
+  }
+
+  private addErrorEntry(entry: StatusEntry): void {
+    const key = `${entry.state}|${entry.description}|${entry.message}|${entry.severity}|${entry.updatedMs}`;
+    if (this.errorHistory.some(item => item.key === key)) {
+      return;
+    }
+    const withKey = { ...entry, key };
+    this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
+  }
+
+  formatTimestamp(ms?: number): string {
+    if (!ms) {
+      return '-';
+    }
+    return new Date(ms).toLocaleTimeString();
   }
 
   refreshWifi(): void {
@@ -425,25 +476,6 @@ export class HardwareComponent implements OnInit {
     });
   }
 
-  private updatePlatform(request: PlatformUpdateRequest, onSuccess?: () => void): void {
-    this.loadingPlatform = true;
-    this.http.post<PlatformInfoDto>('/api/hardware/platform', request).subscribe({
-      next: result => {
-        this.platform = this.normalizePlatform(result as unknown as Record<string, unknown>);
-        this.loadingPlatform = false;
-        this.loadPlatformFallbackIfNeeded();
-        if (onSuccess) {
-          onSuccess();
-        }
-      },
-      error: error => {
-        console.error(error);
-        this.loadingPlatform = false;
-        this.loadPlatformFallbackIfNeeded();
-      }
-    });
-  }
-
   private updateWifi(request: WifiUpdateRequest, onSuccess?: () => void, onError?: () => void): void {
     this.loadingWifi = true;
     this.http.post<WifiInfoDto>('/api/hardware/wifi', request).subscribe({
@@ -476,122 +508,6 @@ export class HardwareComponent implements OnInit {
         this.loadingHotspot = false;
       }
     });
-  }
-
-  private normalizePlatform(raw?: Record<string, unknown>): PlatformInfoDto | undefined {
-    if (!raw) {
-      return undefined;
-    }
-    const isAvailable =
-      (raw['isAvailable'] as boolean | undefined) ??
-      (raw['IsAvailable'] as boolean | undefined) ??
-      false;
-    const platformType =
-      (raw['platformType'] as number | undefined) ??
-      (raw['PlatformType'] as number | undefined) ??
-      (raw['platform_type'] as number | undefined) ??
-      0;
-    const platformName =
-      (raw['platformName'] as string | undefined) ??
-      (raw['PlatformName'] as string | undefined) ??
-      (raw['platform_name'] as string | undefined) ??
-      'Unknown';
-    const action =
-      (raw['action'] as string | null | undefined) ??
-      (raw['Action'] as string | null | undefined) ??
-      null;
-    return {
-      isAvailable,
-      platformType,
-      platformName,
-      action
-    };
-  }
-
-  private loadPlatformFallbackIfNeeded(): void {
-    const current = this.platform;
-    const needsFallback =
-      !current ||
-      !current.isAvailable ||
-      !current.platformName ||
-      current.platformName.toLowerCase() === 'unknown' ||
-      current.platformType === 0;
-    if (!needsFallback) {
-      return;
-    }
-
-    this.http.get<SettingFileSummary[]>('/api/settings').subscribe({
-      next: summaries => {
-        const platformFile = summaries.find(item =>
-          item.name === 'platform.json' ||
-          (item.relativePath?.replace(/\\/g, '/').endsWith('/platform.json') ?? false));
-        if (!platformFile) {
-          return;
-        }
-        this.http.get<SettingFileDetail>(`/api/settings/${platformFile.id}`).subscribe({
-          next: file => {
-            if (!file?.content) {
-              return;
-            }
-            try {
-              const parsed = JSON.parse(file.content) as Record<string, unknown>;
-              const fallbackType =
-                this.parseUnknownInt(parsed['platform_type']) ??
-                this.parseUnknownInt(parsed['platformType']);
-              const fallbackName =
-                this.parseUnknownString(parsed['platform_name']) ??
-                this.parseUnknownString(parsed['platformName']);
-
-              if (!this.platform) {
-                this.platform = {
-                  isAvailable: true,
-                  platformType: fallbackType ?? 0,
-                  platformName: fallbackName ?? 'Unknown',
-                  action: 'config'
-                };
-                return;
-              }
-
-              if (this.platform.platformType === 0 && fallbackType !== null) {
-                this.platform.platformType = fallbackType;
-              }
-              if (!this.platform.platformName ||
-                  this.platform.platformName.toLowerCase() === 'unknown') {
-                this.platform.platformName = fallbackName ?? this.platform.platformName;
-              }
-              if (!this.platform.action) {
-                this.platform.action = 'config';
-              }
-            } catch (error) {
-              console.error(error);
-            }
-          }
-        });
-      }
-    });
-  }
-
-  private parseUnknownInt(value: unknown): number | null {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-      return Math.trunc(value);
-    }
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (!trimmed) {
-        return null;
-      }
-      const parsed = Number.parseInt(trimmed, 10);
-      return Number.isFinite(parsed) ? parsed : null;
-    }
-    return null;
-  }
-
-  private parseUnknownString(value: unknown): string | null {
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      return trimmed ? trimmed : null;
-    }
-    return null;
   }
 
   public hasPowerProfile(card?: WifiCardInfoDto): boolean {
@@ -771,17 +687,24 @@ export class HardwareComponent implements OnInit {
   }
 }
 
-interface PlatformInfoDto {
+interface IOpenHdStatus {
   isAvailable: boolean;
-  platformType: number;
-  platformName: string;
-  action?: string | null;
+  hasData: boolean;
+  hasError: boolean;
+  state?: string;
+  description?: string;
+  message?: string;
+  severity: number;
+  updatedMs: number;
 }
 
-interface PlatformUpdateRequest {
-  action: string;
-  platformType?: number;
-  platformName?: string;
+interface StatusEntry {
+  key?: string;
+  state: string;
+  description: string;
+  message: string;
+  severity: number;
+  updatedMs: number;
 }
 
 interface WifiCardInfoDto {
@@ -939,19 +862,6 @@ interface HardwareConfigUpdateRequest {
 interface SystemCommandDto {
   id: string;
   displayName: string;
-}
-
-interface SettingFileSummary {
-  id: string;
-  name: string;
-  relativePath?: string;
-}
-
-interface SettingFileDetail {
-  id: string;
-  name: string;
-  relativePath?: string;
-  content: string;
 }
 
 interface WifiTxPowerForm {

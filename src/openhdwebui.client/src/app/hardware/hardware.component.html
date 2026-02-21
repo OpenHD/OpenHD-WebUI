@@ -1,11 +1,11 @@
 <section class="hardware-page">
   <div class="hardware-hero">
-    <div class="chip" [class.offline]="!platform?.isAvailable">
+    <div class="chip" [class.offline]="!status?.isAvailable">
       <span class="dot"></span>
-      {{ platform?.isAvailable ? 'SYSUTILS ONLINE' : 'SYSUTILS OFFLINE' }}
+      {{ status?.isAvailable ? 'SYSUTILS ONLINE' : 'SYSUTILS OFFLINE' }}
     </div>
     <h1>Hardware Detection</h1>
-    <p class="lead">Platform and Wi-Fi detection are served by openhd_sys_utils. Use this page to refresh or override detection.</p>
+    <p class="lead">Wi-Fi detection, hotspot settings, and connection status are served by openhd_sys_utils.</p>
   </div>
 
   <div class="hardware-grid">
@@ -17,32 +17,39 @@
           </svg>
         </div>
         <div>
-          <h2>Platform Detection</h2>
-          <p class="muted">Current platform identification cached by sysutils.</p>
+          <h2>Connection</h2>
+          <p class="muted">WebUI connects to openhd_sys_utils over the Unix socket.</p>
         </div>
       </div>
 
-      <div class="info-grid" *ngIf="platform?.isAvailable; else platformUnavailable">
-        <div class="info-row">
-          <span class="label">Platform Type</span>
-          <span class="value">{{ platform?.platformType }}</span>
+      <div class="status-rows">
+        <div class="status-row">
+          <span class="label">Socket</span>
+          <span class="value">{{ status?.isAvailable ? 'Connected' : 'Unavailable' }}</span>
         </div>
-        <div class="info-row">
-          <span class="label">Platform Name</span>
-          <span class="value">{{ platform?.platformName }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">Last Action</span>
-          <span class="value">{{ platform?.action || 'detect' }}</span>
+        <div class="status-row">
+          <span class="label">Redirect</span>
+          <span class="value">Status stays available from any tab.</span>
         </div>
       </div>
+      <div class="status-error" *ngIf="status?.hasError">
+        <h3>OpenHD errors detected</h3>
+        <p class="muted">Review the latest status values and check logs in the Debug tab.</p>
+      </div>
 
-      <ng-template #platformUnavailable>
-        <p class="muted">Sysutils socket not reachable.</p>
-      </ng-template>
-
-      <div class="actions">
-        <button class="btn" (click)="refreshPlatform()" [disabled]="loadingPlatform">Refresh Detection</button>
+      <div class="status-history" *ngIf="errorHistory.length">
+        <h3>Recent errors</h3>
+        <div class="history-row" *ngFor="let entry of errorHistory">
+          <div>
+            <div class="history-title">
+              {{ entry.description || entry.message || entry.state || 'Unknown error' }}
+            </div>
+            <div class="history-meta">
+              Severity {{ entry.severity }} - {{ formatTimestamp(entry.updatedMs) }}
+            </div>
+          </div>
+          <div class="history-state">{{ entry.state || '-' }}</div>
+        </div>
       </div>
     </article>
 

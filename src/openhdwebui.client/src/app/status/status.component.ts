@@ -13,7 +13,6 @@ export class StatusComponent implements OnInit, OnDestroy {
   resizeError = '';
   isLoading = true;
   lastError = '';
-  errorHistory: StatusEntry[] = [];
   rfControlSaving = false;
   rfControlError = '';
   rfControlSuccess = '';
@@ -334,25 +333,6 @@ export class StatusComponent implements OnInit, OnDestroy {
 
   private applyStatus(response: IOpenHdStatus): void {
     this.status = response;
-    if (response.hasError) {
-      const entry: StatusEntry = {
-        state: response.state ?? '',
-        description: response.description ?? '',
-        message: response.message ?? '',
-        severity: response.severity,
-        updatedMs: response.updatedMs
-      };
-      this.addErrorEntry(entry);
-    }
-  }
-
-  private addErrorEntry(entry: StatusEntry): void {
-    const key = `${entry.state}|${entry.description}|${entry.message}|${entry.severity}|${entry.updatedMs}`;
-    if (this.errorHistory.some(item => item.key === key)) {
-      return;
-    }
-    const withKey = { ...entry, key };
-    this.errorHistory = [withKey, ...this.errorHistory].slice(0, 6);
   }
 
   private loadWifiInterfaces(): void {
@@ -627,15 +607,6 @@ interface IOpenHdStatus {
   state?: string;
   description?: string;
   message?: string;
-  severity: number;
-  updatedMs: number;
-}
-
-interface StatusEntry {
-  key?: string;
-  state: string;
-  description: string;
-  message: string;
   severity: number;
   updatedMs: number;
 }
