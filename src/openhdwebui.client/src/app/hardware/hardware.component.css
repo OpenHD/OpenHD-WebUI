@@ -514,6 +514,11 @@
   color: #fff;
 }
 
+:host-context(.dark-theme) .card h2,
+:host-context(.dark-theme) .value {
+  color: #fff;
+}
+
 
 @media (max-width: 900px) {
   .status-row {
