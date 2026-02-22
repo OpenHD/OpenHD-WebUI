@@ -577,7 +577,13 @@ export class HardwareComponent implements OnInit, OnDestroy {
   }
 
   public hasMatchingProfile(card?: WifiCardInfoDto): boolean {
-    if (!card || !this.wifiProfiles) {
+    if (!card) {
+      return false;
+    }
+    if ((card.powerMode ?? '').trim()) {
+      return true;
+    }
+    if (!this.wifiProfiles) {
       return false;
     }
     const cardVendor = (card.vendorId || '').toLowerCase();
@@ -851,6 +857,7 @@ interface WifiCardInfoDto {
   txPowerHigh?: string;
   txPowerLow?: string;
   cardName?: string;
+  powerMode?: string;
   powerLevel?: string;
   powerLowest?: string;
   powerLow?: string;

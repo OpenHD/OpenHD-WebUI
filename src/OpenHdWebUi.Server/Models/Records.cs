@@ -88,6 +88,7 @@ public record WifiCardInfoDto(
     string TxPowerHigh,
     string TxPowerLow,
     string CardName,
+    string PowerMode,
     string PowerLevel,
     string PowerLowest,
     string PowerLow,

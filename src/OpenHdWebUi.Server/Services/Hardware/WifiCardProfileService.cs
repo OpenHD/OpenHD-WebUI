@@ -14,8 +14,8 @@ public class WifiCardProfileService
 
     private static readonly IReadOnlyCollection<WifiCardProfileDto> DefaultProfiles = new[]
     {
-        new WifiCardProfileDto("0x02D0", "0xA9A6", string.Empty, "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
-        new WifiCardProfileDto("0x0BDA", "0xA81A", string.Empty, "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
+        new WifiCardProfileDto("0x02D0", "0xA9A6", "BROADCOM", "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
+        new WifiCardProfileDto("0x0BDA", "0xA81A", "OPENHD_RTL_88X2EU", "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
     };
 
     public WifiCardProfilesDto GetProfiles()
