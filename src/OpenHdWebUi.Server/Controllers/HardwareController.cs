@@ -83,4 +83,25 @@ public class HardwareController : ControllerBase
     {
         return _wifiCardProfileService.UpdateProfile(request);
     }
+
+    [HttpPost("wifi-profiles/import")]
+    public ActionResult<WifiCardProfilesDto> ImportWifiProfiles([FromBody] WifiCardProfilesImportRequest request)
+    {
+        if (request == null)
+        {
+            return BadRequest();
+        }
+
+        if (!_wifiCardProfileService.TryImportProfiles(request.Content, out var result, out var error))
+        {
+            return BadRequest(error ?? "Unable to import Wi-Fi profiles.");
+        }
+
+        if (result == null)
+        {
+            return Problem("Unable to reload Wi-Fi profiles after import.");
+        }
+
+        return Ok(result);
+    }
 }

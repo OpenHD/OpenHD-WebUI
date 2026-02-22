@@ -117,6 +117,7 @@ public record WifiUpdateRequest(
 public record WifiCardProfileDto(
     string VendorId,
     string DeviceId,
+    string Chipset,
     string Name,
     string PowerMode,
     int MinMw,
@@ -134,12 +135,15 @@ public record WifiCardProfilesDto(
 public record WifiCardProfileUpdateRequest(
     string VendorId,
     string DeviceId,
+    string? Chipset,
     string Name,
     string? PowerMode,
     int Lowest,
     int Low,
     int Mid,
     int High);
+
+public record WifiCardProfilesImportRequest(string Content);
 
 public record HotspotSettingsDto(
     bool IsAvailable,

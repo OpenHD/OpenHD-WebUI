@@ -17,6 +17,9 @@ export class HardwareComponent implements OnInit, OnDestroy {
   public loadingWifi = false;
   public loadingHotspot = false;
   public loadingWifiProfiles = false;
+  public wifiProfilesImporting = false;
+  public wifiProfilesImportError?: string;
+  public wifiProfilesImportName?: string;
   public loadingHardwareConfig = false;
   public hardwareConfigError?: string;
   public showRestartPrompt = false;
@@ -32,6 +35,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
   public wifiProfileForm: WifiCardProfileForm = {
     vendorId: '',
     deviceId: '',
+    chipset: '',
     name: '',
     powerMode: 'mw',
     lowest: '25',
@@ -213,6 +217,49 @@ export class HardwareComponent implements OnInit, OnDestroy {
 
   refreshWifiProfiles(): void {
     this.loadWifiProfiles();
+  }
+
+  exportWifiProfilesJson(): void {
+    if (!this.wifiProfiles || this.wifiProfiles.cards.length === 0) {
+      return;
+    }
+
+    const payload = this.buildWifiProfilesFile();
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'wifi_cards.json';
+    anchor.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  importWifiProfiles(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (!confirm('Replace all Wi-Fi profiles with the imported JSON file?')) {
+      return;
+    }
+
+    this.wifiProfilesImporting = true;
+    this.wifiProfilesImportError = undefined;
+    this.wifiProfilesImportName = file.name;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const content = typeof reader.result === 'string' ? reader.result : '';
+      this.sendWifiProfilesImport(content);
+    };
+    reader.onerror = () => {
+      this.wifiProfilesImporting = false;
+      this.wifiProfilesImportError = 'Unable to read the selected file.';
+    };
+    reader.readAsText(file);
   }
 
   refreshHardwareConfig(): void {
@@ -431,6 +478,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
     this.wifiProfileForm = {
       vendorId: profile.vendorId,
       deviceId: profile.deviceId,
+      chipset: profile.chipset ?? '',
       name: profile.name,
       powerMode: profile.powerMode ?? 'mw',
       lowest: profile.lowest?.toString() ?? '',
@@ -455,6 +503,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
     const payload: WifiCardProfileUpdateRequest = {
       vendorId: this.wifiProfileForm.vendorId,
       deviceId: this.wifiProfileForm.deviceId,
+      chipset: this.wifiProfileForm.chipset,
       name: this.wifiProfileForm.name,
       powerMode: this.wifiProfileForm.powerMode,
       lowest,
@@ -466,7 +515,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
       next: result => {
         this.wifiProfiles = result;
         this.loadingWifiProfiles = false;
-        this.selectProfile(this.buildProfileKey(payload.vendorId, payload.deviceId));
+        this.selectProfile(this.buildProfileKey(payload.vendorId, payload.deviceId, payload.chipset ?? ''));
         this.refreshWifi();
       },
       error: error => {
@@ -527,6 +576,23 @@ export class HardwareComponent implements OnInit, OnDestroy {
     return (this.txPowerForm.powerLevel ?? '') === '';
   }
 
+  public hasMatchingProfile(card?: WifiCardInfoDto): boolean {
+    if (!card || !this.wifiProfiles) {
+      return false;
+    }
+    const cardVendor = (card.vendorId || '').toLowerCase();
+    const cardDevice = (card.deviceId || '').toLowerCase();
+    const cardChipset = (card.detectedType || '').toLowerCase();
+    return this.wifiProfiles.cards.some(profile => {
+      if (profile.vendorId.toLowerCase() !== cardVendor ||
+          profile.deviceId.toLowerCase() !== cardDevice) {
+        return false;
+      }
+      const profileChipset = (profile.chipset ?? '').toLowerCase();
+      return profileChipset ? profileChipset === cardChipset : true;
+    });
+  }
+
   private selectFirstProfile(): void {
     if (!this.wifiProfiles || this.wifiProfiles.cards.length === 0) {
       return;
@@ -536,18 +602,19 @@ export class HardwareComponent implements OnInit, OnDestroy {
       return;
     }
     const first = this.wifiProfiles.cards[0];
-    this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
+    this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId, first.chipset ?? ''));
   }
 
-  public buildProfileKey(vendorId: string, deviceId: string): string {
-    return `${vendorId}|${deviceId}`;
+  public buildProfileKey(vendorId: string, deviceId: string, chipset: string = ''): string {
+    return `${vendorId}|${deviceId}|${chipset ?? ''}`;
   }
 
   public findProfileByKey(key: string): WifiCardProfileDto | undefined {
     if (!this.wifiProfiles) {
       return undefined;
     }
-    return this.wifiProfiles.cards.find(profile => this.buildProfileKey(profile.vendorId, profile.deviceId) === key);
+    return this.wifiProfiles.cards.find(profile =>
+      this.buildProfileKey(profile.vendorId, profile.deviceId, profile.chipset ?? '') === key);
   }
 
   public getSelectedProfileName(): string {
@@ -557,6 +624,10 @@ export class HardwareComponent implements OnInit, OnDestroy {
 
   public isFixedProfile(): boolean {
     const profile = this.findProfileByKey(this.selectedProfileKey);
+    return (profile?.powerMode ?? '').toLowerCase() === 'fixed';
+  }
+
+  public isFixedProfileEntry(profile?: WifiCardProfileDto): boolean {
     return (profile?.powerMode ?? '').toLowerCase() === 'fixed';
   }
 
@@ -570,21 +641,79 @@ export class HardwareComponent implements OnInit, OnDestroy {
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
+  private sendWifiProfilesImport(content: string): void {
+    const payload: WifiCardProfilesImportRequest = { content };
+    this.http.post<WifiCardProfilesDto>('/api/hardware/wifi-profiles/import', payload).subscribe({
+      next: result => {
+        this.wifiProfiles = result;
+        this.wifiProfilesImporting = false;
+        this.refreshWifi();
+      },
+      error: error => {
+        console.error(error);
+        const message = typeof error?.error === 'string'
+          ? error.error
+          : error?.error?.title ?? 'Failed to import Wi-Fi profiles.';
+        this.wifiProfilesImportError = message;
+        this.wifiProfilesImporting = false;
+      }
+    });
+  }
+
+  private buildWifiProfilesFile(): WifiCardProfilesFile {
+    return {
+      cards: (this.wifiProfiles?.cards ?? []).map(profile => {
+        const powerMode = profile.powerMode || 'mw';
+        const entry: WifiCardProfileFileEntry = {
+          vendor_id: profile.vendorId,
+          device_id: profile.deviceId,
+          chipset: (profile.chipset ?? '').trim() ? profile.chipset : undefined,
+          name: profile.name,
+          power_mode: powerMode
+        };
+        if (powerMode.toLowerCase() !== 'fixed') {
+          entry.min_mw = profile.minMw ?? 0;
+          entry.max_mw = profile.maxMw ?? 0;
+          entry.levels_mw = {
+            lowest: profile.lowest ?? 0,
+            low: profile.low ?? 0,
+            mid: profile.mid ?? 0,
+            high: profile.high ?? 0
+          };
+        }
+        return entry;
+      })
+    };
+  }
+
   private selectProfileForCard(card: WifiCardInfoDto): void {
     if (!this.wifiProfiles) {
       return;
     }
+    const cardVendor = (card.vendorId || '').toLowerCase();
+    const cardDevice = (card.deviceId || '').toLowerCase();
+    const cardChipset = (card.detectedType || '').toLowerCase();
     const match = this.wifiProfiles.cards.find(profile =>
-      profile.vendorId.toLowerCase() === (card.vendorId || '').toLowerCase() &&
-      profile.deviceId.toLowerCase() === (card.deviceId || '').toLowerCase()
+      profile.vendorId.toLowerCase() === cardVendor &&
+      profile.deviceId.toLowerCase() === cardDevice &&
+      (profile.chipset ?? '').toLowerCase() === cardChipset
     );
     if (match) {
-      this.selectProfile(this.buildProfileKey(match.vendorId, match.deviceId));
+      this.selectProfile(this.buildProfileKey(match.vendorId, match.deviceId, match.chipset ?? ''));
+      return;
+    }
+    const fallback = this.wifiProfiles.cards.find(profile =>
+      profile.vendorId.toLowerCase() === cardVendor &&
+      profile.deviceId.toLowerCase() === cardDevice &&
+      !(profile.chipset ?? '').trim()
+    );
+    if (fallback) {
+      this.selectProfile(this.buildProfileKey(fallback.vendorId, fallback.deviceId, fallback.chipset ?? ''));
       return;
     }
     if (this.wifiProfiles.cards.length > 0) {
       const first = this.wifiProfiles.cards[0];
-      this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId));
+      this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId, first.chipset ?? ''));
     }
   }
 
@@ -757,6 +886,7 @@ interface WifiCardProfilesDto {
 interface WifiCardProfileDto {
   vendorId: string;
   deviceId: string;
+  chipset: string;
   name: string;
   powerMode: string;
   minMw: number;
@@ -770,8 +900,35 @@ interface WifiCardProfileDto {
 interface WifiCardProfileUpdateRequest {
   vendorId: string;
   deviceId: string;
+  chipset?: string;
   name: string;
   powerMode: string;
+  lowest: number;
+  low: number;
+  mid: number;
+  high: number;
+}
+
+interface WifiCardProfilesImportRequest {
+  content: string;
+}
+
+interface WifiCardProfilesFile {
+  cards: WifiCardProfileFileEntry[];
+}
+
+interface WifiCardProfileFileEntry {
+  vendor_id: string;
+  device_id: string;
+  chipset?: string;
+  name: string;
+  power_mode: string;
+  min_mw?: number;
+  max_mw?: number;
+  levels_mw?: WifiCardProfileLevelsFile;
+}
+
+interface WifiCardProfileLevelsFile {
   lowest: number;
   low: number;
   mid: number;
@@ -872,6 +1029,7 @@ interface WifiTxPowerForm {
 interface WifiCardProfileForm {
   vendorId: string;
   deviceId: string;
+  chipset: string;
   name: string;
   powerMode: string;
   lowest: string;

@@ -14,8 +14,8 @@ public class WifiCardProfileService
 
     private static readonly IReadOnlyCollection<WifiCardProfileDto> DefaultProfiles = new[]
     {
-        new WifiCardProfileDto("0x02D0", "0xA9A6", "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
-        new WifiCardProfileDto("0x0BDA", "0xA81A", "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
+        new WifiCardProfileDto("0x02D0", "0xA9A6", string.Empty, "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
+        new WifiCardProfileDto("0x0BDA", "0xA81A", string.Empty, "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
     };
 
     public WifiCardProfilesDto GetProfiles()
@@ -28,10 +28,22 @@ public class WifiCardProfileService
     {
         var normalizedVendor = NormalizeId(request.VendorId);
         var normalizedDevice = NormalizeId(request.DeviceId);
+        var normalizedChipset = NormalizeChipset(request.Chipset);
         var profiles = LoadProfiles(out var exists).ToList();
         var current = profiles.FirstOrDefault(profile =>
             string.Equals(profile.VendorId, normalizedVendor, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(profile.DeviceId, normalizedDevice, StringComparison.OrdinalIgnoreCase));
+            string.Equals(profile.DeviceId, normalizedDevice, StringComparison.OrdinalIgnoreCase) &&
+            (string.IsNullOrWhiteSpace(normalizedChipset) ||
+             string.Equals(profile.Chipset, normalizedChipset, StringComparison.OrdinalIgnoreCase)));
+        if (current == null && !string.IsNullOrWhiteSpace(normalizedChipset))
+        {
+            current = profiles.FirstOrDefault(profile =>
+                string.Equals(profile.VendorId, normalizedVendor, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(profile.DeviceId, normalizedDevice, StringComparison.OrdinalIgnoreCase));
+        }
+        var chipset = string.IsNullOrWhiteSpace(normalizedChipset)
+            ? NormalizeChipset(current?.Chipset)
+            : normalizedChipset;
         var powerMode = NormalizePowerMode(request.PowerMode ?? current?.PowerMode);
 
         var minMw = current?.MinMw ?? (request.Lowest > 0 ? request.Lowest : 0);
@@ -54,6 +66,7 @@ public class WifiCardProfileService
         var updated = new WifiCardProfileDto(
             normalizedVendor,
             normalizedDevice,
+            chipset,
             string.IsNullOrWhiteSpace(request.Name) ? current?.Name ?? string.Empty : request.Name.Trim(),
             powerMode,
             minMw,
@@ -82,6 +95,40 @@ public class WifiCardProfileService
         return new WifiCardProfilesDto(refreshedExists, refreshed, "save");
     }
 
+    public bool TryImportProfiles(string? content, out WifiCardProfilesDto? result, out string? error)
+    {
+        result = null;
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            error = "No JSON content provided.";
+            return false;
+        }
+
+        if (!TryParseProfiles(content, out var profiles, out var parseError))
+        {
+            error = parseError ?? "Unable to parse Wi-Fi profiles.";
+            return false;
+        }
+
+        if (profiles.Count == 0)
+        {
+            error = "No Wi-Fi profiles found in JSON.";
+            return false;
+        }
+
+        if (!TryWriteProfiles(profiles))
+        {
+            error = "Unable to save Wi-Fi profiles.";
+            return false;
+        }
+
+        var refreshed = LoadProfiles(out var refreshedExists);
+        result = new WifiCardProfilesDto(refreshedExists, refreshed, "import");
+        return true;
+    }
+
     private static IReadOnlyCollection<WifiCardProfileDto> LoadProfiles(out bool exists)
     {
         exists = File.Exists(WifiCardsPath);
@@ -93,55 +140,9 @@ public class WifiCardProfileService
         try
         {
             var content = File.ReadAllText(WifiCardsPath);
-            using var document = JsonDocument.Parse(content);
-            if (!document.RootElement.TryGetProperty("cards", out var cards) ||
-                cards.ValueKind != JsonValueKind.Array)
+            if (!TryParseProfiles(content, out var profiles, out _))
             {
                 return DefaultProfiles;
-            }
-
-            var profiles = new List<WifiCardProfileDto>();
-            foreach (var card in cards.EnumerateArray())
-            {
-                var vendor = NormalizeId(ReadString(card, "vendor_id") ?? string.Empty);
-                var device = NormalizeId(ReadString(card, "device_id") ?? string.Empty);
-                if (string.IsNullOrWhiteSpace(vendor) || string.IsNullOrWhiteSpace(device))
-                {
-                    continue;
-                }
-
-                var name = ReadString(card, "name") ?? string.Empty;
-                var powerMode = NormalizePowerMode(ReadString(card, "power_mode"));
-                var hasMin = TryReadInt(card, "min_mw", out var minMw);
-                var hasMax = TryReadInt(card, "max_mw", out var maxMw);
-
-                var levels = card.TryGetProperty("levels_mw", out var levelsNode) &&
-                             levelsNode.ValueKind == JsonValueKind.Object
-                    ? levelsNode
-                    : card;
-
-                var lowest = ReadInt(levels, "lowest");
-                var low = ReadInt(levels, "low");
-                var mid = ReadInt(levels, "mid");
-                var high = ReadInt(levels, "high");
-
-                if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMin && lowest > 0)
-                {
-                    minMw = lowest;
-                }
-                if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMax && high > 0)
-                {
-                    maxMw = high;
-                }
-
-                if (string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase))
-                {
-                    profiles.Add(new WifiCardProfileDto(vendor, device, name, powerMode, 0, 0, 0, 0, 0, 0));
-                }
-                else
-                {
-                    profiles.Add(new WifiCardProfileDto(vendor, device, name, powerMode, minMw, maxMw, lowest, low, mid, high));
-                }
             }
 
             return profiles.Count == 0 ? DefaultProfiles : profiles;
@@ -150,6 +151,86 @@ public class WifiCardProfileService
         {
             return DefaultProfiles;
         }
+    }
+
+    private static bool TryParseProfiles(string content, out IReadOnlyCollection<WifiCardProfileDto> profiles, out string? error)
+    {
+        profiles = Array.Empty<WifiCardProfileDto>();
+        error = null;
+
+        try
+        {
+            using var document = JsonDocument.Parse(content);
+            if (!document.RootElement.TryGetProperty("cards", out var cards) ||
+                cards.ValueKind != JsonValueKind.Array)
+            {
+                error = "JSON must contain a cards array.";
+                return false;
+            }
+
+            profiles = BuildProfiles(cards);
+            return true;
+        }
+        catch (JsonException)
+        {
+            error = "The provided Wi-Fi profile file is not valid JSON.";
+            return false;
+        }
+        catch
+        {
+            error = "Unable to parse Wi-Fi profiles.";
+            return false;
+        }
+    }
+
+    private static IReadOnlyCollection<WifiCardProfileDto> BuildProfiles(JsonElement cards)
+    {
+        var profiles = new List<WifiCardProfileDto>();
+        foreach (var card in cards.EnumerateArray())
+        {
+            var vendor = NormalizeId(ReadString(card, "vendor_id") ?? string.Empty);
+            var device = NormalizeId(ReadString(card, "device_id") ?? string.Empty);
+            if (string.IsNullOrWhiteSpace(vendor) || string.IsNullOrWhiteSpace(device))
+            {
+                continue;
+            }
+
+            var name = ReadString(card, "name") ?? string.Empty;
+            var chipset = NormalizeChipset(ReadString(card, "chipset"));
+            var powerMode = NormalizePowerMode(ReadString(card, "power_mode"));
+            var hasMin = TryReadInt(card, "min_mw", out var minMw);
+            var hasMax = TryReadInt(card, "max_mw", out var maxMw);
+
+            var levels = card.TryGetProperty("levels_mw", out var levelsNode) &&
+                         levelsNode.ValueKind == JsonValueKind.Object
+                ? levelsNode
+                : card;
+
+            var lowest = ReadInt(levels, "lowest");
+            var low = ReadInt(levels, "low");
+            var mid = ReadInt(levels, "mid");
+            var high = ReadInt(levels, "high");
+
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMin && lowest > 0)
+            {
+                minMw = lowest;
+            }
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMax && high > 0)
+            {
+                maxMw = high;
+            }
+
+            if (string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase))
+            {
+                profiles.Add(new WifiCardProfileDto(vendor, device, chipset, name, powerMode, 0, 0, 0, 0, 0, 0));
+            }
+            else
+            {
+                profiles.Add(new WifiCardProfileDto(vendor, device, chipset, name, powerMode, minMw, maxMw, lowest, low, mid, high));
+            }
+        }
+
+        return profiles;
     }
 
     private static bool TryWriteProfiles(IReadOnlyCollection<WifiCardProfileDto> profiles)
@@ -172,6 +253,10 @@ public class WifiCardProfileService
                     ["name"] = profile.Name,
                     ["power_mode"] = profile.PowerMode
                 };
+                if (!string.IsNullOrWhiteSpace(profile.Chipset))
+                {
+                    card["chipset"] = profile.Chipset;
+                }
                 if (!string.Equals(profile.PowerMode, "fixed", StringComparison.OrdinalIgnoreCase))
                 {
                     var levels = new JsonObject
@@ -231,6 +316,15 @@ public class WifiCardProfileService
             "fixed" => "fixed",
             _ => "mw"
         };
+    }
+
+    private static string NormalizeChipset(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return string.Empty;
+        }
+        return value.Trim().ToUpperInvariant();
     }
 
     private static string? ReadString(JsonElement element, string name)

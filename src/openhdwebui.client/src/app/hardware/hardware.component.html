@@ -382,14 +382,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let card of wifi?.cards" [class.disabled]="card.disabled">
+        <tr *ngFor="let card of wifi?.cards"
+            [class.disabled]="card.disabled"
+            [class.has-profile]="hasMatchingProfile(card)">
           <td>{{ card.interfaceName }}</td>
           <td>{{ card.driverName || '-' }}</td>
           <td>{{ card.vendorId || '-' }}</td>
           <td>{{ card.deviceId || '-' }}</td>
           <td>{{ card.phyIndex }}</td>
           <td>{{ card.mac || '-' }}</td>
-          <td>{{ card.detectedType || 'UNKNOWN' }}</td>
+          <td>
+            <span>{{ card.detectedType || 'UNKNOWN' }}</span>
+            <span class="profile-badge" *ngIf="hasMatchingProfile(card)">Profile</span>
+          </td>
           <td>
             <div class="power-cell">
               <div>
@@ -405,6 +410,78 @@
       </tbody>
     </table>
   </div>
+
+  <article class="card profiles-card">
+    <div class="card-header">
+      <div class="icon soft">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16M4 12h10M4 19h16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Wi-Fi Profiles</h2>
+        <p class="muted">Profiles stored in <code>wifi_cards.json</code>.</p>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" (click)="refreshWifiProfiles()" [disabled]="loadingWifiProfiles">Refresh profiles</button>
+      <button class="btn subtle" (click)="exportWifiProfilesJson()"
+              [disabled]="loadingWifiProfiles || !(wifiProfiles?.cards?.length)">
+        Export JSON
+      </button>
+      <input #wifiProfilesFileInput type="file" accept=".json,application/json" (change)="importWifiProfiles($event)" hidden>
+      <button class="btn primary" (click)="wifiProfilesFileInput.click()"
+              [disabled]="loadingWifiProfiles || wifiProfilesImporting">
+        Import JSON
+      </button>
+    </div>
+
+    <div class="profiles-summary" *ngIf="wifiProfiles">
+      <span>{{ wifiProfiles.cards?.length || 0 }} profile(s)</span>
+      <span class="muted">Last action: {{ wifiProfiles.action || 'load' }}</span>
+    </div>
+    <p class="muted" *ngIf="wifiProfilesImportName">Selected file: {{ wifiProfilesImportName }}</p>
+    <p class="muted" *ngIf="wifiProfilesImportError">{{ wifiProfilesImportError }}</p>
+
+    <div class="table-wrap" *ngIf="wifiProfiles as profileData; else profilesListUnavailable">
+      <table class="wifi-table profiles-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Vendor</th>
+            <th>Device</th>
+            <th>Chipset</th>
+            <th>Mode</th>
+            <th>Min</th>
+            <th>Max</th>
+            <th>Lowest</th>
+            <th>Low</th>
+            <th>Mid</th>
+            <th>High</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let profile of profileData.cards">
+            <td>{{ profile.name || 'Unnamed' }}</td>
+            <td>{{ profile.vendorId }}</td>
+            <td>{{ profile.deviceId }}</td>
+            <td>{{ profile.chipset || '-' }}</td>
+            <td>{{ profile.powerMode || '-' }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.minMw }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.maxMw }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.lowest }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.low }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.mid }}</td>
+            <td>{{ isFixedProfileEntry(profile) ? '-' : profile.high }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #profilesListUnavailable>
+      <p class="muted">Profile list not available.</p>
+    </ng-template>
+  </article>
 
   <div class="modal-backdrop" *ngIf="txPowerModalOpen" (click)="closeTxPowerModal()">
     <div class="modal-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
@@ -422,8 +499,8 @@
           <label class="form-field">
             <span>Card profile</span>
             <select [(ngModel)]="selectedProfileKey" (ngModelChange)="selectProfile($event)" [disabled]="loadingWifiProfiles">
-              <option *ngFor="let profile of profileData.cards" [ngValue]="buildProfileKey(profile.vendorId, profile.deviceId)">
-                {{ profile.name || 'Unnamed' }} ({{ profile.vendorId }} / {{ profile.deviceId }})
+              <option *ngFor="let profile of profileData.cards" [ngValue]="buildProfileKey(profile.vendorId, profile.deviceId, profile.chipset)">
+                {{ profile.name || 'Unnamed' }} ({{ profile.vendorId }} / {{ profile.deviceId }} / {{ profile.chipset || '-' }})
               </option>
             </select>
           </label>
@@ -431,6 +508,10 @@
             <div>
               <span class="label">Vendor / Device</span>
               <span class="value">{{ wifiProfileForm.vendorId }} / {{ wifiProfileForm.deviceId }}</span>
+            </div>
+            <div>
+              <span class="label">Chipset</span>
+              <span class="value">{{ wifiProfileForm.chipset || '-' }}</span>
             </div>
             <div>
               <span class="label">Profile name</span>
