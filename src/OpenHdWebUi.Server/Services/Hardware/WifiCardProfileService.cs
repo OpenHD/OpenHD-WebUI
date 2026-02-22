@@ -15,7 +15,7 @@ public class WifiCardProfileService
     private static readonly IReadOnlyCollection<WifiCardProfileDto> DefaultProfiles = new[]
     {
         new WifiCardProfileDto("0x02D0", "0xA9A6", "BROADCOM", "Raspberry Internal", "fixed", 0, 0, 0, 0, 0, 0),
-        new WifiCardProfileDto("0x0BDA", "0xA81A", "OPENHD_RTL_88X2EU", "LB-Link 8812eu", "mw", 0, 1000, 0, 100, 500, 1000)
+        new WifiCardProfileDto("0x0BDA", "0xA81A", "OPENHD_RTL_88X2EU", "LB-Link 8812eu", "mw", 25, 1000, 25, 100, 500, 1000)
     };
 
     public WifiCardProfilesDto GetProfiles()
@@ -218,6 +218,22 @@ public class WifiCardProfileService
             if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && !hasMax && high > 0)
             {
                 maxMw = high;
+            }
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && lowest <= 0 && minMw > 0)
+            {
+                lowest = minMw;
+            }
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && low <= 0 && lowest > 0)
+            {
+                low = lowest;
+            }
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && mid <= 0 && low > 0)
+            {
+                mid = low;
+            }
+            if (!string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase) && high <= 0 && maxMw > 0)
+            {
+                high = maxMw;
             }
 
             if (string.Equals(powerMode, "fixed", StringComparison.OrdinalIgnoreCase))
