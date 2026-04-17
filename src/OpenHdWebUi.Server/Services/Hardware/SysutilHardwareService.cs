@@ -300,7 +300,9 @@ public class SysutilHardwareService
                 card.PowerMid ?? string.Empty,
                 card.PowerHigh ?? string.Empty,
                 card.PowerMin ?? string.Empty,
-                card.PowerMax ?? string.Empty))
+                card.PowerMax ?? string.Empty,
+                card.ArtosynDaemonRunning ?? false,
+                card.ArtosynDaemonDetail ?? string.Empty))
                 .ToArray() ?? Array.Empty<WifiCardInfoDto>();
 
             return new WifiInfoDto(true, cards, payload.Action);
@@ -470,7 +472,9 @@ public class SysutilHardwareService
         [property: JsonPropertyName("power_mid")] string? PowerMid,
         [property: JsonPropertyName("power_high")] string? PowerHigh,
         [property: JsonPropertyName("power_min")] string? PowerMin,
-        [property: JsonPropertyName("power_max")] string? PowerMax);
+        [property: JsonPropertyName("power_max")] string? PowerMax,
+        [property: JsonPropertyName("artosyn_daemon_running")] bool? ArtosynDaemonRunning,
+        [property: JsonPropertyName("artosyn_daemon_detail")] string? ArtosynDaemonDetail);
 
     private sealed record SysutilSettingsPayload(
         [property: JsonPropertyName("ok")] bool? Ok,

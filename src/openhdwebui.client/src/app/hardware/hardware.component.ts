@@ -28,6 +28,15 @@ export class HardwareComponent implements OnInit, OnDestroy {
   public txPowerModalOpen = false;
   public txPowerSaving = false;
   public txPowerError?: string;
+  public isUpdatingSysutilDebug = false;
+  public sysutilDebug?: SysutilDebugInfo;
+  public sysutilDebugStatus?: string;
+  public sysutilDebugError?: string;
+  public artosynRfSaving = false;
+  public artosynRfError = '';
+  public artosynRfSuccess = '';
+  public artosynRfDebug?: RfControlDebugInfo;
+  public showArtosynRfDebug = false;
   public selectedWifiCard?: WifiCardInfoDto;
   public selectedProfileKey = '';
   private isDestroyed = false;
@@ -47,12 +56,38 @@ export class HardwareComponent implements OnInit, OnDestroy {
     interfaceName: '',
     powerLevel: ''
   };
+  public artosynForm: ArtosynSettingsForm = {
+    interfaceName: '',
+    overrideType: 'AUTO',
+    cardName: '',
+    powerLevel: 'AUTO'
+  };
+  public artosynRfForm: ArtosynRfControlForm = {
+    interfaceName: '',
+    frequencyMhz: '',
+    channelWidthMhz: '',
+    mcsIndex: '',
+    powerLevel: ''
+  };
 
   public readonly hotspotModeOptions: HotspotModeOption[] = [
     { value: 0, label: 'Automatic (disable when armed)' },
     { value: 1, label: 'Always off' },
     { value: 2, label: 'Always on' }
   ];
+  public readonly artosynOverrideOptions: string[] = ['AUTO', 'ARTOSYN', 'DISABLED'];
+  public readonly artosynPowerLevelOptions: string[] = ['AUTO', 'LOWEST', 'LOW', 'MID', 'HIGH'];
+  public readonly rfChannelOptions: number[] = [
+    2312, 2332, 2352, 2372, 2392, 2412, 2432, 2452, 2472, 2484, 2492, 2512,
+    2612, 2692, 2712,
+    5080, 5100, 5120, 5140, 5160, 5180, 5200, 5220, 5240, 5260, 5280, 5300,
+    5320, 5340, 5360, 5380, 5400, 5420, 5440, 5460, 5480, 5500, 5520, 5540,
+    5560, 5580, 5600, 5620, 5640, 5660, 5680, 5700, 5720, 5745, 5765, 5785,
+    5805, 5825, 5845, 5865, 5885, 5905, 5925, 5945, 5965, 5985, 6005, 6025,
+    6045, 6065, 6085
+  ];
+  public readonly rfBandwidthOptions: number[] = [10, 20];
+  public readonly rfMcsOptions: number[] = Array.from({ length: 10 }, (_, index) => index);
 
   constructor(private http: HttpClient) {}
 
@@ -72,6 +107,7 @@ export class HardwareComponent implements OnInit, OnDestroy {
     this.loadHotspot();
     this.loadWifiProfiles();
     this.loadHardwareConfig();
+    this.loadSysutilDebug();
   }
 
   loadWifi(): void {
@@ -79,11 +115,15 @@ export class HardwareComponent implements OnInit, OnDestroy {
     this.http.get<WifiInfoDto>('/api/hardware/wifi').subscribe({
       next: result => {
         this.wifi = result;
+        this.syncArtosynFormFromCards();
+        this.syncArtosynRfInterface();
         this.loadingWifi = false;
       },
       error: error => {
         console.error(error);
         this.wifi = undefined;
+        this.syncArtosynFormFromCards();
+        this.syncArtosynRfInterface();
         this.loadingWifi = false;
       }
     });
@@ -213,6 +253,151 @@ export class HardwareComponent implements OnInit, OnDestroy {
 
   refreshHotspot(): void {
     this.updateHotspot({ action: 'refresh' });
+  }
+
+  public get artosynCards(): WifiCardInfoDto[] {
+    return (this.wifi?.cards ?? []).filter(card => this.isArtosynCard(card));
+  }
+
+  public hasArtosynDevice(): boolean {
+    return this.artosynCards.length > 0;
+  }
+
+  public get selectedArtosynCard(): WifiCardInfoDto | undefined {
+    const cards = this.artosynCards;
+    if (cards.length === 0) {
+      return undefined;
+    }
+    return cards.find(card => card.interfaceName === this.artosynForm.interfaceName) ?? cards[0];
+  }
+
+  public get artosynDaemonRunning(): boolean {
+    return this.artosynCards.some(card => card.artosynDaemonRunning === true);
+  }
+
+  public get artosynDaemonDetail(): string {
+    const details = this.artosynCards
+      .map(card => (card.artosynDaemonDetail ?? '').trim())
+      .filter(detail => !!detail);
+    const unique = Array.from(new Set(details));
+    return unique.length > 0 ? unique.join(', ') : '-';
+  }
+
+  public onArtosynInterfaceChange(interfaceName: string): void {
+    const selected = this.artosynCards.find(card => card.interfaceName === interfaceName);
+    if (!selected) {
+      return;
+    }
+    this.artosynForm.interfaceName = selected.interfaceName;
+    this.artosynRfForm.interfaceName = selected.interfaceName;
+    this.artosynForm.overrideType = (selected.overrideType ?? '').trim().toUpperCase() || 'AUTO';
+    this.artosynForm.cardName = selected.cardName ?? '';
+    this.artosynForm.powerLevel = (selected.powerLevel ?? '').trim().toUpperCase() || 'AUTO';
+  }
+
+  public saveArtosynSettings(): void {
+    const selected = this.selectedArtosynCard;
+    if (!selected) {
+      return;
+    }
+
+    const overrideType = this.normalizeArtosynOption(this.artosynForm.overrideType);
+    const powerLevel = this.normalizeArtosynOption(this.artosynForm.powerLevel);
+
+    this.updateWifi({
+      action: 'set',
+      interface: selected.interfaceName,
+      overrideType,
+      cardName: (this.artosynForm.cardName ?? '').trim(),
+      powerLevel
+    });
+  }
+
+  public toggleSysutilDebug(): void {
+    if (this.isUpdatingSysutilDebug || !this.sysutilDebug?.isAvailable) {
+      return;
+    }
+    this.isUpdatingSysutilDebug = true;
+    this.sysutilDebugStatus = undefined;
+    this.sysutilDebugError = undefined;
+    const nextValue = !this.sysutilDebug.debug;
+
+    this.http.post<SysutilDebugUpdateResponse>('/api/sysutil/debug', { debug: nextValue })
+      .subscribe({
+        next: response => {
+          this.isUpdatingSysutilDebug = false;
+          if (response.ok) {
+            this.sysutilDebug = { isAvailable: true, debug: response.debug };
+            this.sysutilDebugStatus = response.debug ? 'Sysutils debug enabled.' : 'Sysutils debug disabled.';
+            return;
+          }
+          this.sysutilDebugError = response.message ?? 'Unable to update sysutils debug mode.';
+        },
+        error: err => {
+          this.isUpdatingSysutilDebug = false;
+          this.sysutilDebugError = err?.error?.message ?? 'Unable to update sysutils debug mode.';
+        }
+      });
+  }
+
+  public applyArtosynRfControl(): void {
+    if (this.artosynRfSaving) {
+      return;
+    }
+
+    const payload: RfControlRequest = {};
+    const iface = (this.artosynRfForm.interfaceName ?? '').trim();
+    if (iface) {
+      payload.interfaceName = iface;
+    }
+
+    const frequency = this.parseOptionalInt(this.artosynRfForm.frequencyMhz);
+    if (frequency !== null) {
+      payload.frequencyMhz = frequency;
+    }
+    const bandwidth = this.parseOptionalInt(this.artosynRfForm.channelWidthMhz);
+    if (bandwidth !== null) {
+      payload.channelWidthMhz = bandwidth;
+    }
+    const mcs = this.parseOptionalInt(this.artosynRfForm.mcsIndex);
+    if (mcs !== null) {
+      payload.mcsIndex = mcs;
+    }
+    const powerLevel = (this.artosynRfForm.powerLevel ?? '').trim().toLowerCase();
+    if (powerLevel) {
+      payload.powerLevel = powerLevel;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      this.artosynRfError = 'Enter at least one RF field to apply.';
+      this.artosynRfSuccess = '';
+      return;
+    }
+
+    this.artosynRfSaving = true;
+    this.artosynRfError = '';
+    this.artosynRfSuccess = '';
+    this.artosynRfDebug = undefined;
+
+    this.http.post<RfControlResponse>('/api/status/rf-control', payload)
+      .subscribe({
+        next: response => {
+          this.artosynRfSaving = false;
+          this.artosynRfDebug = response.debug;
+          this.showArtosynRfDebug = !response.ok;
+          if (response.ok) {
+            this.artosynRfSuccess = response.message || 'RF settings applied.';
+            return;
+          }
+          this.artosynRfError = response.message || 'Unable to apply RF settings.';
+        },
+        error: () => {
+          this.artosynRfSaving = false;
+          this.artosynRfError = 'Unable to reach the RF control endpoint.';
+          this.artosynRfDebug = undefined;
+          this.showArtosynRfDebug = true;
+        }
+      });
   }
 
   refreshWifiProfiles(): void {
@@ -530,6 +715,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
     this.http.post<WifiInfoDto>('/api/hardware/wifi', request).subscribe({
       next: result => {
         this.wifi = result;
+        this.syncArtosynFormFromCards();
+        this.syncArtosynRfInterface();
         this.loadingWifi = false;
         if (onSuccess) {
           onSuccess();
@@ -537,6 +724,8 @@ export class HardwareComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error(error);
+        this.syncArtosynFormFromCards();
+        this.syncArtosynRfInterface();
         this.loadingWifi = false;
         if (onError) {
           onError();
@@ -647,6 +836,15 @@ export class HardwareComponent implements OnInit, OnDestroy {
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
+  private parseOptionalInt(value: string): number | null {
+    const trimmed = (value ?? '').trim();
+    if (!trimmed) {
+      return null;
+    }
+    const parsed = Number.parseInt(trimmed, 10);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
   private sendWifiProfilesImport(content: string): void {
     const payload: WifiCardProfilesImportRequest = { content };
     this.http.post<WifiCardProfilesDto>('/api/hardware/wifi-profiles/import', payload).subscribe({
@@ -721,6 +919,78 @@ export class HardwareComponent implements OnInit, OnDestroy {
       const first = this.wifiProfiles.cards[0];
       this.selectProfile(this.buildProfileKey(first.vendorId, first.deviceId, first.chipset ?? ''));
     }
+  }
+
+  private syncArtosynFormFromCards(): void {
+    const cards = this.artosynCards;
+    if (cards.length === 0) {
+      this.artosynForm = {
+        interfaceName: '',
+        overrideType: 'AUTO',
+        cardName: '',
+        powerLevel: 'AUTO'
+      };
+      return;
+    }
+    const selected = cards.find(card => card.interfaceName === this.artosynForm.interfaceName) ?? cards[0];
+    this.artosynForm = {
+      interfaceName: selected.interfaceName,
+      overrideType: (selected.overrideType ?? '').trim().toUpperCase() || 'AUTO',
+      cardName: selected.cardName ?? '',
+      powerLevel: (selected.powerLevel ?? '').trim().toUpperCase() || 'AUTO'
+    };
+  }
+
+  private syncArtosynRfInterface(): void {
+    const selected = this.selectedArtosynCard;
+    if (!selected) {
+      this.artosynRfForm.interfaceName = '';
+      return;
+    }
+    if (!this.artosynRfForm.interfaceName ||
+        !this.artosynCards.some(card => card.interfaceName === this.artosynRfForm.interfaceName)) {
+      this.artosynRfForm.interfaceName = selected.interfaceName;
+    }
+  }
+
+  private loadSysutilDebug(): void {
+    this.http.get<SysutilDebugInfo>('/api/sysutil/debug').subscribe({
+      next: info => {
+        this.sysutilDebug = info;
+      },
+      error: err => {
+        this.sysutilDebug = { isAvailable: false, debug: false };
+        console.error(err);
+      }
+    });
+  }
+
+  private normalizeArtosynOption(value: string): string {
+    const normalized = (value ?? '').trim().toUpperCase();
+    return !normalized || normalized === 'AUTO' ? '' : normalized;
+  }
+
+  private isArtosynCard(card?: WifiCardInfoDto): boolean {
+    if (!card) {
+      return false;
+    }
+    const vendor = (card.vendorId ?? '').toLowerCase();
+    const device = (card.deviceId ?? '').toLowerCase();
+    if (vendor === '0x4152' && device === '0x8030') {
+      return true;
+    }
+
+    const hints = [
+      card.interfaceName,
+      card.driverName,
+      card.detectedType,
+      card.overrideType,
+      card.effectiveType,
+      card.cardName
+    ]
+      .join(' ')
+      .toLowerCase();
+    return hints.includes('artosyn') || hints.includes('artlink') || hints.includes('ar_mdev');
   }
 
   private loadSystemCommands(): void {
@@ -865,6 +1135,8 @@ interface WifiCardInfoDto {
   powerHigh?: string;
   powerMin?: string;
   powerMax?: string;
+  artosynDaemonRunning?: boolean;
+  artosynDaemonDetail?: string;
 }
 
 interface WifiInfoDto {
@@ -1031,6 +1303,54 @@ interface SystemCommandDto {
 interface WifiTxPowerForm {
   interfaceName: string;
   powerLevel: string;
+}
+
+interface ArtosynSettingsForm {
+  interfaceName: string;
+  overrideType: string;
+  cardName: string;
+  powerLevel: string;
+}
+
+interface ArtosynRfControlForm {
+  interfaceName: string;
+  frequencyMhz: string;
+  channelWidthMhz: string;
+  mcsIndex: string;
+  powerLevel: string;
+}
+
+interface RfControlRequest {
+  interfaceName?: string;
+  frequencyMhz?: number;
+  channelWidthMhz?: number;
+  mcsIndex?: number;
+  powerLevel?: string;
+}
+
+interface RfControlResponse {
+  ok: boolean;
+  message?: string;
+  debug?: RfControlDebugInfo;
+}
+
+interface RfControlDebugInfo {
+  requestPayload?: string;
+  responsePayload?: string;
+  attempts?: number;
+  elapsedMs?: number;
+  socketAvailable?: boolean;
+}
+
+interface SysutilDebugInfo {
+  isAvailable: boolean;
+  debug: boolean;
+}
+
+interface SysutilDebugUpdateResponse {
+  ok: boolean;
+  debug: boolean;
+  message?: string;
 }
 
 interface WifiCardProfileForm {

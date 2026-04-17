@@ -15,6 +15,7 @@ using OpenHdWebUi.Server.Services.Partitions;
 using OpenHdWebUi.Server.Services.Settings;
 using OpenHdWebUi.Server.Services.Status;
 using OpenHdWebUi.Server.Services.Sysutil;
+using OpenHdWebUi.Server.Services.Update;
 
 namespace OpenHdWebUi.Server;
 
@@ -45,6 +46,7 @@ public class Program
             .AddSingleton<SysutilCameraService>()
             .AddSingleton<SysutilStatusService>()
             .AddSingleton<SysutilControlService>()
+            .AddSingleton<SysutilUpdateService>()
             .AddSingleton<SysutilRfControlService>()
             .AddSingleton<SysutilHardwareService>()
             .AddSingleton<HotspotSettingsService>()

@@ -1,0 +1,132 @@
+:host {
+  display: block;
+}
+
+.update-page {
+  min-height: 100vh;
+  padding: 3rem 1.25rem 4rem;
+  color: var(--text-color);
+  background:
+    radial-gradient(900px 380px at 12% -10%, #00A6F226, transparent 62%),
+    radial-gradient(760px 420px at 88% 0%, #00BA781A, transparent 62%);
+}
+
+.update-hero {
+  max-width: 900px;
+  margin: 0 auto 1.5rem;
+}
+
+.update-hero h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.8rem, 3.7vw, 2.5rem);
+}
+
+.lead {
+  margin: 0;
+  color: color-mix(in srgb, var(--text-color) 78%, transparent);
+}
+
+.update-card {
+  max-width: 900px;
+  margin: 0 auto 1rem;
+  border: 1px solid #00A6F240;
+  border-radius: 1rem;
+  padding: 1rem;
+  background: var(--hero-bg);
+  box-shadow: 0 10px 26px #0000001A;
+}
+
+.update-card h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07rem;
+  color: color-mix(in srgb, var(--text-color) 68%, transparent);
+}
+
+.state-chip {
+  border: 1px solid #00A6F266;
+  border-radius: 999px;
+  padding: 0.22rem 0.65rem;
+  background: #00A6F21A;
+  text-transform: uppercase;
+  letter-spacing: 0.06rem;
+  font-size: 0.78rem;
+}
+
+.state-chip.running {
+  border-color: #FFB40080;
+  background: #FFB40022;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.upload-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+.btn {
+  border: 1px solid #00A6F266;
+  background: #00A6F21A;
+  color: var(--text-color);
+  padding: 0.46rem 0.95rem;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn.primary {
+  border-color: #00BA7870;
+  background: #00BA7826;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.muted {
+  margin: 0;
+  color: color-mix(in srgb, var(--text-color) 68%, transparent);
+}
+
+.success-text {
+  margin: 0.45rem 0 0;
+  color: #00BA78;
+}
+
+.error-text {
+  margin: 0.45rem 0 0;
+  color: #FF4C4C;
+}
+
+@media (max-width: 720px) {
+  .update-page {
+    padding: 2.4rem 1rem 3rem;
+  }
+
+  .upload-row {
+    grid-template-columns: 1fr;
+  }
+}

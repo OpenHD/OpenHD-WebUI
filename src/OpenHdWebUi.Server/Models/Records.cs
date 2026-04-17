@@ -53,6 +53,20 @@ public record SysutilPlatformUpdateResponseDto(bool Ok, int PlatformType, string
 
 public record SysutilVideoResponseDto(bool Ok, string? Pipeline, string? Message);
 
+public record SysutilUpdateInfoDto(
+    bool IsAvailable,
+    bool IsUpdating,
+    string Message)
+{
+    public static SysutilUpdateInfoDto Unavailable() =>
+        new(
+            false,
+            false,
+            "Sysutils socket not available.");
+}
+
+public record SysutilUpdateRunResponseDto(bool Accepted, string Message);
+
 public record OpenHdStatusDto(
     bool IsAvailable,
     bool HasData,
@@ -95,7 +109,9 @@ public record WifiCardInfoDto(
     string PowerMid,
     string PowerHigh,
     string PowerMin,
-    string PowerMax);
+    string PowerMax,
+    bool ArtosynDaemonRunning,
+    string ArtosynDaemonDetail);
 
 public record WifiInfoDto(
     bool IsAvailable,

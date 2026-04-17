@@ -53,33 +53,220 @@
       </div>
     </article>
 
-    <article class="card">
-      <div class="card-header">
-        <div class="icon soft">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 9c3-4 15-4 18 0M6 12c2.5-2.5 9.5-2.5 12 0M9 15c1.2-1.2 4.8-1.2 6 0M12 18h0"
-                  fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+    <ng-container *ngIf="hasArtosynDevice(); else wifiDetectionCard">
+      <article class="card artosyn-card">
+        <div class="card-header">
+          <div class="icon soft">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9c3-4 15-4 18 0M6 12c2.5-2.5 9.5-2.5 12 0M9 15c1.2-1.2 4.8-1.2 6 0M12 18h0"
+                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2>Artosyn Link</h2>
+            <p class="muted">Artosyn detected. Daemon and card tuning are managed here.</p>
+          </div>
         </div>
-        <div>
-          <h2>Wi-Fi Detection</h2>
-          <p class="muted">Cards, drivers, vendor/device IDs and overrides.</p>
+
+        <div class="actions">
+          <button class="btn" (click)="refreshWifi()" [disabled]="loadingWifi">Refresh / Ensure daemon</button>
         </div>
-      </div>
 
-      <div class="actions">
-        <button class="btn" (click)="refreshWifi()" [disabled]="loadingWifi">Refresh Wi-Fi Scan</button>
-      </div>
+        <div class="wifi-summary" *ngIf="wifi?.isAvailable; else artosynUnavailable">
+          <span>{{ artosynCards.length }} Artosyn card(s) detected</span>
+          <span class="muted">Action: {{ wifi?.action || 'detect' }}</span>
+        </div>
 
-      <div class="wifi-summary" *ngIf="wifi?.isAvailable; else wifiUnavailable">
-        <span>{{ wifi?.cards?.length || 0 }} card(s) detected</span>
-        <span class="muted">Action: {{ wifi?.action || 'detect' }}</span>
-      </div>
+        <div class="status-rows" *ngIf="selectedArtosynCard as artCard">
+          <div class="status-row">
+            <span class="label">Interface</span>
+            <span class="value">{{ artCard.interfaceName }}</span>
+          </div>
+          <div class="status-row">
+            <span class="label">Driver</span>
+            <span class="value">{{ artCard.driverName || '-' }}</span>
+          </div>
+          <div class="status-row">
+            <span class="label">Daemon</span>
+            <span class="value" [class.ok]="artosynDaemonRunning" [class.fail]="!artosynDaemonRunning">
+              {{ artosynDaemonRunning ? 'Running' : 'Not reachable' }}
+            </span>
+          </div>
+          <div class="status-row">
+            <span class="label">Daemon detail</span>
+            <span class="value">{{ artosynDaemonDetail }}</span>
+          </div>
+        </div>
 
-      <ng-template #wifiUnavailable>
-        <p class="muted">Sysutils socket not reachable.</p>
-      </ng-template>
-    </article>
+        <div class="hotspot-form" *ngIf="selectedArtosynCard">
+          <label class="form-field">
+            <span>Interface</span>
+            <select [(ngModel)]="artosynForm.interfaceName"
+                    (ngModelChange)="onArtosynInterfaceChange($event)"
+                    [disabled]="loadingWifi">
+              <option *ngFor="let card of artosynCards" [ngValue]="card.interfaceName">
+                {{ card.interfaceName }} ({{ card.driverName || card.detectedType || 'Artosyn' }})
+              </option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Override type</span>
+            <select [(ngModel)]="artosynForm.overrideType" [disabled]="loadingWifi">
+              <option *ngFor="let option of artosynOverrideOptions" [ngValue]="option">{{ option }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Card name</span>
+            <input type="text" [(ngModel)]="artosynForm.cardName" [disabled]="loadingWifi"
+                   placeholder="Artosyn 8030">
+          </label>
+          <label class="form-field">
+            <span>Power level</span>
+            <select [(ngModel)]="artosynForm.powerLevel" [disabled]="loadingWifi">
+              <option *ngFor="let option of artosynPowerLevelOptions" [ngValue]="option">{{ option }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="status-rows" *ngIf="artosynCards.length > 1">
+          <div class="status-row" *ngFor="let card of artosynCards">
+            <span class="label">{{ card.interfaceName }}</span>
+            <span class="value">
+              {{ card.driverName || card.detectedType || '-' }} / daemon:
+              {{ card.artosynDaemonRunning ? 'up' : 'down' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn subtle"
+                  (click)="toggleSysutilDebug()"
+                  [disabled]="isUpdatingSysutilDebug || !sysutilDebug?.isAvailable">
+            {{ sysutilDebug?.debug ? 'Disable sysutils debug' : 'Enable sysutils debug' }}
+          </button>
+          <span class="muted" *ngIf="sysutilDebug">
+            Sysutils debug: {{ sysutilDebug.debug ? 'ON' : 'OFF' }}
+          </span>
+        </div>
+        <p class="muted" *ngIf="sysutilDebugStatus">{{ sysutilDebugStatus }}</p>
+        <p class="field-warning" *ngIf="sysutilDebugError">{{ sysutilDebugError }}</p>
+
+        <div class="control-form" *ngIf="selectedArtosynCard">
+          <label class="form-field">
+            <span>RF interface (optional)</span>
+            <select [(ngModel)]="artosynRfForm.interfaceName" [disabled]="artosynRfSaving">
+              <option value="">Auto ({{ selectedArtosynCard.interfaceName }})</option>
+              <option *ngFor="let card of artosynCards" [value]="card.interfaceName">{{ card.interfaceName }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Channel (MHz)</span>
+            <select [(ngModel)]="artosynRfForm.frequencyMhz" [disabled]="artosynRfSaving">
+              <option value="">Keep current</option>
+              <option *ngFor="let freq of rfChannelOptions" [value]="freq">{{ freq }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Bandwidth (MHz)</span>
+            <select [(ngModel)]="artosynRfForm.channelWidthMhz" [disabled]="artosynRfSaving">
+              <option value="">Keep current</option>
+              <option *ngFor="let width of rfBandwidthOptions" [value]="width">{{ width }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>MCS index</span>
+            <select [(ngModel)]="artosynRfForm.mcsIndex" [disabled]="artosynRfSaving">
+              <option value="">Keep current</option>
+              <option *ngFor="let mcs of rfMcsOptions" [value]="mcs">{{ mcs }}</option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span>Runtime power level</span>
+            <select [(ngModel)]="artosynRfForm.powerLevel" [disabled]="artosynRfSaving">
+              <option value="">Keep current</option>
+              <option value="lowest">Lowest</option>
+              <option value="low">Low</option>
+              <option value="mid">Mid</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+        </div>
+        <p class="muted">Runtime RF control goes via <code>sysutil.link.control</code> to OpenHD.</p>
+        <p class="muted" *ngIf="artosynRfSuccess">{{ artosynRfSuccess }}</p>
+        <p class="field-warning" *ngIf="artosynRfError">{{ artosynRfError }}</p>
+
+        <button class="btn subtle small" (click)="showArtosynRfDebug = !showArtosynRfDebug" *ngIf="artosynRfDebug">
+          {{ showArtosynRfDebug ? 'Hide RF debug' : 'Show RF debug' }}
+        </button>
+        <div class="debug-panel" *ngIf="showArtosynRfDebug && artosynRfDebug">
+          <div class="debug-row">
+            <span class="label">Socket available</span>
+            <span class="value">{{ artosynRfDebug.socketAvailable ? 'Yes' : 'No' }}</span>
+          </div>
+          <div class="debug-row">
+            <span class="label">Attempts</span>
+            <span class="value">{{ artosynRfDebug.attempts ?? 0 }}</span>
+          </div>
+          <div class="debug-row">
+            <span class="label">Elapsed</span>
+            <span class="value">{{ artosynRfDebug.elapsedMs ?? 0 }} ms</span>
+          </div>
+          <div class="debug-block" *ngIf="artosynRfDebug.requestPayload">
+            <div class="label">Request payload</div>
+            <pre>{{ artosynRfDebug.requestPayload }}</pre>
+          </div>
+          <div class="debug-block" *ngIf="artosynRfDebug.responsePayload">
+            <div class="label">Response payload</div>
+            <pre>{{ artosynRfDebug.responsePayload }}</pre>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" (click)="saveArtosynSettings()"
+                  [disabled]="loadingWifi || !selectedArtosynCard">
+            Save Artosyn settings
+          </button>
+          <button class="btn" (click)="applyArtosynRfControl()"
+                  [disabled]="artosynRfSaving || !selectedArtosynCard">
+            {{ artosynRfSaving ? 'Applying RF...' : 'Apply RF runtime' }}
+          </button>
+        </div>
+
+        <ng-template #artosynUnavailable>
+          <p class="muted">Sysutils socket not reachable.</p>
+        </ng-template>
+      </article>
+    </ng-container>
+
+    <ng-template #wifiDetectionCard>
+      <article class="card">
+        <div class="card-header">
+          <div class="icon soft">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 9c3-4 15-4 18 0M6 12c2.5-2.5 9.5-2.5 12 0M9 15c1.2-1.2 4.8-1.2 6 0M12 18h0"
+                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h2>Wi-Fi Detection</h2>
+            <p class="muted">Cards, drivers, vendor/device IDs and overrides.</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" (click)="refreshWifi()" [disabled]="loadingWifi">Refresh Wi-Fi Scan</button>
+        </div>
+
+        <div class="wifi-summary" *ngIf="wifi?.isAvailable; else wifiUnavailable">
+          <span>{{ wifi?.cards?.length || 0 }} card(s) detected</span>
+          <span class="muted">Action: {{ wifi?.action || 'detect' }}</span>
+        </div>
+
+        <ng-template #wifiUnavailable>
+          <p class="muted">Sysutils socket not reachable.</p>
+        </ng-template>
+      </article>
+    </ng-template>
 
     <article class="card">
       <div class="card-header">

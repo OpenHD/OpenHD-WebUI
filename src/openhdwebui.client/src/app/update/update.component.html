@@ -1,55 +1,43 @@
-<div class="container">
-    <div class="row m-3">
-        <div class="col align-self-start">
-            <input 
-                class="form-control" 
-                type="file" 
-                id="formFile"
-                accept=".zip"
-                [disabled]="isUploadInprogress"
-                (change)="onFileSelected($event)">
-        </div>
+<section class="update-page">
+  <div class="update-hero">
+    <h1>Updates</h1>
+    <p class="lead">Upload an update ZIP or run the regular update mechanism. The UI only shows whether it is currently running.</p>
+  </div>
+
+  <article class="update-card">
+    <div class="status-row">
+      <span class="label">Update state</span>
+      <span class="state-chip" [class.running]="info?.isUpdating">{{ updateStateLabel }}</span>
     </div>
-    <div class="row m-3 row-cols-2 align-items-center">
-        <div class="col-auto align-self-start">
-            <button 
-                class="btn btn-primary" 
-                [disabled]="!isFileSelected || isUploadInprogress"
-                (click)="onUploadClick()">
-                Upload
-            </button>
-        </div>
-        
-        <div class="col">
-            <div 
-                class="progress" 
-                role="progressbar" 
-                aria-label="Upload progress" 
-                [attr.aria-valuenow]="uploadProgress" 
-                aria-valuemin="0" 
-                aria-valuemax="100"
-                *ngIf="isUploadInprogress || isUploaded">
-                    <div 
-                        class="progress-bar" 
-                        [style.width]="uploadProgress+'%'">
-                        {{uploadProgress}}%
-                    </div>
-            </div>
-        </div>
+    <div class="actions">
+      <button class="btn" (click)="refresh()" [disabled]="isLoading || isUploadingZip || isStartingUpdate">Refresh</button>
+      <button class="btn primary"
+              (click)="startRegularUpdate()"
+              [disabled]="isStartingUpdate || isUploadingZip || info?.isUpdating">
+        {{ isStartingUpdate ? 'Starting...' : 'Start Regular Update' }}
+      </button>
     </div>
-    <div class="row m-3" *ngIf="isUploadInprogress">
-        <div class="col-auto align-self-start">
-            Wait for buttons activation
-        </div>
+    <p class="muted">{{ info?.message || 'Waiting for update state.' }}</p>
+    <p class="error-text" *ngIf="infoError">{{ infoError }}</p>
+  </article>
+
+  <article class="update-card">
+    <h2>Upload ZIP</h2>
+    <p class="muted">Select an update ZIP and upload it before starting the regular update request.</p>
+    <div class="upload-row">
+      <input class="form-control"
+             type="file"
+             accept=".zip"
+             [disabled]="isUploadingZip || info?.isUpdating"
+             (change)="onFileSelected($event)">
+      <button class="btn"
+              (click)="uploadZip()"
+              [disabled]="!selectedFile || isUploadingZip || info?.isUpdating">
+        {{ isUploadingZip ? 'Uploading...' : 'Upload ZIP' }}
+      </button>
     </div>
-    <div class="row m-3">
-        <div class="col-auto align-self-start">
-            <button 
-                class="btn btn-danger" 
-                [disabled]="!isUploaded"
-                (click)="onRebootClick()">
-                Reboot&Update
-            </button>
-        </div>
-    </div>
-</div>
+    <p class="muted" *ngIf="selectedFile">Selected: {{ selectedFile.name }}</p>
+    <p class="success-text" *ngIf="actionMessage">{{ actionMessage }}</p>
+    <p class="error-text" *ngIf="actionError">{{ actionError }}</p>
+  </article>
+</section>

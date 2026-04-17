@@ -78,6 +78,10 @@
   gap: 1.2rem;
 }
 
+.artosyn-card {
+  border-color: rgba(0, 186, 120, 0.45);
+}
+
 .config-card {
   max-width: 1200px;
   margin: 0 auto 2rem;
@@ -244,6 +248,14 @@
   text-align: right;
 }
 
+.value.ok {
+  color: #5dd189;
+}
+
+.value.fail {
+  color: #ff9b9b;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -309,6 +321,12 @@
   gap: 0.85rem;
 }
 
+.control-form {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
 .profile-meta {
   display: flex;
   justify-content: space-between;
@@ -363,9 +381,44 @@
   color: inherit;
 }
 
+.form-field select {
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid #FFFFFF26;
+  background: #00000040;
+  color: inherit;
+}
+
 .field-warning {
   font-size: 0.78rem;
   color: #ffb347;
+}
+
+.debug-panel {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid #FFFFFF22;
+  border-radius: 0.8rem;
+  padding: 0.85rem;
+  background: #00000030;
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.debug-block pre {
+  margin: 0.35rem 0 0;
+  max-height: 180px;
+  overflow: auto;
+  border-radius: 0.55rem;
+  border: 1px solid #FFFFFF22;
+  background: #00000050;
+  padding: 0.6rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
 }
 
 :host-context(.dark-theme) .form-field input::placeholder {
