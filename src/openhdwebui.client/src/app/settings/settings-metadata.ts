@@ -14,6 +14,7 @@ export interface SettingFieldMeta {
   options?: readonly SettingFieldOption[] | SettingFieldOption[];
   min?: number;
   max?: number;
+  maxLength?: number;
   step?: number;
   unit?: string;
   group?: string;
@@ -228,6 +229,7 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
       'secondary_camera_type',
       'switch_primary_and_secondary',
       'dualcam_primary_video_allocated_bandwidth_perc',
+      'ip_camera_bitrate_mbits',
       'enable_audio'
     ],
     fields: {
@@ -265,6 +267,17 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
         group: 'Dual camera',
         unit: '%'
       },
+      ip_camera_bitrate_mbits: {
+        label: 'IP camera reservation',
+        description: 'Fixed link rate reserved for an IP camera in either slot. OpenHD cannot adjust its encoder; configure the camera itself at or below this value and keep it low.',
+        control: 'number',
+        valueType: 'number',
+        min: 1,
+        max: 20,
+        step: 1,
+        group: 'Dual camera',
+        unit: 'Mbit/s'
+      },
       enable_audio: {
         label: 'Audio capture mode',
         description: 'Enable real audio capture or run the encoder test tone.',
@@ -276,6 +289,52 @@ export const SETTINGS_METADATA: Record<string, SettingsFileMeta> = {
           { value: 100, label: 'Enable test tone output' }
         ],
         group: 'Audio'
+      }
+    }
+  },
+  'video/external_ip_0.json': {
+    title: 'Primary IP camera',
+    groupOrder: ['IP camera'],
+    order: ['ip_camera_address', 'ip_camera_pipeline'],
+    fields: {
+      ip_camera_address: {
+        label: 'Camera IPv4 address',
+        description: 'Address configured on the IP camera. OpenHD adds a secondary local /24 address when needed without replacing the normal Ethernet configuration.',
+        control: 'text',
+        valueType: 'string',
+        maxLength: 15,
+        group: 'IP camera'
+      },
+      ip_camera_pipeline: {
+        label: 'Managed GStreamer source pipeline',
+        description: 'Maximum 127 characters. Use {IP} for the configured camera address. Must output elementary H264/H265 matching the selected codec. Saving requires an OpenHD restart when editing this file directly.',
+        control: 'text',
+        valueType: 'string',
+        maxLength: 127,
+        group: 'IP camera'
+      }
+    }
+  },
+  'video/external_ip_1.json': {
+    title: 'Secondary IP camera',
+    groupOrder: ['IP camera'],
+    order: ['ip_camera_address', 'ip_camera_pipeline'],
+    fields: {
+      ip_camera_address: {
+        label: 'Camera IPv4 address',
+        description: 'Address configured on the IP camera. OpenHD adds a secondary local /24 address when needed without replacing the normal Ethernet configuration.',
+        control: 'text',
+        valueType: 'string',
+        maxLength: 15,
+        group: 'IP camera'
+      },
+      ip_camera_pipeline: {
+        label: 'Managed GStreamer source pipeline',
+        description: 'Maximum 127 characters. Use {IP} for the configured camera address. Must output elementary H264/H265 matching the selected codec. Saving requires an OpenHD restart when editing this file directly.',
+        control: 'text',
+        valueType: 'string',
+        maxLength: 127,
+        group: 'IP camera'
       }
     }
   },

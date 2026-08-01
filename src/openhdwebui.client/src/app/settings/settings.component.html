@@ -112,6 +112,24 @@
     </div>
   </section>
 
+  <section class="card camera-setup-card" *ngIf="!isRecordMode">
+    <div class="camera-setup-header">
+      <div>
+        <h3>IP camera</h3>
+        <p class="description">
+          Configure the camera IPv4 address in the Primary or Secondary IP camera settings file. OpenHD adds a secondary camera-subnet address when needed without replacing the normal Ethernet or hotspot range.
+        </p>
+      </div>
+    </div>
+    <div class="camera-setup-body">
+      <a class="btn btn-primary" *ngIf="cameraWebUiUrl"
+         [href]="cameraWebUiUrl"
+         target="_blank"
+         rel="noopener noreferrer">Open camera WebUI</a>
+      <span class="description" *ngIf="!cameraWebUiUrl">Select an IP camera settings file to open its configured address.</span>
+    </div>
+  </section>
+
   <section class="card sysutil-card" *ngIf="!isRecordMode">
     <div class="sysutil-header">
       <div>
@@ -323,7 +341,9 @@
           <div class="structured-group" *ngFor="let group of structuredGroups">
             <h5 *ngIf="group.title">{{ group.title }}</h5>
             <div class="structured-grid">
-              <div class="structured-field" *ngFor="let field of group.fields" [class.toggle-field]="field.control === 'toggle'">
+              <div class="structured-field" *ngFor="let field of group.fields"
+                   [hidden]="!isStructuredFieldVisible(field)"
+                   [class.toggle-field]="field.control === 'toggle'">
                 <div class="field-header">
                   <div class="field-title">{{ field.label }}</div>
                   <span class="field-unit" *ngIf="field.unit">{{ field.unit }}</span>
@@ -358,6 +378,7 @@
                          [ngModel]="field.value"
                          (ngModelChange)="onFieldChange(field, $event)"
                          [ngModelOptions]="{ standalone: true }"
+                         [attr.maxlength]="field.maxLength"
                          [disabled]="isLoadingFile || isSavingFile">
                 </div>
               </div>

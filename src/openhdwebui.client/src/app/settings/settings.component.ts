@@ -95,6 +95,7 @@ interface StructuredSettingField {
   options?: SettingFieldOption[];
   min?: number;
   max?: number;
+  maxLength?: number;
   step?: number;
   unit?: string;
   group?: string;
@@ -171,6 +172,13 @@ export class SettingsComponent implements OnInit {
   private recordGenericFile?: SettingFileDetail;
   private recordCameraFile?: SettingFileDetail;
   private lastRunMode?: string;
+
+  get cameraWebUiUrl(): string | null {
+    const address = this.selectedSettingData?.['ip_camera_address'];
+    return typeof address === 'string' && address.length > 0
+      ? `http://${address}`
+      : null;
+  }
 
   constructor(public themeService: ThemeService, private http: HttpClient) {}
 
@@ -743,6 +751,26 @@ export class SettingsComponent implements OnInit {
     this.onFieldChange(field, isChecked);
   }
 
+  isStructuredFieldVisible(field: StructuredSettingField): boolean {
+    if (!this.selectedSettingData) {
+      return true;
+    }
+    const normalizedPath = this.selectedSetting?.relativePath?.replace(/\\/g, '/').toLowerCase();
+    if (normalizedPath !== 'video/air_camera_generic.json') {
+      return true;
+    }
+    const hasIpCamera =
+      Number(this.selectedSettingData['primary_camera_type']) === 3 ||
+      Number(this.selectedSettingData['secondary_camera_type']) === 3;
+    if (field.key === 'dualcam_primary_video_allocated_bandwidth_perc') {
+      return !hasIpCamera;
+    }
+    if (field.key === 'ip_camera_bitrate_mbits') {
+      return hasIpCamera;
+    }
+    return true;
+  }
+
   coerceBoolean(field: StructuredSettingField): boolean {
     const value = field.value;
     if (typeof value === 'boolean') {
@@ -873,6 +901,7 @@ export class SettingsComponent implements OnInit {
       options,
       min: meta?.min,
       max: meta?.max,
+      maxLength: meta?.maxLength,
       step: meta?.step,
       unit: meta?.unit,
       group: meta?.group,
