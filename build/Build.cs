@@ -54,6 +54,15 @@ partial class Build : NukeBuild
     [Parameter("Path for cloudsmith dev repo")]
     readonly string DevRepo = "dev-release";
 
+    [Parameter("Cloudsmith Debian distro")]
+    readonly string Distro = "any-distro";
+
+    [Parameter("Cloudsmith Debian release")]
+    readonly string Release = "any-version";
+
+    [Parameter("Semicolon-separated runtime identifiers to publish")]
+    readonly string RuntimeIdentifiers;
+
     [GitVersion(NoFetch = true)]
     readonly GitVersion GitVersion;
 
@@ -76,7 +85,13 @@ partial class Build : NukeBuild
 
     protected override void OnBuildInitialized()
     {
-        Rids = PublishProject.GetRuntimeIdentifiers()
+        var runtimeIdentifiers = string.IsNullOrWhiteSpace(RuntimeIdentifiers)
+            ? PublishProject.GetRuntimeIdentifiers()
+            : RuntimeIdentifiers
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
+
+        Rids = runtimeIdentifiers
             .Where(r => !r.StartsWith("win"))
             .ToList();
     }
@@ -159,7 +174,7 @@ partial class Build : NukeBuild
             var repoName = string.IsNullOrWhiteSpace(MinVer.MinVerPreRelease) ? Repo : DevRepo;
             foreach (var debFile in DebBuildPath.GlobFiles("*.deb"))
             {
-                Cloudsmith($"push deb openhd/{repoName}/any-distro/any-version {debFile.Name}", DebBuildPath);
+                Cloudsmith($"push deb openhd/{repoName}/{Distro}/{Release} {debFile.Name}", DebBuildPath);
             }
         });
 
